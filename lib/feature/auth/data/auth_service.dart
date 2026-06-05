@@ -7,7 +7,7 @@ import 'package:ferova_clinic_flutter/feature/auth/data/login/responses/login_re
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
-import 'register/responses/request_staff_response_dto.dart';
+import 'register/responses/register_staff_response_dto.dart';
 
 class AuthService {
   final String _baseUrl =
