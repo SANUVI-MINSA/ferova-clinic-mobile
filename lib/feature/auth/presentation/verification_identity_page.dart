@@ -1,8 +1,10 @@
+import 'package:ferova_clinic_flutter/feature/auth/presentation/new_password_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class VerificationIdentityPage extends StatefulWidget {
-  const VerificationIdentityPage({super.key});
+  final String email;
+  const VerificationIdentityPage({super.key, required this.email});
 
   @override
   State<VerificationIdentityPage> createState() =>
@@ -153,9 +155,20 @@ class _VerificationIdentityPageState extends State<VerificationIdentityPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  // Navegar a NewPasswordPage
                   onPressed: _isComplete
                       ? () {
-                    // TODO: Navigate to NewPasswordPage
+                      final code =_controllers
+                          .map((c) => c.text)
+                          .join();
+                      Navigator.push(
+                          context,
+                            MaterialPageRoute(builder: (_) => NewPasswordPage(
+                              email: widget.email,
+                              verificationCode: code,
+                            ),
+                          ),
+                      );
                   }
                       : null,
                   style: ElevatedButton.styleFrom(

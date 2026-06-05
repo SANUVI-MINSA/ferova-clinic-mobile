@@ -1,3 +1,4 @@
+import 'package:ferova_clinic_flutter/feature/auth/presentation/recovery_password_page.dart';
 import 'package:ferova_clinic_flutter/feature/auth/presentation/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -246,7 +247,15 @@ class _LoginPageState extends State<LoginPage> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            // Redirigir a Primer paso para cambiar la contraseña
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => RecoveryPasswordPage(),
+                                ),
+                            );
+                          },
                           child: const Text(
                             '¿Olvidaste tu contraseña?',
                             style: TextStyle(

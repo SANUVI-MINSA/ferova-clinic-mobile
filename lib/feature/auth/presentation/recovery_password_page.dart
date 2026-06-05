@@ -1,3 +1,4 @@
+import 'package:ferova_clinic_flutter/feature/auth/presentation/verification_identity_page.dart';
 import 'package:flutter/material.dart';
 
 class RecoveryPasswordPage extends StatefulWidget {
@@ -119,7 +120,17 @@ class _RecoveryPasswordPageState extends State<RecoveryPasswordPage> {
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            // TODO: Navigate to VerificationIdentityPage
+                            if (_email.text.trim().isEmpty) return;
+
+                            // Redirigir a Page de VerificacionPage
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => VerificationIdentityPage(
+                                    email: _email.text.trim()
+                                  ),
+                              ),
+                            );
                           },
                           icon: const Icon(Icons.send_rounded, size: 20),
                           label: const Text(

@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 class NewPasswordPage extends StatefulWidget {
-  const NewPasswordPage({super.key});
+  final String email;
+  final String verificationCode;
+
+  const NewPasswordPage({
+    super.key,
+    required this.email,
+    required this.verificationCode,
+  });
 
   @override
   State<NewPasswordPage> createState() => _NewPasswordPageState();
@@ -262,7 +269,32 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                   child: ElevatedButton.icon(
                     onPressed: _isValid
                         ? () {
-                      // TODO: Navigate to success / login
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Row(
+                            children: [
+                              Icon(Icons.check_circle_rounded,
+                                  color: Colors.white),
+                              SizedBox(width: 10),
+                              Text(
+                                '¡Contraseña actualizada exitosamente!',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                          backgroundColor: const Color(0xFF6B21E8),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                      Future.delayed(const Duration(seconds: 2), () {
+                        Navigator.of(context)
+                            .popUntil((route) => route.isFirst);
+                      });
                     }
                         : null,
                     icon: const Icon(Icons.refresh_rounded, size: 20),
