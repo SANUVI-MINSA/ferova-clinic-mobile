@@ -1,5 +1,4 @@
 import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ferova_clinic_flutter/feature/auth/domain/auth_repository.dart';
 import 'package:ferova_clinic_flutter/feature/auth/presentation/login_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/auth/presentation/register_view_model.dart';
