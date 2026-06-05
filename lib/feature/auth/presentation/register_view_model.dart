@@ -1,13 +1,14 @@
-import 'package:ferova_clinic_flutter/feature/auth/presentation/register_state.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:flutter/material.dart';
 import '../domain/auth_repository.dart';
-import '../domain/user.dart';
+import 'register_state.dart';
 
-class RegisterViewModel extends Cubit<RegisterState> {
+class RegisterViewModel extends ChangeNotifier {
   final AuthRepository repository;
 
-  RegisterViewModel({required this.repository}) : super(RegisterInitial());
+  RegisterViewModel({required this.repository});
+
+  RegisterState _state = RegisterState();
+  RegisterState get state => _state;
 
   Future<void> registerStaff({
     required String name,
@@ -18,29 +19,44 @@ class RegisterViewModel extends Cubit<RegisterState> {
     required String password,
     required String role,
   }) async {
-    emit(RegisterLoading());
+    _state = _state.copyWith(isLoading: true, errorMessage: null, successMessage: null);
+    notifyListeners();
 
-    try {
-      final User? user = await repository.registerStaff(
-        name: name,
-        lastname: lastname,
-        dni: dni,
-        email: email,
-        phone: phone,
-        password: password,
-        role: role,
+    final result = await repository.registerStaff(
+      name: name,
+      lastname: lastname,
+      dni: dni,
+      email: email,
+      phone: phone,
+      password: password,
+      role: role,
+    );
+
+    if (result.user != null) {
+      _state = _state.copyWith(
+        isLoading: false,
+        user: result.user,
+        successMessage: '✅ ¡Registro exitoso! El personal ha sido creado correctamente.',
+        errorMessage: null,
       );
-
-      if (user != null) {
-        emit(RegisterSuccess(
-          user: user,
-          message: 'Personal registrado exitosamente',
-        ));
-      } else {
-        emit(RegisterFailure(error: 'Error al registrar personal'));
-      }
-    } catch (e) {
-      emit(RegisterFailure(error: 'Error al registrar: $e'));
+    } else {
+      _state = _state.copyWith(
+        isLoading: false,
+        user: null,
+        successMessage: null,
+        errorMessage: result.error ?? '❌ Error al registrar personal',
+      );
     }
+    notifyListeners();
+  }
+
+  void clearError() {
+    _state = _state.copyWith(errorMessage: null);
+    notifyListeners();
+  }
+
+  void clearSuccess() {
+    _state = _state.copyWith(successMessage: null);
+    notifyListeners();
   }
 }
