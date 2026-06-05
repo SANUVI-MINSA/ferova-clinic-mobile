@@ -1,4 +1,7 @@
+import 'package:ferova_clinic_flutter/feature/auth/presentation/register_page.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ferova_clinic_flutter/feature/auth/presentation/login_view_model.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,6 +16,10 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
   int _selectedIndex = 1;
 
+  // Flags para controlar que los mensajes se muestren solo una vez
+  bool _errorShown = false;
+  bool _successShown = false;
+
   @override
   void dispose() {
     dni.dispose();
@@ -22,11 +29,68 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<LoginViewModel>(context);
+
+    // Mostrar error si existe (solo una vez)
+    if (viewModel.state.errorMessage != null && !_errorShown) {
+      _errorShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(viewModel.state.errorMessage!),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+        viewModel.clearError();
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _errorShown = false;
+        });
+      });
+    }
+
+    // Mostrar éxito y navegar al home (solo una vez)
+    if (viewModel.state.user != null && viewModel.state.token != null && !_successShown) {
+      _successShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Bienvenido ${viewModel.state.user!.fullName}'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        // Limpiar el éxito si es necesario
+        viewModel.clearSuccess();
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            // Navegar a HomePage
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(builder: (_) => const HomePage()),
+            // );
+          }
+        });
+      });
+    }
+
+    // Mostrar loading
+    if (viewModel.state.isLoading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFE8EEF5),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF0D6EA8),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFE8EEF5),
       appBar: AppBar(
         backgroundColor: const Color(0xFFE8EEF5),
-        elevation: 0
+        elevation: 0,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -43,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: const Color(0xFFC8E1FF),
-                    border: Border.all(color: const Color(0xFFC8E1FF), width: 3), // Borde azul
+                    border: Border.all(color: const Color(0xFFC8E1FF), width: 3),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.15),
@@ -116,8 +180,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         decoration: InputDecoration(
                           hintText: '00000000',
-                          hintStyle:
-                          const TextStyle(color: Color(0xFF9EAFC0)),
+                          hintStyle: const TextStyle(color: Color(0xFF9EAFC0)),
                           counterText: '',
                           filled: true,
                           fillColor: const Color(0xFFF0F5FA),
@@ -157,8 +220,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         decoration: InputDecoration(
                           hintText: '••••••••••••••',
-                          hintStyle:
-                          const TextStyle(color: Color(0xFF9EAFC0)),
+                          hintStyle: const TextStyle(color: Color(0xFF9EAFC0)),
                           filled: true,
                           fillColor: const Color(0xFFF0F5FA),
                           suffixIcon: GestureDetector(
@@ -188,7 +250,9 @@ class _LoginPageState extends State<LoginPage> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            // TODO: Ir a página de recuperar contraseña
+                          },
                           child: const Text(
                             '¿Olvidaste tu contraseña?',
                             style: TextStyle(
@@ -206,7 +270,11 @@ class _LoginPageState extends State<LoginPage> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: () {},
+                          onPressed: viewModel.state.isLoading
+                              ? null
+                              : () {
+                            _login(viewModel);
+                          },
                           icon: const Icon(Icons.login_rounded, size: 20),
                           label: const Text(
                             'Acceder al Sistema',
@@ -218,8 +286,7 @@ class _LoginPageState extends State<LoginPage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF0D6EA8),
                             foregroundColor: Colors.white,
-                            padding:
-                            const EdgeInsets.symmetric(vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -245,7 +312,14 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const RegisterPage(),
+                          ),
+                        );
+                      },
                       child: const Text(
                         'Crea tu cuenta',
                         style: TextStyle(
@@ -295,5 +369,35 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
+  }
+
+  void _login(LoginViewModel viewModel) async {
+    // Resetear flags
+    _errorShown = false;
+    _successShown = false;
+
+    // Validaciones
+    if (dni.text.length != 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('DNI debe tener 8 dígitos'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (password.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ingrese su contraseña'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Llamar al login
+    await viewModel.login(dni: dni.text, password: password.text);
   }
 }

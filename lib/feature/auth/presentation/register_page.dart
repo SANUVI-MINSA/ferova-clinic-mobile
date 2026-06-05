@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ferova_clinic_flutter/feature/auth/presentation/register_view_model.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -11,6 +13,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _nombre = TextEditingController();
   final TextEditingController _apellido = TextEditingController();
   final TextEditingController _dni = TextEditingController();
+  final TextEditingController _email = TextEditingController();
   final TextEditingController _telefono = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
@@ -19,13 +22,17 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _obscureConfirmPassword = true;
   bool _acceptTerms = false;
   int _selectedRol = 1; // 0 = Administrador, 1 = Enfermero/a
-  int _selectedIndex = 1;
+
+  // Flags para controlar que los mensajes se muestren solo una vez
+  bool _errorShown = false;
+  bool _successShown = false;
 
   @override
   void dispose() {
     _nombre.dispose();
     _apellido.dispose();
     _dni.dispose();
+    _email.dispose();
     _telefono.dispose();
     _password.dispose();
     _confirmPassword.dispose();
@@ -34,11 +41,68 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<RegisterViewModel>(context);
+
+    // Mostrar error si existe (solo una vez)
+    if (viewModel.state.errorMessage != null && !_errorShown) {
+      _errorShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(viewModel.state.errorMessage!),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+        viewModel.clearError();
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _errorShown = false;
+        });
+      });
+    }
+
+    // Mostrar éxito y volver al login (solo una vez)
+    if (viewModel.state.successMessage != null && !_successShown) {
+      _successShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(viewModel.state.successMessage!),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        viewModel.clearSuccess();
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _successShown = false;
+          if (mounted) {
+            Navigator.pop(context); // Volver al login
+          }
+        });
+      });
+    }
+
+    // Mostrar loading
+    if (viewModel.state.isLoading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFE8EEF5),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF0D6EA8),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFE8EEF5),
       appBar: AppBar(
         backgroundColor: const Color(0xFFE8EEF5),
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1A3A5C)),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -227,6 +291,17 @@ class _RegisterPageState extends State<RegisterPage> {
 
                       const SizedBox(height: 16),
 
+                      // Email
+                      _buildLabel('Correo electrónico'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _email,
+                        hint: 'ejemplo@correo.com',
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+
+                      const SizedBox(height: 16),
+
                       // Contraseña
                       _buildLabel('Contraseña'),
                       const SizedBox(height: 8),
@@ -342,7 +417,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: () {},
+                          onPressed: (viewModel.state.isLoading || !_acceptTerms)
+                              ? null
+                              : () => _register(viewModel),
                           icon: const Icon(Icons.person_add_alt_1_rounded,
                               size: 20),
                           label: const Text(
@@ -355,8 +432,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF0D6EA8),
                             foregroundColor: Colors.white,
-                            padding:
-                            const EdgeInsets.symmetric(vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -382,7 +458,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
                       child: const Text(
                         'Inicia sesión',
                         style: TextStyle(
@@ -403,7 +481,6 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         ),
       ),
-
     );
   }
 
@@ -447,6 +524,87 @@ class _RegisterPageState extends State<RegisterPage> {
           vertical: 14,
         ),
       ),
+    );
+  }
+
+  void _register(RegisterViewModel viewModel) async {
+    // Resetear flags
+    _errorShown = false;
+    _successShown = false;
+
+    // Validaciones
+    if (_nombre.text.isEmpty || _apellido.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Nombre y apellido son requeridos'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (_dni.text.length != 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('DNI debe tener 8 dígitos'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (_telefono.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Teléfono es requerido'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (_email.text.isEmpty || !_email.text.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Correo electrónico válido es requerido'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (_password.text.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('La contraseña debe tener al menos 6 caracteres'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (_password.text != _confirmPassword.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Las contraseñas no coinciden'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Determinar el rol
+    final role = _selectedRol == 0 ? 'Admin' : 'Nurse';
+
+    // Llamar al registro
+    await viewModel.registerStaff(
+      name: _nombre.text,
+      lastname: _apellido.text,
+      dni: _dni.text,
+      email: _email.text,
+      phone: _telefono.text,
+      password: _password.text,
+      role: role,
     );
   }
 }
