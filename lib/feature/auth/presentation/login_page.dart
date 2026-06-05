@@ -15,10 +15,44 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController password = TextEditingController();
   bool _obscurePassword = true;
   int _selectedIndex = 1;
+  
+  // Usar un mensaje único que se muestra una sola vez
+  String? _pendingMessage;
 
-  // Flags para controlar que los mensajes se muestren solo una vez
-  bool _errorShown = false;
-  bool _successShown = false;
+  @override
+  void initState() {
+    super.initState();
+    // Escuchar cambios en el ViewModel después de que se construya
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setupMessageListener();
+    });
+  }
+  
+  void _setupMessageListener() {
+    final viewModel = Provider.of<LoginViewModel>(context, listen: false);
+    viewModel.messageStream.listen((message) {
+      if (mounted) {
+        _showMessage(message);
+      }
+    });
+  }
+  
+  void _showMessage(String message) {
+    // Determinar si es error o éxito basado en el contenido
+    final isError = message.contains('incorrectos') || 
+                    message.contains('Error') ||
+                    message.contains('error');
+    
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -30,52 +64,30 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<LoginViewModel>(context);
+    final state = viewModel.state;
 
-    // Mostrar error si existe (solo una vez)
-    if (viewModel.state.errorMessage != null && !_errorShown) {
-      _errorShown = true;
+    // Manejar navegación después de login exitoso
+    if (state.user != null && state.token != null && _pendingMessage == null) {
+      _pendingMessage = 'success';
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(viewModel.state.errorMessage!),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
-          ),
-        );
-        viewModel.clearError();
-        Future.delayed(const Duration(milliseconds: 500), () {
-          _errorShown = false;
-        });
-      });
-    }
-
-    // Mostrar éxito y navegar al home (solo una vez)
-    if (viewModel.state.user != null && viewModel.state.token != null && !_successShown) {
-      _successShown = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Bienvenido ${viewModel.state.user!.fullName}'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-        // Limpiar el éxito si es necesario
+        // Limpiar estado después de la navegación
+        final userDni = state.user!.dni;
         viewModel.clearSuccess();
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            // Navegar a HomePage
-            // Navigator.pushReplacement(
-            //   context,
-            //   MaterialPageRoute(builder: (_) => const HomePage()),
-            // );
-          }
-        });
+        
+        if (mounted) {
+          // TODO: Navegar a HomePage cuando esté lista
+          // Navigator.pushReplacement(
+          //   context,
+          //   MaterialPageRoute(builder: (_) => const HomePage()),
+          // );
+          
+          _pendingMessage = null;
+        }
       });
     }
 
     // Mostrar loading
-    if (viewModel.state.isLoading) {
+    if (state.isLoading) {
       return const Scaffold(
         backgroundColor: Color(0xFFE8EEF5),
         body: Center(
@@ -99,8 +111,6 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               children: [
                 const SizedBox(height: 24),
-
-                // Logo
                 Container(
                   width: 100,
                   height: 100,
@@ -122,9 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                     fit: BoxFit.contain,
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 const Text(
                   'FerovaClinic',
                   style: TextStyle(
@@ -133,17 +141,12 @@ class _LoginPageState extends State<LoginPage> {
                     color: Color(0xFF1A3A5C),
                   ),
                 ),
-
                 const SizedBox(height: 4),
-
                 const Text(
                   'Portal del Paciente',
                   style: TextStyle(fontSize: 14, color: Color(0xFF6B7D8F)),
                 ),
-
                 const SizedBox(height: 32),
-
-                // Login Card
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -160,7 +163,6 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // DNI Field
                       const Text(
                         'DNI (8 dígitos)',
                         style: TextStyle(
@@ -198,10 +200,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 16),
-
-                      // Password Field
                       const Text(
                         'Contraseña',
                         style: TextStyle(
@@ -243,16 +242,11 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 12),
-
-                      // Forgot password
                       Align(
                         alignment: Alignment.centerRight,
                         child: GestureDetector(
-                          onTap: () {
-                            // TODO: Ir a página de recuperar contraseña
-                          },
+                          onTap: () {},
                           child: const Text(
                             '¿Olvidaste tu contraseña?',
                             style: TextStyle(
@@ -263,18 +257,13 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 20),
-
-                      // Login Button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: viewModel.state.isLoading
+                          onPressed: state.isLoading
                               ? null
-                              : () {
-                            _login(viewModel);
-                          },
+                              : () => _login(viewModel),
                           icon: const Icon(Icons.login_rounded, size: 20),
                           label: const Text(
                             'Acceder al Sistema',
@@ -297,10 +286,7 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
-                // Register link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -333,15 +319,12 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 24),
               ],
             ),
           ),
         ),
       ),
-
-      // Bottom Navigation Bar
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
@@ -372,32 +355,22 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _login(LoginViewModel viewModel) async {
-    // Resetear flags
-    _errorShown = false;
-    _successShown = false;
-
-    // Validaciones
+    // Limpiar mensajes pendientes anteriores
+    _pendingMessage = null;
+    ScaffoldMessenger.of(context).clearSnackBars();
+    
+    // Validaciones locales
     if (dni.text.length != 8) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('DNI debe tener 8 dígitos'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      _showMessage('DNI debe tener 8 dígitos');
       return;
     }
 
     if (password.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ingrese su contraseña'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      _showMessage('Ingrese su contraseña');
       return;
     }
 
-    // Llamar al login
+    // Hacer el login - los mensajes vendrán a través del Stream
     await viewModel.login(dni: dni.text, password: password.text);
   }
 }
