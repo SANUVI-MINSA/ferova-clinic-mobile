@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import '../domain/auth_repository.dart';
-import '../domain/user.dart';
+import '../../domain/auth_repository.dart';
+import '../../domain/user.dart';
 import 'login_state.dart';
 
 class LoginViewModel extends ChangeNotifier {

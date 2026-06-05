@@ -1,4 +1,4 @@
-import '../domain/user.dart';
+import '../../../domain/user.dart';
 
 class RegisterStaffResponseDto {
   final String? message;

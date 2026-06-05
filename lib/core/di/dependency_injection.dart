@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:ferova_clinic_flutter/feature/auth/domain/auth_repository.dart';
-import 'package:ferova_clinic_flutter/feature/auth/presentation/login_view_model.dart';
-import 'package:ferova_clinic_flutter/feature/auth/presentation/register_view_model.dart';
+import 'package:ferova_clinic_flutter/feature/auth/presentation/login/login_view_model.dart';
+import 'package:ferova_clinic_flutter/feature/auth/presentation/register/register_view_model.dart';
 
 import '../../feature/auth/data/auth_repository_impl.dart';
 import '../../feature/auth/data/auth_service.dart';

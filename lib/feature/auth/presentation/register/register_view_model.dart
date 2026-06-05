@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import '../domain/auth_repository.dart';
+import '../../domain/auth_repository.dart';
 import 'register_state.dart';
 
 class RegisterViewModel extends ChangeNotifier {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ferova_clinic_flutter/feature/auth/presentation/register_view_model.dart';
+import 'package:ferova_clinic_flutter/feature/auth/presentation/register/register_view_model.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
