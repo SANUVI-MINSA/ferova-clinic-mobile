@@ -1,20 +1,31 @@
 import 'package:ferova_clinic_flutter/feature/auth/domain/user.dart';
 
-sealed class LoginState {}
+import 'package:ferova_clinic_flutter/feature/auth/domain/user.dart';
 
-class LoginInitial extends LoginState {}
+class LoginState {
+  final bool isLoading;
+  final String? errorMessage;
+  final User? user;
+  final String? token;
 
-class LoginLoading extends LoginState {}
+  LoginState({
+    this.isLoading = false,
+    this.errorMessage,
+    this.user,
+    this.token,
+  });
 
-class LoginSuccess extends LoginState {
-  final User user;
-  final String token;
-
-  LoginSuccess({required this.user, required this.token});
-}
-
-class LoginFailure extends LoginState {
-  final String error;
-
-  LoginFailure({required this.error});
+  LoginState copyWith({
+    bool? isLoading,
+    String? errorMessage,
+    User? user,
+    String? token,
+  }) {
+    return LoginState(
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage ?? this.errorMessage,
+      user: user ?? this.user,
+      token: token ?? this.token,
+    );
+  }
 }

@@ -1,20 +1,29 @@
 import 'package:ferova_clinic_flutter/feature/auth/domain/user.dart';
 
-sealed class RegisterState {}
+class RegisterState {
+  final bool isLoading;
+  final String? errorMessage;
+  final String? successMessage;
+  final User? user;
 
-class RegisterInitial extends RegisterState {}
+  RegisterState({
+    this.isLoading = false,
+    this.errorMessage,
+    this.successMessage,
+    this.user,
+  });
 
-class RegisterLoading extends RegisterState {}
-
-class RegisterSuccess extends RegisterState {
-  final User user;
-  final String message;
-
-  RegisterSuccess({required this.user, required this.message});
-}
-
-class RegisterFailure extends RegisterState {
-  final String error;
-
-  RegisterFailure({required this.error});
+  RegisterState copyWith({
+    bool? isLoading,
+    String? errorMessage,
+    String? successMessage,
+    User? user,
+  }) {
+    return RegisterState(
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage ?? this.errorMessage,
+      successMessage: successMessage ?? this.successMessage,
+      user: user ?? this.user,
+    );
+  }
 }
