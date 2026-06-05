@@ -95,4 +95,22 @@ class AuthRepositoryImpl implements AuthRepository {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
   }
+
+  @override
+  Future<User?> requestCode({required String email}) async {
+    // TODO: implement requestCode
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<User?> resetPassword({required String email, required String code, required String newPassword}) async {
+    // TODO: implement resetPassword
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<User?> verifyCode({required String email, required String code}) async {
+    // TODO: implement verifyCode
+    throw UnimplementedError();
+  }
 }
