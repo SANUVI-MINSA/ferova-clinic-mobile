@@ -1,6 +1,5 @@
 import 'package:ferova_clinic_flutter/feature/auth/domain/user.dart';
 
-import 'package:ferova_clinic_flutter/feature/auth/domain/user.dart';
 
 class LoginState {
   final bool isLoading;

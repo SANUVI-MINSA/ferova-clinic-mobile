@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:ferova_clinic_flutter/config/app_config.dart';
 import 'package:ferova_clinic_flutter/feature/auth/data/RegisterStaffRequestDto.dart';
-import 'package:ferova_clinic_flutter/feature/auth/data/RegisterStaffResponseDto.dart';
 import 'package:ferova_clinic_flutter/feature/auth/data/login_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/auth/data/login_response_dto.dart';
 import 'package:flutter/cupertino.dart';
