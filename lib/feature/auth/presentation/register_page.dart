@@ -23,9 +23,43 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _acceptTerms = false;
   int _selectedRol = 1; // 0 = Administrador, 1 = Enfermero/a
 
-  // Flags para controlar que los mensajes se muestren solo una vez
-  bool _errorShown = false;
-  bool _successShown = false;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setupMessageListener();
+    });
+  }
+  
+  void _setupMessageListener() {
+    final viewModel = Provider.of<RegisterViewModel>(context, listen: false);
+    viewModel.messageStream.listen((message) {
+      if (mounted) {
+        _showMessage(message.message, isSuccess: message.isSuccess);
+        
+        // Si es éxito, regresar después de mostrar el mensaje
+        if (message.isSuccess) {
+          Future.delayed(const Duration(seconds: 2), () {
+            if (mounted) {
+              Navigator.pop(context);
+            }
+          });
+        }
+      }
+    });
+  }
+  
+  void _showMessage(String message, {required bool isSuccess}) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isSuccess ? Colors.green : Colors.red,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -42,48 +76,10 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<RegisterViewModel>(context);
-
-    // Mostrar error si existe (solo una vez)
-    if (viewModel.state.errorMessage != null && !_errorShown) {
-      _errorShown = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(viewModel.state.errorMessage!),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
-          ),
-        );
-        viewModel.clearError();
-        Future.delayed(const Duration(milliseconds: 500), () {
-          _errorShown = false;
-        });
-      });
-    }
-
-    // Mostrar éxito y volver al login (solo una vez)
-    if (viewModel.state.successMessage != null && !_successShown) {
-      _successShown = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(viewModel.state.successMessage!),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-        viewModel.clearSuccess();
-        Future.delayed(const Duration(milliseconds: 500), () {
-          _successShown = false;
-          if (mounted) {
-            Navigator.pop(context); // Volver al login
-          }
-        });
-      });
-    }
+    final state = viewModel.state;
 
     // Mostrar loading
-    if (viewModel.state.isLoading) {
+    if (state.isLoading) {
       return const Scaffold(
         backgroundColor: Color(0xFFE8EEF5),
         body: Center(
@@ -528,68 +524,37 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _register(RegisterViewModel viewModel) async {
-    // Resetear flags
-    _errorShown = false;
-    _successShown = false;
+    // Limpiar mensajes anteriores
+    ScaffoldMessenger.of(context).clearSnackBars();
 
     // Validaciones
     if (_nombre.text.isEmpty || _apellido.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nombre y apellido son requeridos'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      _showMessage('Nombre y apellido son requeridos', isSuccess: false);
       return;
     }
 
     if (_dni.text.length != 8) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('DNI debe tener 8 dígitos'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      _showMessage('DNI debe tener 8 dígitos', isSuccess: false);
       return;
     }
 
     if (_telefono.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Teléfono es requerido'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      _showMessage('Teléfono es requerido', isSuccess: false);
       return;
     }
 
     if (_email.text.isEmpty || !_email.text.contains('@')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Correo electrónico válido es requerido'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      _showMessage('Correo electrónico válido es requerido', isSuccess: false);
       return;
     }
 
     if (_password.text.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('La contraseña debe tener al menos 6 caracteres'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      _showMessage('La contraseña debe tener al menos 6 caracteres', isSuccess: false);
       return;
     }
 
     if (_password.text != _confirmPassword.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Las contraseñas no coinciden'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      _showMessage('Las contraseñas no coinciden', isSuccess: false);
       return;
     }
 
