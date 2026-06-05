@@ -1,0 +1,452 @@
+import 'package:flutter/material.dart';
+
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final TextEditingController _nombre = TextEditingController();
+  final TextEditingController _apellido = TextEditingController();
+  final TextEditingController _dni = TextEditingController();
+  final TextEditingController _telefono = TextEditingController();
+  final TextEditingController _password = TextEditingController();
+  final TextEditingController _confirmPassword = TextEditingController();
+
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  bool _acceptTerms = false;
+  int _selectedRol = 1; // 0 = Administrador, 1 = Enfermero/a
+  int _selectedIndex = 1;
+
+  @override
+  void dispose() {
+    _nombre.dispose();
+    _apellido.dispose();
+    _dni.dispose();
+    _telefono.dispose();
+    _password.dispose();
+    _confirmPassword.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFE8EEF5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFE8EEF5),
+        elevation: 0,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+
+                // Title
+                const Text(
+                  'Crea tu cuenta\nprofesional',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A3A5C),
+                    height: 1.25,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                const Text(
+                  'Accede a nuestra plataforma de gestión\nclínica integral.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6B7D8F),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Register Card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Rol Profesional
+                      const Text(
+                        'Rol Profesional',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF6B7D8F),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          // Administrador
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => setState(() => _selectedRol = 0),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                decoration: BoxDecoration(
+                                  color: _selectedRol == 0
+                                      ? const Color(0xFF0D6EA8)
+                                      : const Color(0xFFEAF3FB),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      Icons.admin_panel_settings_outlined,
+                                      color: _selectedRol == 0
+                                          ? Colors.white
+                                          : const Color(0xFF5A8FAF),
+                                      size: 28,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      'Administrador',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: _selectedRol == 0
+                                            ? Colors.white
+                                            : const Color(0xFF5A8FAF),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Enfermero/a
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => setState(() => _selectedRol = 1),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                decoration: BoxDecoration(
+                                  color: _selectedRol == 1
+                                      ? const Color(0xFF0D6EA8)
+                                      : const Color(0xFFEAF3FB),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      Icons.medical_services_outlined,
+                                      color: _selectedRol == 1
+                                          ? Colors.white
+                                          : const Color(0xFF5A8FAF),
+                                      size: 28,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      'Enfermero/a',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: _selectedRol == 1
+                                            ? Colors.white
+                                            : const Color(0xFF5A8FAF),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      // Nombre Completo
+                      _buildLabel('Nombre Completo'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _nombre,
+                        hint: 'Ej: Maria Elena',
+                        keyboardType: TextInputType.name,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Apellido Completo
+                      _buildLabel('Apellido Completo'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _apellido,
+                        hint: 'Ej: Garcia Lopez',
+                        keyboardType: TextInputType.name,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // DNI
+                      _buildLabel('DNI (8 dígitos)'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _dni,
+                        hint: '00000000',
+                        keyboardType: TextInputType.number,
+                        maxLength: 8,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Teléfono
+                      _buildLabel('Teléfono'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: _telefono,
+                        hint: '+51 987 347 182',
+                        keyboardType: TextInputType.phone,
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Contraseña
+                      _buildLabel('Contraseña'),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _password,
+                        obscureText: _obscurePassword,
+                        style: const TextStyle(
+                          color: Color(0xFF9EAFC0),
+                          fontSize: 15,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: '••••••••••••',
+                          hintStyle: const TextStyle(color: Color(0xFF9EAFC0)),
+                          filled: true,
+                          fillColor: const Color(0xFFF0F5FA),
+                          suffixIcon: GestureDetector(
+                            onTap: () => setState(
+                                    () => _obscurePassword = !_obscurePassword),
+                            child: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              color: const Color(0xFF9EAFC0),
+                            ),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Confirmar Contraseña
+                      _buildLabel('Confirmar contraseña'),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _confirmPassword,
+                        obscureText: _obscureConfirmPassword,
+                        style: const TextStyle(
+                          color: Color(0xFF9EAFC0),
+                          fontSize: 15,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: '••••••••••••',
+                          hintStyle: const TextStyle(color: Color(0xFF9EAFC0)),
+                          filled: true,
+                          fillColor: const Color(0xFFF0F5FA),
+                          suffixIcon: GestureDetector(
+                            onTap: () => setState(() =>
+                            _obscureConfirmPassword =
+                            !_obscureConfirmPassword),
+                            child: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              color: const Color(0xFF9EAFC0),
+                            ),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Terms checkbox
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Checkbox(
+                            value: _acceptTerms,
+                            onChanged: (val) =>
+                                setState(() => _acceptTerms = val ?? false),
+                            activeColor: const Color(0xFF0D6EA8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            side: const BorderSide(
+                              color: Color(0xFF9EAFC0),
+                              width: 1.5,
+                            ),
+                            materialTapTargetSize:
+                            MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          const SizedBox(width: 4),
+                          const Expanded(
+                            child: Text(
+                              'Acepto términos de confidencialidad clínica y privacidad',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF6B7D8F),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Register Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () {},
+                          icon: const Icon(Icons.person_add_alt_1_rounded,
+                              size: 20),
+                          label: const Text(
+                            'Registrar Perfil',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0D6EA8),
+                            foregroundColor: Colors.white,
+                            padding:
+                            const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Login link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      '¿Ya tienes una cuenta?  ',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF6B7D8F),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {},
+                      child: const Text(
+                        'Inicia sesión',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF0D6EA8),
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                          decorationColor: Color(0xFF0D6EA8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        ),
+      ),
+
+    );
+  }
+
+  Widget _buildLabel(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 13,
+        color: Color(0xFF6B7D8F),
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    TextInputType keyboardType = TextInputType.text,
+    int? maxLength,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLength: maxLength,
+      style: const TextStyle(
+        color: Color(0xFF9EAFC0),
+        fontSize: 15,
+      ),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: Color(0xFF9EAFC0)),
+        counterText: '',
+        filled: true,
+        fillColor: const Color(0xFFF0F5FA),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+      ),
+    );
+  }
+}
