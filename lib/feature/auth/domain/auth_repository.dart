@@ -15,6 +15,15 @@ abstract class AuthRepository {
     required String role,
   });
 
+  // Request Code
+  Future<User?> requestCode({required String email});
+
+  // Verify Code
+  Future<User?> verifyCode({required String email, required String code});
+
+  // Reset Password
+  Future<User?> resetPassword({required String email, required String code, required String newPassword});
+
   // Guardar token después de login
   Future<void> saveToken(String token);
 
