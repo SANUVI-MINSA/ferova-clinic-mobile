@@ -30,7 +30,6 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  @override
   Future<({User? user, String? error})> registerStaff({
     required String name,
     required String lastname,
@@ -51,13 +50,18 @@ class AuthRepositoryImpl implements AuthRepository {
         role: role,
       );
 
-      final result = await authService.registerStaff(requestDto);
+      final responseDto = await authService.registerStaff(requestDto);
 
-      if (result.success) {
-        // Registro exitoso, pero no tenemos los datos del usuario
-        // Creamos un User con los datos que enviamos
+      // Verificar si hay error
+      if (responseDto?.error != null) {
+        return (user: null, error: responseDto!.error);
+      }
+
+      // Si el registro fue exitoso, crear User con los datos que enviamos
+      // (porque el backend no retorna los datos del usuario)
+      if (responseDto?.isSuccess == true) {
         final user = User(
-          id: '', // Temporal, porque el backend no retorna el id
+          id: '', // El backend no retorna id en el registro
           name: name,
           lastname: lastname,
           email: email,
@@ -66,9 +70,9 @@ class AuthRepositoryImpl implements AuthRepository {
           role: role,
         );
         return (user: user, error: null);
-      } else {
-        return (user: null, error: result.error);
       }
+
+      return (user: null, error: 'Error desconocido');
     } catch (e) {
       return (user: null, error: 'Error inesperado: $e');
     }

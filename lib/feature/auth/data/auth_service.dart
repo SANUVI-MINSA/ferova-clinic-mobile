@@ -7,6 +7,8 @@ import 'package:ferova_clinic_flutter/feature/auth/data/login_response_dto.dart'
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
+import 'RegisterStaffResponseDto.dart';
+
 class AuthService {
   final String _baseUrl =
         '${AppConfig.baseUrl}/users';
@@ -32,9 +34,8 @@ class AuthService {
     }
   }
 
-  Future<({bool success, String? message, String? error})> registerStaff(
-      RegisterStaffRequestDto requestDto,
-      ) async {
+  // Register
+  Future<RegisterStaffResponseDto?> registerStaff(RegisterStaffRequestDto requestDto,) async {
     try {
       final Uri uri = Uri.parse('$_baseUrl/register/staff');
       final http.Response response = await http.post(
@@ -48,21 +49,26 @@ class AuthService {
 
       if (response.statusCode == HttpStatus.created) {
         final json = jsonDecode(response.body);
-        return (success: true, message: json['message'] as String?, error: null);
+        return RegisterStaffResponseDto.fromJson(json);
       } else {
-        // Intentar obtener el mensaje de error del backend
+        // Si hay error, crear un DTO con el error
         try {
           final json = jsonDecode(response.body);
-          String errorMessage = json['error'] as String? ??
-              json['message'] as String? ??
-              'Error al registrar personal';
-          return (success: false, message: null, error: errorMessage);
+          return RegisterStaffResponseDto(
+            error: json['error'] as String? ?? json['message'] as String?,
+          );
         } catch (e) {
-          return (success: false, message: null, error: 'Error ${response.statusCode}: ${response.body}');
+          return RegisterStaffResponseDto(
+            error: 'Error ${response.statusCode}: ${response.body}',
+          );
         }
       }
     } catch (e) {
-      return (success: false, message: null, error: 'Error de conexión: $e');
+      return RegisterStaffResponseDto(
+        error: 'Error de conexión: $e',
+      );
     }
   }
+
+  // Request Code
 }
