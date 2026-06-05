@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:ferova_clinic_flutter/config/app_config.dart';
-import 'package:ferova_clinic_flutter/feature/auth/data/register/request/RegisterStaffRequestDto.dart';
+import 'package:ferova_clinic_flutter/feature/auth/data/register/request/register_staff_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/auth/data/login/request/login_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/auth/data/login/responses/login_response_dto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
-import 'register/responses/RegisterStaffResponseDto.dart';
+import 'register/responses/request_staff_response_dto.dart';
 
 class AuthService {
   final String _baseUrl =

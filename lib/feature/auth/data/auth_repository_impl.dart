@@ -3,7 +3,7 @@ import 'package:ferova_clinic_flutter/feature/auth/domain/auth_repository.dart';
 import 'package:ferova_clinic_flutter/feature/auth/domain/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'register/request/RegisterStaffRequestDto.dart';
+import 'register/request/register_staff_request_dto.dart';
 import 'auth_service.dart';
 import 'login/request/login_request_dto.dart';
 
