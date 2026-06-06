@@ -1,4 +1,4 @@
-import 'package:ferova_clinic_flutter/feature/auth/presentation/new_password_page.dart';
+import 'package:ferova_clinic_flutter/feature/auth/presentation/forgot_password/new_password_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
