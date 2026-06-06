@@ -1,8 +1,8 @@
-import 'package:ferova_clinic_flutter/feature/auth/presentation/recovery_password_page.dart';
 import 'package:ferova_clinic_flutter/feature/auth/presentation/register/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ferova_clinic_flutter/feature/auth/presentation/login/login_view_model.dart';
+import '../forgot_password/recovery_password_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
