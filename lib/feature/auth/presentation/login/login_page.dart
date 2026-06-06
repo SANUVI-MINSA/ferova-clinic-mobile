@@ -2,7 +2,9 @@ import 'package:ferova_clinic_flutter/feature/auth/presentation/register/registe
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ferova_clinic_flutter/feature/auth/presentation/login/login_view_model.dart';
+import '../../../../core/di/dependency_injection.dart';
 import '../forgot_password/recovery_password/recovery_password_page.dart';
+import '../forgot_password/recovery_password/recovery_password_view_model.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -250,10 +252,13 @@ class _LoginPageState extends State<LoginPage> {
                           onTap: () {
                             // Redirigir a Primer paso para cambiar la contraseña
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => RecoveryPasswordPage(),
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ChangeNotifierProvider(
+                                  create: (context) => getIt<RecoveryPasswordViewModel>(),
+                                  child: const RecoveryPasswordPage(),
                                 ),
+                              ),
                             );
                           },
                           child: const Text(
