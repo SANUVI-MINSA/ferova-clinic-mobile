@@ -1,4 +1,8 @@
+// new_password_page.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'new_password_view_model.dart';
 
 class NewPasswordPage extends StatefulWidget {
   final String email;
@@ -21,14 +25,20 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
+  // Usar un mensaje único que se muestra una sola vez
+  String? _pendingMessage;
+
   // Security requirements state
   bool get _hasMinLength => _password.text.length >= 8;
   bool get _hasNumber => _password.text.contains(RegExp(r'[0-9]'));
   bool get _hasSpecialChar =>
       _password.text.contains(RegExp(r'[@#$%^&*!]'));
 
+  bool get _isPasswordValid =>
+      _hasMinLength && _hasNumber && _hasSpecialChar;
+
   bool get _isValid =>
-      _hasMinLength && _hasNumber && _hasSpecialChar &&
+      _isPasswordValid &&
           _password.text == _confirmPassword.text &&
           _confirmPassword.text.isNotEmpty;
 
@@ -37,6 +47,37 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
     super.initState();
     _password.addListener(() => setState(() {}));
     _confirmPassword.addListener(() => setState(() {}));
+
+    // Escuchar cambios en el ViewModel después de que se construya
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setupMessageListener();
+    });
+  }
+
+  void _setupMessageListener() {
+    final viewModel = Provider.of<NewPasswordViewModel>(context, listen: false);
+    viewModel.messageStream.listen((message) {
+      if (mounted) {
+        _showMessage(message);
+      }
+    });
+  }
+
+  void _showMessage(String message) {
+    // Determinar si es error o éxito basado en el contenido
+    final isError = message.contains('debe tener') ||
+        message.contains('Error') ||
+        message.contains('error');
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -48,6 +89,36 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<NewPasswordViewModel>(context);
+    final state = viewModel.state;
+
+    // Manejar navegación después de reset exitoso
+    if (state.successMessage != null && _pendingMessage == null) {
+      _pendingMessage = 'success';
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Limpiar estado después de la navegación
+        viewModel.clearSuccess();
+
+        if (mounted) {
+          // Navegar al login y limpiar todas las pantallas anteriores
+          Navigator.of(context).popUntil((route) => route.isFirst);
+          _pendingMessage = null;
+        }
+      });
+    }
+
+    // Mostrar loading
+    if (state.isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF6B21E8),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -244,17 +315,17 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                       ),
                       const SizedBox(height: 12),
                       _buildRequirement(
-                        label: 'Minimo 8 caracteres',
+                        label: 'Mínimo 8 caracteres',
                         met: _hasMinLength,
                       ),
                       const SizedBox(height: 8),
                       _buildRequirement(
-                        label: 'Al menos un numero',
+                        label: 'Al menos un número',
                         met: _hasNumber,
                       ),
                       const SizedBox(height: 8),
                       _buildRequirement(
-                        label: 'Un carácter especial (@, #, \$)',
+                        label: 'Un carácter especial (@, #, \$, %, &)',
                         met: _hasSpecialChar,
                       ),
                     ],
@@ -267,35 +338,8 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: _isValid
-                        ? () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Row(
-                            children: [
-                              Icon(Icons.check_circle_rounded,
-                                  color: Colors.white),
-                              SizedBox(width: 10),
-                              Text(
-                                '¡Contraseña actualizada exitosamente!',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                          ),
-                          backgroundColor: const Color(0xFF6B21E8),
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                      Future.delayed(const Duration(seconds: 2), () {
-                        Navigator.of(context)
-                            .popUntil((route) => route.isFirst);
-                      });
-                    }
+                    onPressed: (_isValid && !state.isLoading)
+                        ? () => _updatePassword(viewModel)
                         : null,
                     icon: const Icon(Icons.refresh_rounded, size: 20),
                     label: const Text(
@@ -345,6 +389,44 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
           ),
         ),
       ],
+    );
+  }
+
+  void _updatePassword(NewPasswordViewModel viewModel) async {
+    // Limpiar mensajes pendientes anteriores
+    _pendingMessage = null;
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    // Validaciones locales antes de llamar al ViewModel
+    if (_password.text.isEmpty) {
+      _showMessage('Ingrese una nueva contraseña');
+      return;
+    }
+
+    if (_password.text.length < 8) {
+      _showMessage('La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+
+    if (!_hasNumber) {
+      _showMessage('La contraseña debe contener al menos un número');
+      return;
+    }
+
+    if (!_hasSpecialChar) {
+      _showMessage('La contraseña debe contener al menos un carácter especial (@, #, \$, %, &)');
+      return;
+    }
+
+    if (_password.text != _confirmPassword.text) {
+      _showMessage('Las contraseñas no coinciden');
+      return;
+    }
+
+    await viewModel.resetPassword(
+      widget.email,
+      widget.verificationCode,
+      _password.text,
     );
   }
 }
