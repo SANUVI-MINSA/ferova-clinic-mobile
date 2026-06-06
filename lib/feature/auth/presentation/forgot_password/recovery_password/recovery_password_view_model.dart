@@ -1,15 +1,22 @@
-import 'package:ferova_clinic_flutter/feature/auth/presentation/forgot_password/recovery_password/recovery_password_state.dart';
 import 'package:flutter/cupertino.dart';
-
+import 'dart:async';
 import '../../../domain/auth_repository.dart';
+import 'recovery_password_state.dart';
 
 class RecoveryPasswordViewModel extends ChangeNotifier {
   final AuthRepository repository;
+  final StreamController<String> _messageStreamController = StreamController<String>.broadcast();
 
   RecoveryPasswordViewModel({required this.repository});
 
-  RecoveryPasswordState _state = RecoveryPasswordState();
+  RecoveryPasswordState _state = RecoveryPasswordState(
+    messageStreamController: StreamController<String>.broadcast(),
+  );
+
   RecoveryPasswordState get state => _state;
+
+  // Exponer el stream de mensajes
+  Stream<String> get messageStream => _messageStreamController.stream;
 
   void updateEmail(String email) {
     _state = _state.copyWith(email: email);
@@ -18,8 +25,12 @@ class RecoveryPasswordViewModel extends ChangeNotifier {
 
   Future<bool> sendResetCode() async {
     if (_state.email == null || _state.email!.isEmpty) {
-      _state = _state.copyWith(errorMessage: 'Ingrese su correo electrónico');
-      notifyListeners();
+      _showMessage('Ingrese su correo electrónico');
+      return false;
+    }
+
+    if (!_state.email!.contains('@')) {
+      _showMessage('Ingrese un correo electrónico válido');
       return false;
     }
 
@@ -35,6 +46,7 @@ class RecoveryPasswordViewModel extends ChangeNotifier {
         errorMessage: null,
       );
       notifyListeners();
+      _showMessage(result.message ?? 'Código enviado correctamente', isError: false);
       return true;
     } else {
       _state = _state.copyWith(
@@ -43,8 +55,13 @@ class RecoveryPasswordViewModel extends ChangeNotifier {
         successMessage: null,
       );
       notifyListeners();
+      _showMessage(result.error ?? 'Error al enviar el código', isError: true);
       return false;
     }
+  }
+
+  void _showMessage(String message, {bool isError = false}) {
+    _messageStreamController.add(message);
   }
 
   void clearError() {
@@ -55,5 +72,12 @@ class RecoveryPasswordViewModel extends ChangeNotifier {
   void clearSuccess() {
     _state = _state.copyWith(successMessage: null);
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _messageStreamController.close();
+    _state.dispose();
+    super.dispose();
   }
 }

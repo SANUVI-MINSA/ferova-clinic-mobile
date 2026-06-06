@@ -1,5 +1,10 @@
+import 'package:ferova_clinic_flutter/feature/auth/presentation/forgot_password/recovery_password/recovery_password_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/auth/presentation/forgot_password/verification_indentity_page/verification_identity_page.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../../../core/di/dependency_injection.dart';
+import '../verification_indentity_page/verification_identity_view_model.dart';
 
 class RecoveryPasswordPage extends StatefulWidget {
   const RecoveryPasswordPage({super.key});
@@ -9,16 +14,105 @@ class RecoveryPasswordPage extends StatefulWidget {
 }
 
 class _RecoveryPasswordPageState extends State<RecoveryPasswordPage> {
-  final TextEditingController _email = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  bool _isNavigating = false;
+
+  // Usar un mensaje único que se muestra una sola vez
+  String? _pendingMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      if (!mounted) return;
+      final viewModel = Provider.of<RecoveryPasswordViewModel>(context, listen: false);
+
+      viewModel.messageStream.listen((message) {
+        if (mounted) _showMessage(message);
+      });
+
+      viewModel.addListener(_onViewModelChanged);
+    });
+  }
+
+  void _onViewModelChanged() {
+    if (!mounted || _isNavigating) return;
+
+    final viewModel = Provider.of<RecoveryPasswordViewModel>(context, listen: false);
+    if (viewModel.state.successMessage != null) {
+      _isNavigating = true;
+      _navigateToVerification(viewModel);
+    }
+  }
+
+  void _navigateToVerification(RecoveryPasswordViewModel viewModel) {
+    final email = emailController.text.trim();
+    viewModel.clearSuccess();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider(
+          create: (context) => getIt<VerificationIdentityViewModel>(),
+          child: VerificationIdentityPage(email: email),
+        ),
+      ),
+    ).then((_) {
+      _isNavigating = false;
+    });
+  }
+
+
+  void _setupMessageListener() {
+    final viewModel = Provider.of<RecoveryPasswordViewModel>(context, listen: false);
+    viewModel.messageStream.listen((message) {
+      if (mounted) {
+        _showMessage(message);
+      }
+    });
+  }
+
+  void _showMessage(String message) {
+    // Determinar si es error o éxito basado en el contenido
+    final isError = message.contains('Error') ||
+        message.contains('error') ||
+        message.contains('válido') ||
+        message.contains('incorrecto');
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
   void dispose() {
-    _email.dispose();
+    emailController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<RecoveryPasswordViewModel>(context);
+    final state = viewModel.state;
+
+    // Mostrar loading
+    if (state.isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF6B21E8),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -45,7 +139,7 @@ class _RecoveryPasswordPageState extends State<RecoveryPasswordPage> {
 
                 // Subtitle
                 const Text(
-                  'Ingresa tu correo para recibir un\ncodigo de recuperacion',
+                  'Ingresa tu correo para recibir un\ncódigo de recuperación',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 15,
@@ -76,7 +170,7 @@ class _RecoveryPasswordPageState extends State<RecoveryPasswordPage> {
                     children: [
                       // Label
                       const Text(
-                        'Correo Electronico',
+                        'Correo Electrónico',
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xFF7B7B9A),
@@ -87,7 +181,7 @@ class _RecoveryPasswordPageState extends State<RecoveryPasswordPage> {
 
                       // Email field
                       TextField(
-                        controller: _email,
+                        controller: emailController,
                         keyboardType: TextInputType.emailAddress,
                         style: const TextStyle(
                           color: Color(0xFF9E9EB8),
@@ -119,22 +213,12 @@ class _RecoveryPasswordPageState extends State<RecoveryPasswordPage> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: () {
-                            if (_email.text.trim().isEmpty) return;
-
-                            // Redirigir a Page de VerificacionPage
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => VerificationIdentityPage(
-                                    email: _email.text.trim()
-                                  ),
-                              ),
-                            );
-                          },
+                          onPressed: state.isLoading
+                              ? null
+                              : () => _sendCode(viewModel),
                           icon: const Icon(Icons.send_rounded, size: 20),
                           label: const Text(
-                            'Enviar Codigo',
+                            'Enviar Código',
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -212,5 +296,29 @@ class _RecoveryPasswordPageState extends State<RecoveryPasswordPage> {
         ),
       ),
     );
+  }
+
+  void _sendCode(RecoveryPasswordViewModel viewModel) async {
+    // Limpiar mensajes pendientes anteriores
+    _pendingMessage = null;
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    // Validación local rápida del email
+    final email = emailController.text.trim();
+    if (email.isEmpty) {
+      _showMessage('Ingrese su correo electrónico');
+      return;
+    }
+
+    if (!email.contains('@')) {
+      _showMessage('Ingrese un correo electrónico válido');
+      return;
+    }
+
+    // Actualizar el email en el ViewModel
+    viewModel.updateEmail(email);
+
+    // Enviar el código - los mensajes vendrán a través del Stream
+    await viewModel.sendResetCode();
   }
 }
