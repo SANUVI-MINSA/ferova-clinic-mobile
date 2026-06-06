@@ -95,4 +95,19 @@ class AuthRepositoryImpl implements AuthRepository {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
   }
+
+  @override
+  Future<({String? error, String? message, bool success})> requestResetCode({required String email}) async {
+    return await authService.requestResetCode(email);
+  }
+
+  @override
+  Future<({String? error, String? message, bool success})> resetPassword({required String email, required String code, required String newPassword})  async {
+    return await authService.resetPassword(email, code, newPassword);
+  }
+
+  @override
+  Future<({String? error, String? message, bool success})> verifyResetCode({required String email, required String code}) async {
+    return await authService.verifyResetCode(email, code);
+  }
 }
