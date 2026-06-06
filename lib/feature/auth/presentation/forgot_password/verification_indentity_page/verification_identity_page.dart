@@ -1,6 +1,10 @@
-import 'package:ferova_clinic_flutter/feature/auth/presentation/forgot_password/new_password/new_password_page.dart';
+import 'package:ferova_clinic_flutter/feature/auth/presentation/forgot_password/verification_indentity_page/verification_identity_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import '../../../../../core/di/dependency_injection.dart';
+import '../new_password/new_password_page.dart';
+import '../new_password/new_password_view_model.dart';
 
 class VerificationIdentityPage extends StatefulWidget {
   final String email;
@@ -16,8 +20,93 @@ class _VerificationIdentityPageState extends State<VerificationIdentityPage> {
   List.generate(4, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
 
+  bool _isNavigating = false; // Control de navegación única
+
+  @override
+  void initState() {
+    super.initState();
+    _setupListeners();
+  }
+
+  void _setupListeners() {
+    // Pequeño delay para asegurar que el Widget está montado
+    Future.delayed(Duration.zero, () {
+      if (!mounted) return;
+
+      final viewModel = Provider.of<VerificationIdentityViewModel>(context, listen: false);
+
+      // Escuchar mensajes
+      viewModel.messageStream.listen((message) {
+        if (mounted) {
+          _showMessage(message);
+        }
+      });
+
+      // Escuchar cambios en el estado para navegación
+      viewModel.addListener(_onViewModelChanged);
+    });
+  }
+
+  void _onViewModelChanged() {
+    if (!mounted || _isNavigating) return;
+
+    final viewModel = Provider.of<VerificationIdentityViewModel>(context, listen: false);
+    final state = viewModel.state;
+
+    if (state.isCodeValid) {
+      _isNavigating = true;
+      _navigateToNewPassword(viewModel);
+    }
+  }
+
+  void _navigateToNewPassword(VerificationIdentityViewModel viewModel) {
+    final email = widget.email;
+    final code = _code;
+
+    // Limpiar estado antes de navegar
+    viewModel.clearSuccess();
+
+    // Navegar y luego resetear flag
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider(
+          create: (context) => getIt<NewPasswordViewModel>(),
+          child: NewPasswordPage(
+            email: email,
+            verificationCode: code,
+          ),
+        ),
+      ),
+    ).then((_) {
+      _isNavigating = false;
+    });
+  }
+
+  void _showMessage(String message) {
+    final isError = message.contains('inválido') ||
+        message.contains('expirado') ||
+        message.contains('Error') ||
+        message.contains('error') ||
+        message.contains('debe tener');
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   @override
   void dispose() {
+    // Remover listener
+    final viewModel = Provider.of<VerificationIdentityViewModel>(context, listen: false);
+    viewModel.removeListener(_onViewModelChanged);
+
     for (final c in _controllers) {
       c.dispose();
     }
@@ -36,11 +125,27 @@ class _VerificationIdentityPageState extends State<VerificationIdentityPage> {
     setState(() {});
   }
 
-  bool get _isComplete =>
-      _controllers.every((c) => c.text.isNotEmpty);
+  String get _code => _controllers.map((c) => c.text).join();
+
+  bool get _isComplete => _controllers.every((c) => c.text.isNotEmpty);
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<VerificationIdentityViewModel>(context);
+    final state = viewModel.state;
+
+    // Mostrar loading
+    if (state.isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Color(0xFF6B21E8),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -90,9 +195,9 @@ class _VerificationIdentityPageState extends State<VerificationIdentityPage> {
               const SizedBox(height: 14),
 
               // Subtitle
-              const Text(
-                'Hemos enviado un código de 4 dígitos a tu correo',
-                style: TextStyle(
+              Text(
+                'Hemos enviado un código de 4 dígitos a tu correo\n${widget.email}',
+                style: const TextStyle(
                   fontSize: 15,
                   color: Color(0xFF7B7B9A),
                   height: 1.5,
@@ -101,13 +206,13 @@ class _VerificationIdentityPageState extends State<VerificationIdentityPage> {
 
               const SizedBox(height: 48),
 
-              // OTP Fields - Estilo más rectangular como en la imagen
+              // OTP Fields
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(4, (index) {
                   return SizedBox(
                     width: 70,
-                    height: 70,  // Altura reducida para hacerlos más rectangulares
+                    height: 70,
                     child: TextField(
                       controller: _controllers[index],
                       focusNode: _focusNodes[index],
@@ -155,21 +260,8 @@ class _VerificationIdentityPageState extends State<VerificationIdentityPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  // Navegar a NewPasswordPage
-                  onPressed: _isComplete
-                      ? () {
-                      final code =_controllers
-                          .map((c) => c.text)
-                          .join();
-                      Navigator.push(
-                          context,
-                            MaterialPageRoute(builder: (_) => NewPasswordPage(
-                              email: widget.email,
-                              verificationCode: code,
-                            ),
-                          ),
-                      );
-                  }
+                  onPressed: (_isComplete && !state.isLoading && !_isNavigating)
+                      ? () => _verifyCode(viewModel)
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6B21E8),
@@ -182,7 +274,7 @@ class _VerificationIdentityPageState extends State<VerificationIdentityPage> {
                     elevation: 0,
                   ),
                   child: const Text(
-                    'Verificar Codigo',
+                    'Verificar Código',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -198,16 +290,14 @@ class _VerificationIdentityPageState extends State<VerificationIdentityPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    '¿No recibistes el código?  ',
+                    '¿No recibiste el código?  ',
                     style: TextStyle(
                       fontSize: 14,
                       color: Color(0xFF7B7B9A),
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      // TODO: Resend code logic
-                    },
+                    onTap: () => _resendCode(viewModel),
                     child: const Text(
                       'Reenviar',
                       style: TextStyle(
@@ -224,5 +314,26 @@ class _VerificationIdentityPageState extends State<VerificationIdentityPage> {
         ),
       ),
     );
+  }
+
+  void _verifyCode(VerificationIdentityViewModel viewModel) async {
+    if (_isNavigating) return;
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    await viewModel.verifyCode(widget.email, _code);
+  }
+
+  void _resendCode(VerificationIdentityViewModel viewModel) async {
+    if (_isNavigating) return;
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    // Limpiar campos
+    for (final controller in _controllers) {
+      controller.clear();
+    }
+    _focusNodes[0].requestFocus();
+
+    await viewModel.resendCode(widget.email);
   }
 }
