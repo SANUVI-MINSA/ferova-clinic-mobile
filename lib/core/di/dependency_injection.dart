@@ -4,9 +4,9 @@ import 'package:ferova_clinic_flutter/feature/auth/presentation/login/login_view
 import 'package:ferova_clinic_flutter/feature/auth/presentation/register/register_view_model.dart';
 import '../../feature/auth/data/auth_repository_impl.dart';
 import '../../feature/auth/data/auth_service.dart';
-import '../../feature/auth/presentation/forgot_password/new_password_view_model.dart';
-import '../../feature/auth/presentation/forgot_password/recovery_password_view_model.dart';
-import '../../feature/auth/presentation/forgot_password/verification_identity_view_model.dart';
+import '../../feature/auth/presentation/forgot_password/new_password/new_password_view_model.dart';
+import '../../feature/auth/presentation/forgot_password/recovery_password/recovery_password_view_model.dart';
+import '../../feature/auth/presentation/forgot_password/verification_indentity_page/verification_identity_view_model.dart';
 
 final getIt = GetIt.instance;
 
