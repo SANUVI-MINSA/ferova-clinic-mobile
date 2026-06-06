@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/auth_repository.dart';
+import '../../../domain/auth_repository.dart';
 import 'verification_identity_state.dart';
 
 class VerificationIdentityViewModel extends ChangeNotifier {

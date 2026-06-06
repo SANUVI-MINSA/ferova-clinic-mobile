@@ -1,4 +1,4 @@
-import 'package:ferova_clinic_flutter/feature/auth/presentation/forgot_password/verification_identity_page.dart';
+import 'package:ferova_clinic_flutter/feature/auth/presentation/forgot_password/verification_indentity_page/verification_identity_page.dart';
 import 'package:flutter/material.dart';
 
 class RecoveryPasswordPage extends StatefulWidget {

@@ -1,8 +1,7 @@
-
-import 'package:ferova_clinic_flutter/feature/auth/presentation/forgot_password/recovery_password_state.dart';
+import 'package:ferova_clinic_flutter/feature/auth/presentation/forgot_password/recovery_password/recovery_password_state.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../../domain/auth_repository.dart';
+import '../../../domain/auth_repository.dart';
 
 class RecoveryPasswordViewModel extends ChangeNotifier {
   final AuthRepository repository;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/auth_repository.dart';
+import '../../../domain/auth_repository.dart';
 import 'new_password_state.dart';
 
 class NewPasswordViewModel extends ChangeNotifier {
