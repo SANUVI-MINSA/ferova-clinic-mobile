@@ -42,7 +42,7 @@ class RegisterViewModel extends ChangeNotifier {
       _state = _state.copyWith(
         isLoading: false,
         user: result.user,
-        successMessage: '✅ ¡Registro exitoso! El personal ha sido creado correctamente.',
+        successMessage: '¡Registro exitoso! El personal ha sido creado correctamente.',
         errorMessage: null,
       );
       notifyListeners();
@@ -50,21 +50,21 @@ class RegisterViewModel extends ChangeNotifier {
       // Enviar mensaje de éxito
       _messageController.add((
         isSuccess: true,
-        message: '✅ ¡Registro exitoso! El personal ha sido creado correctamente.'
+        message: '¡Registro exitoso! El personal ha sido creado correctamente.'
       ));
     } else {
       _state = _state.copyWith(
         isLoading: false,
         user: null,
         successMessage: null,
-        errorMessage: result.error ?? '❌ Error al registrar personal',
+        errorMessage: result.error ?? 'Error al registrar personal',
       );
       notifyListeners();
       
       // Enviar mensaje de error
       _messageController.add((
         isSuccess: false,
-        message: result.error ?? '❌ Error al registrar personal'
+        message: result.error ?? 'Error al registrar personal'
       ));
     }
   }
