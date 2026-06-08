@@ -44,6 +44,6 @@ void setup() {
   );
 
   // 2 Home
-  getIt.registerFactory<AdminHomeViewModel>(() => AdminHomeViewModel());
+  getIt.registerFactory<AdminHomeViewModel>(() => AdminHomeViewModel(  authRepository: getIt<AuthRepository>(),));
 
 }
