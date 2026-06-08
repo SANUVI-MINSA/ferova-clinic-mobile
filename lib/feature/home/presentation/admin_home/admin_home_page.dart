@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ferova_clinic_flutter/feature/auth/domain/user.dart';
 import 'package:ferova_clinic_flutter/feature/home/domain/posta.dart';
+import '../../../auth/presentation/login/login_page.dart';
 import 'admin_home_state.dart';
 import 'admin_home_view_model.dart';
 import '../estado_postas/estado_postas_page.dart';
@@ -35,12 +36,14 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.read<AdminHomeViewModel>(); // ← Obtener viewModel
+
     return AppBar(
       backgroundColor: _kNavy,
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.logout_rounded, color: Colors.white, size: 20),
-        onPressed: () => Navigator.pop(context),
+        onPressed: () => _logout(context, viewModel),
       ),
       title: const Text(
         'FerovaClinic',
@@ -55,6 +58,42 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       ],
     );
   }
+
+  void _logout(BuildContext context, AdminHomeViewModel viewModel) async {
+    // Diálogo de confirmación
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cerrar sesión'),
+        content: const Text('¿Estás seguro de que quieres salir?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Salir', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      // Limpiar token usando el ViewModel
+      await viewModel.logout();
+
+      // Navegar al login y limpiar todo el stack
+      if (context.mounted) {
+        // Opción 1: Si tienes el widget de Login disponible
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginPage()), // ← Usa tu LoginPage
+              (route) => false,
+        );
+      }
+    }
+  }
+
 }
 
 // ─── AppBar del Mapa ─────────────────────────────────────────────────────────
