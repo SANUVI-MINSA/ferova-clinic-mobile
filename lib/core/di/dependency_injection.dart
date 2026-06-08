@@ -1,3 +1,4 @@
+import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_view_model.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ferova_clinic_flutter/feature/auth/domain/auth_repository.dart';
 import 'package:ferova_clinic_flutter/feature/auth/presentation/login/login_view_model.dart';
@@ -45,5 +46,5 @@ void setup() {
 
   // 2 Home
   getIt.registerFactory<AdminHomeViewModel>(() => AdminHomeViewModel(  authRepository: getIt<AuthRepository>(),));
-
+  getIt.registerFactory<NurseHomeViewModel>(() => NurseHomeViewModel(authRepository:  getIt<AuthRepository>()));
 }
