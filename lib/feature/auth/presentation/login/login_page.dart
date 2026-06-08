@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ferova_clinic_flutter/feature/auth/presentation/login/login_view_model.dart';
 import '../../../../core/di/dependency_injection.dart';
+import '../../../home/presentation/nurse_home/nurse_home_page.dart';
+import '../../../home/presentation/nurse_home/nurse_home_view_model.dart';
 import '../forgot_password/recovery_password/recovery_password_page.dart';
 import '../forgot_password/recovery_password/recovery_password_view_model.dart';
 
@@ -45,15 +47,34 @@ class _LoginPageState extends State<LoginPage> {
       final loggedUser = state.user!;
       _viewModel.clearSuccess();
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ChangeNotifierProvider(
-            create: (_) => getIt<AdminHomeViewModel>(),
-            child: AdminHomePage(user: loggedUser),
+      // Redirrecion Segun Role
+      if (loggedUser.role == "Admin") {
+        // Admin → AdminHomePage
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider(
+              create: (_) => getIt<AdminHomeViewModel>(),
+              child: AdminHomePage(user: loggedUser),
+            ),
           ),
-        ),
-      );
+        );
+      } else if (loggedUser.role == "Nurse") {
+        // Nurse → NurseHomePage (con Provider)
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider(
+              create: (_) => getIt<NurseHomeViewModel>(),
+              child: NurseHomePage(user: loggedUser),
+            ),
+          ),
+        );
+      } else {
+        // Por si acaso, mostrar error
+        _showMessage('Rol no reconocido: ${loggedUser.role}');
+        _isNavigating = false;
+      }
     }
   }
   void _showMessage(String message) {
