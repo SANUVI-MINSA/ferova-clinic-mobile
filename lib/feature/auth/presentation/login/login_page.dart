@@ -28,6 +28,7 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _viewModel = Provider.of<LoginViewModel>(context, listen: false);
+      _viewModel.resetState();
       _viewModel.addListener(_onStateChanged);
       _viewModel.messageStream.listen((message) {
         if (mounted) _showMessage(message);
@@ -55,7 +56,6 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
   }
-
   void _showMessage(String message) {
     final isError = message.contains('incorrectos') ||
         message.contains('Error') ||
