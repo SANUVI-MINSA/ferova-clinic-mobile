@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:ferova_clinic_flutter/feature/auth/domain/user.dart';
 import 'package:ferova_clinic_flutter/feature/home/domain/posta.dart';
+import '../../../auth/domain/auth_repository.dart';
 import 'admin_home_state.dart';
 
 class AdminHomeViewModel extends ChangeNotifier {
+  final AuthRepository authRepository;
+
   AdminHomeState _state = const AdminHomeState();
   AdminHomeState get state => _state;
+
+  AdminHomeViewModel({required this.authRepository});
 
   void init(User user) {
     _state = _state.copyWith(user: user, isLoading: true);
@@ -67,5 +72,9 @@ class AdminHomeViewModel extends ChangeNotifier {
       postasConAlerta: 2,
     );
     notifyListeners();
+  }
+
+  Future<void> logout() async {
+    await authRepository.logout();
   }
 }
