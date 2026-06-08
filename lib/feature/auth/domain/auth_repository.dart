@@ -36,4 +36,11 @@ abstract class AuthRepository {
 
   // Cerrar sesión
   Future<void> logout();
+
+  // Obtener usuario por email
+  Future<Map<String, dynamic>?> getUserByEmail(String email);
+
+  // Obtener usurio por id
+  Future<User?> getUserById(String id);
+
 }

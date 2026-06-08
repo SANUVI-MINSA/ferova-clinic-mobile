@@ -110,4 +110,15 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<({String? error, String? message, bool success})> verifyResetCode({required String email, required String code}) async {
     return await authService.verifyResetCode(email, code);
   }
+
+  @override
+  Future<Map<String, dynamic>?> getUserByEmail(String email) async {
+    return await authService.getUserByEmail(email);
+  }
+
+  @override
+  Future<User?> getUserById(String id) async {
+    return await authService.getUserById(id);
+  }
+
 }
