@@ -6,7 +6,9 @@ import 'package:ferova_clinic_flutter/feature/auth/data/login/request/login_requ
 import 'package:ferova_clinic_flutter/feature/auth/data/login/responses/login_response_dto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../domain/user.dart';
 import 'register/responses/register_staff_response_dto.dart';
 
 class AuthService {
@@ -157,4 +159,69 @@ class AuthService {
       return (success: false, message: null, error: 'Error de conexión: $e');
     }
   }
+
+// Obtener usuario por email (para validar rol en recovery)
+  Future<Map<String, dynamic>?> getUserByEmail(String email) async {
+    try {
+      final Uri uri = Uri.parse('$_baseUrl/email/$email');
+      final http.Response response = await http.get(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      debugPrint('Get user by email status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+
+      if (response.statusCode == HttpStatus.ok) {
+        return jsonDecode(response.body);
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Network error: $e');
+      return null;
+    }
+  }
+
+  // Obtener usuario por ID
+  Future<User?> getUserById(String id) async {
+    try {
+      final Uri uri = Uri.parse('$_baseUrl/$id');
+      final token = await _getToken();
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      debugPrint('Get user by id status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+
+      if (response.statusCode == HttpStatus.ok) {
+        final json = jsonDecode(response.body);
+        return User(
+          id: json['id'] ?? '',
+          name: json['name'] ?? '',
+          lastname: json['lastname'] ?? '',
+          email: json['email'] ?? '',
+          dni: json['dni'] ?? '',
+          phone: json['phone'] ?? '',
+          role: json['role'] ?? '',
+        );
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Network error: $e');
+      return null;
+    }
+  }
+
+  // Helper para obtener el token
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
+
 }
