@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:ferova_clinic_flutter/feature/auth/domain/auth_repository.dart';
 import 'package:ferova_clinic_flutter/feature/auth/presentation/login/login_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/auth/presentation/register/register_view_model.dart';
+import 'package:ferova_clinic_flutter/feature/home/presentation/admin_home/admin_home_view_model.dart';
 import '../../feature/auth/data/auth_repository_impl.dart';
 import '../../feature/auth/data/auth_service.dart';
 import '../../feature/auth/presentation/forgot_password/new_password/new_password_view_model.dart';
@@ -41,5 +42,8 @@ void setup() {
   getIt.registerFactory<NewPasswordViewModel>(
         () => NewPasswordViewModel(repository: getIt<AuthRepository>()),
   );
+
+  // 2 Home
+  getIt.registerFactory<AdminHomeViewModel>(() => AdminHomeViewModel());
 
 }

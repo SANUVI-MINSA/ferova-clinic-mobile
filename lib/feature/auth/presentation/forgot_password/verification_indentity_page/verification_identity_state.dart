@@ -16,6 +16,7 @@ class VerificationIdentityState {
     this.successMessage,
     this.isCodeValid = false,
     StreamController<String>? messageStreamController,
+  // ignore: prefer_initializing_formals
   }) : _messageStreamController = messageStreamController;
 
   VerificationIdentityState copyWith({

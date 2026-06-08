@@ -1,4 +1,6 @@
 import 'package:ferova_clinic_flutter/feature/auth/presentation/register/register_page.dart';
+import 'package:ferova_clinic_flutter/feature/home/presentation/admin_home/admin_home_page.dart';
+import 'package:ferova_clinic_flutter/feature/home/presentation/admin_home/admin_home_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ferova_clinic_flutter/feature/auth/presentation/login/login_view_model.dart';
@@ -14,38 +16,51 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController dni = TextEditingController();
-  final TextEditingController password = TextEditingController();
+  final TextEditingController _dniController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
   int _selectedIndex = 1;
-  
-  // Usar un mensaje único que se muestra una sola vez
-  String? _pendingMessage;
+  bool _isNavigating = false;
+  late LoginViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    // Escuchar cambios en el ViewModel después de que se construya
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _setupMessageListener();
+      _viewModel = Provider.of<LoginViewModel>(context, listen: false);
+      _viewModel.addListener(_onStateChanged);
+      _viewModel.messageStream.listen((message) {
+        if (mounted) _showMessage(message);
+      });
     });
   }
-  
-  void _setupMessageListener() {
-    final viewModel = Provider.of<LoginViewModel>(context, listen: false);
-    viewModel.messageStream.listen((message) {
-      if (mounted) {
-        _showMessage(message);
-      }
-    });
+
+  void _onStateChanged() {
+    if (!mounted || _isNavigating) return;
+    final state = _viewModel.state;
+
+    if (state.user != null && state.token != null) {
+      _isNavigating = true;
+      final loggedUser = state.user!;
+      _viewModel.clearSuccess();
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ChangeNotifierProvider(
+            create: (_) => getIt<AdminHomeViewModel>(),
+            child: AdminHomePage(user: loggedUser),
+          ),
+        ),
+      );
+    }
   }
-  
+
   void _showMessage(String message) {
-    // Determinar si es error o éxito basado en el contenido
-    final isError = message.contains('incorrectos') || 
-                    message.contains('Error') ||
-                    message.contains('error');
-    
+    final isError = message.contains('incorrectos') ||
+        message.contains('Error') ||
+        message.contains('error');
+
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -59,8 +74,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    dni.dispose();
-    password.dispose();
+    _viewModel.removeListener(_onStateChanged);
+    _dniController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -69,44 +85,18 @@ class _LoginPageState extends State<LoginPage> {
     final viewModel = Provider.of<LoginViewModel>(context);
     final state = viewModel.state;
 
-    // Manejar navegación después de login exitoso
-    if (state.user != null && state.token != null && _pendingMessage == null) {
-      _pendingMessage = 'success';
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        // Limpiar estado después de la navegación
-        final userDni = state.user!.dni;
-        viewModel.clearSuccess();
-        
-        if (mounted) {
-          // TODO: Navegar a HomePage cuando esté lista
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(builder: (_) => const HomePage()),
-          // );
-          
-          _pendingMessage = null;
-        }
-      });
-    }
-
-    // Mostrar loading
     if (state.isLoading) {
       return const Scaffold(
         backgroundColor: Color(0xFFE8EEF5),
         body: Center(
-          child: CircularProgressIndicator(
-            color: Color(0xFF0D6EA8),
-          ),
+          child: CircularProgressIndicator(color: Color(0xFF0D6EA8)),
         ),
       );
     }
 
     return Scaffold(
       backgroundColor: const Color(0xFFE8EEF5),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFE8EEF5),
-        elevation: 0,
-      ),
+      appBar: AppBar(backgroundColor: const Color(0xFFE8EEF5), elevation: 0),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -123,17 +113,14 @@ class _LoginPageState extends State<LoginPage> {
                     border: Border.all(color: const Color(0xFFC8E1FF), width: 3),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withValues(alpha: 0.15),
                         blurRadius: 10,
                         offset: const Offset(0, 3),
                       ),
                     ],
                   ),
                   padding: const EdgeInsets.all(10),
-                  child: Image.asset(
-                    'assets/ferova_clinic.png',
-                    fit: BoxFit.contain,
-                  ),
+                  child: Image.asset('assets/ferova_clinic.png', fit: BoxFit.contain),
                 ),
                 const SizedBox(height: 16),
                 const Text(
@@ -157,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
+                        color: Colors.black.withValues(alpha: 0.06),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -176,31 +163,22 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 8),
                       TextField(
-                        controller: dni,
+                        controller: _dniController,
                         keyboardType: TextInputType.number,
                         maxLength: 8,
-                        style: const TextStyle(
-                          color: Color(0xFF9EAFC0),
-                          fontSize: 15,
-                        ),
+                        style: const TextStyle(color: Color(0xFF9EAFC0), fontSize: 15),
                         decoration: InputDecoration(
                           hintText: '00000000',
                           hintStyle: const TextStyle(color: Color(0xFF9EAFC0)),
                           counterText: '',
                           filled: true,
                           fillColor: const Color(0xFFF0F5FA),
-                          suffixIcon: const Icon(
-                            Icons.badge_outlined,
-                            color: Color(0xFF9EAFC0),
-                          ),
+                          suffixIcon: const Icon(Icons.badge_outlined, color: Color(0xFF9EAFC0)),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
-                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -214,20 +192,16 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 8),
                       TextField(
-                        controller: password,
+                        controller: _passwordController,
                         obscureText: _obscurePassword,
-                        style: const TextStyle(
-                          color: Color(0xFF9EAFC0),
-                          fontSize: 15,
-                        ),
+                        style: const TextStyle(color: Color(0xFF9EAFC0), fontSize: 15),
                         decoration: InputDecoration(
                           hintText: '••••••••••••••',
                           hintStyle: const TextStyle(color: Color(0xFF9EAFC0)),
                           filled: true,
                           fillColor: const Color(0xFFF0F5FA),
                           suffixIcon: GestureDetector(
-                            onTap: () => setState(
-                                    () => _obscurePassword = !_obscurePassword),
+                            onTap: () => setState(() => _obscurePassword = !_obscurePassword),
                             child: Icon(
                               _obscurePassword
                                   ? Icons.visibility_outlined
@@ -239,28 +213,22 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
-                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         ),
                       ),
                       const SizedBox(height: 12),
                       Align(
                         alignment: Alignment.centerRight,
                         child: GestureDetector(
-                          onTap: () {
-                            // Redirigir a Primer paso para cambiar la contraseña
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ChangeNotifierProvider(
-                                  create: (context) => getIt<RecoveryPasswordViewModel>(),
-                                  child: const RecoveryPasswordPage(),
-                                ),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChangeNotifierProvider(
+                                create: (_) => getIt<RecoveryPasswordViewModel>(),
+                                child: const RecoveryPasswordPage(),
                               ),
-                            );
-                          },
+                            ),
+                          ),
                           child: const Text(
                             '¿Olvidaste tu contraseña?',
                             style: TextStyle(
@@ -275,16 +243,11 @@ class _LoginPageState extends State<LoginPage> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: state.isLoading
-                              ? null
-                              : () => _login(viewModel),
+                          onPressed: state.isLoading ? null : _login,
                           icon: const Icon(Icons.login_rounded, size: 20),
                           label: const Text(
                             'Acceder al Sistema',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF0D6EA8),
@@ -306,20 +269,13 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     const Text(
                       '¿Primera vez aquí?  ',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF6B7D8F),
-                      ),
+                      style: TextStyle(fontSize: 14, color: Color(0xFF6B7D8F)),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const RegisterPage(),
-                          ),
-                        );
-                      },
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const RegisterPage()),
+                      ),
                       child: const Text(
                         'Crea tu cuenta',
                         style: TextStyle(
@@ -345,46 +301,30 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Colors.white,
         selectedItemColor: const Color(0xFF0D6EA8),
         unselectedItemColor: const Color(0xFF9EAFC0),
-        selectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 11,
-        ),
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
         unselectedLabelStyle: const TextStyle(fontSize: 11),
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.help_outline_rounded),
-            label: 'Soporte',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.lock_rounded),
-            label: 'ACCESO',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.gavel_rounded),
-            label: 'Leyes',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.help_outline_rounded), label: 'Soporte'),
+          BottomNavigationBarItem(icon: Icon(Icons.lock_rounded), label: 'ACCESO'),
+          BottomNavigationBarItem(icon: Icon(Icons.gavel_rounded), label: 'Leyes'),
         ],
       ),
     );
   }
 
-  void _login(LoginViewModel viewModel) async {
-    // Limpiar mensajes pendientes anteriores
-    _pendingMessage = null;
+  void _login() {
     ScaffoldMessenger.of(context).clearSnackBars();
-    
-    // Validaciones locales
-    if (dni.text.length != 8) {
+
+    if (_dniController.text.length != 8) {
       _showMessage('DNI debe tener 8 dígitos');
       return;
     }
 
-    if (password.text.isEmpty) {
+    if (_passwordController.text.isEmpty) {
       _showMessage('Ingrese su contraseña');
       return;
     }
 
-    // Hacer el login - los mensajes vendrán a través del Stream
-    await viewModel.login(dni: dni.text, password: password.text);
+    _viewModel.login(dni: _dniController.text, password: _passwordController.text);
   }
 }

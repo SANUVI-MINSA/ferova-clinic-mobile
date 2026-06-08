@@ -17,9 +17,6 @@ class _RecoveryPasswordPageState extends State<RecoveryPasswordPage> {
   final TextEditingController emailController = TextEditingController();
   bool _isNavigating = false;
 
-  // Usar un mensaje único que se muestra una sola vez
-  String? _pendingMessage;
-
   @override
   void initState() {
     super.initState();
@@ -62,15 +59,6 @@ class _RecoveryPasswordPageState extends State<RecoveryPasswordPage> {
     });
   }
 
-
-  void _setupMessageListener() {
-    final viewModel = Provider.of<RecoveryPasswordViewModel>(context, listen: false);
-    viewModel.messageStream.listen((message) {
-      if (mounted) {
-        _showMessage(message);
-      }
-    });
-  }
 
   void _showMessage(String message) {
     // Determinar si es error o éxito basado en el contenido
@@ -159,7 +147,7 @@ class _RecoveryPasswordPageState extends State<RecoveryPasswordPage> {
                     border: Border.all(color: const Color(0xFFE0E0EE), width: 1),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
+                        color: Colors.black.withValues(alpha: 0.04),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -299,8 +287,6 @@ class _RecoveryPasswordPageState extends State<RecoveryPasswordPage> {
   }
 
   void _sendCode(RecoveryPasswordViewModel viewModel) async {
-    // Limpiar mensajes pendientes anteriores
-    _pendingMessage = null;
     ScaffoldMessenger.of(context).clearSnackBars();
 
     // Validación local rápida del email
