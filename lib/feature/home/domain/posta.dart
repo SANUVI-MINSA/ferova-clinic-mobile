@@ -1,5 +1,21 @@
 enum PostaStatus { critico, moderado, bajo }
 
+/// Mapea el riskLevel del backend ("LOW" | "MEDIUM" | "HIGH" | "CRITICAL")
+/// al enum de status de la app.
+PostaStatus postaStatusFromRiskLevel(String riskLevel) {
+  switch (riskLevel.toUpperCase()) {
+    case 'HIGH':
+    case 'CRITICAL':
+      return PostaStatus.critico;
+    case 'MEDIUM':
+    case 'MODERATE':
+      return PostaStatus.moderado;
+    case 'LOW':
+    default:
+      return PostaStatus.bajo;
+  }
+}
+
 class Posta {
   final String id;
   final String name;

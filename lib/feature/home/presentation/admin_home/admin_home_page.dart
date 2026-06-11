@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:ferova_clinic_flutter/core/di/dependency_injection.dart';
 import 'package:ferova_clinic_flutter/feature/auth/domain/user.dart';
 import 'package:ferova_clinic_flutter/feature/home/domain/posta.dart';
 import '../../../auth/presentation/login/login_page.dart';
 import 'admin_home_state.dart';
 import 'admin_home_view_model.dart';
 import '../estado_postas/estado_postas_page.dart';
+import '../estado_postas/estado_postas_view_model.dart';
 import '../mapa_calor/mapa_calor_page.dart';
 
 // ─── Colores compartidos ─────────────────────────────────────────────────────
@@ -175,7 +177,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         index: _selectedIndex,
         children: [
           _HomeTab(state: state),
-          MapaCalorPage(postas: state.postas),
+          MapaCalorPage(postas: state.heatmapPostas),
           const _PostasTab(),
         ],
       ),
@@ -245,16 +247,19 @@ class _HomeTab extends StatelessWidget {
             _GreetingCard(user: state.user),
             const SizedBox(height: 16),
             _StatsRow(
-              postasActivas: state.postasActivas,
-              postasConAlerta: state.postasConAlerta,
+              postasActivas: state.summary.totalActiveFacilities,
+              postasConAlerta: state.summary.totalCriticalFacilities,
             ),
             const SizedBox(height: 16),
             _AdherenciaCard(
-              postas: state.postas,
-              globalCoverage: state.globalCoverage,
+              postas: state.topPostas,
+              globalCoverage: state.summary.globalAdherenceRate,
             ),
             const SizedBox(height: 16),
-            _EstadoPostasCard(postas: state.postas),
+            _EstadoPostasCard(
+              postas: state.topPostas,
+              globalAdherence: state.summary.globalAdherenceRate,
+            ),
             const SizedBox(height: 16),
           ],
         ),
@@ -564,7 +569,8 @@ class _MiniBar extends StatelessWidget {
 // ─── Tarjeta Estado de Postas ─────────────────────────────────────────────────
 class _EstadoPostasCard extends StatelessWidget {
   final List<Posta> postas;
-  const _EstadoPostasCard({required this.postas});
+  final double globalAdherence;
+  const _EstadoPostasCard({required this.postas, required this.globalAdherence});
 
   @override
   Widget build(BuildContext context) {
@@ -582,7 +588,7 @@ class _EstadoPostasCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _EstadoPostasHeader(postas: postas),
+          _EstadoPostasHeader(postas: postas, globalAdherence: globalAdherence),
           if (postas.isEmpty)
             const _EmptyPostasState()
           else
@@ -596,7 +602,8 @@ class _EstadoPostasCard extends StatelessWidget {
 
 class _EstadoPostasHeader extends StatelessWidget {
   final List<Posta> postas;
-  const _EstadoPostasHeader({required this.postas});
+  final double globalAdherence;
+  const _EstadoPostasHeader({required this.postas, required this.globalAdherence});
 
   @override
   Widget build(BuildContext context) {
@@ -618,7 +625,10 @@ class _EstadoPostasHeader extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => EstadoPostasPage(postas: postas),
+                  builder: (_) => ChangeNotifierProvider(
+                    create: (_) => getIt<EstadoPostasViewModel>()..load(),
+                    child: EstadoPostasPage(globalAdherence: globalAdherence),
+                  ),
                 ),
               ),
               child: Row(

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:printing/printing.dart';
+import 'package:provider/provider.dart';
 import 'package:ferova_clinic_flutter/feature/home/domain/posta.dart';
+import 'estado_postas_view_model.dart';
 
 const _kNavy = Color(0xFF1A3A5C);
 const _kBlue = Color(0xFF0D6EA8);
@@ -20,17 +23,14 @@ Color _statusColor(PostaStatus s) {
 
 // ─── Página Estado de Postas ──────────────────────────────────────────────────
 class EstadoPostasPage extends StatelessWidget {
-  final List<Posta> postas;
-  const EstadoPostasPage({super.key, required this.postas});
-
-  double get _globalCoverage {
-    if (postas.isEmpty) return 0;
-    final sum = postas.fold(0.0, (acc, p) => acc + p.coveragePercentage);
-    return sum / postas.length;
-  }
+  /// Adherencia global viene del dashboard summary (TPS-4: no usar otro endpoint)
+  final double globalAdherence;
+  const EstadoPostasPage({super.key, required this.globalAdherence});
 
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<EstadoPostasViewModel>().state;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
@@ -52,17 +52,24 @@ class EstadoPostasPage extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _AdherenciaGlobalCard(globalCoverage: _globalCoverage),
-            const SizedBox(height: 16),
-            _DetalleEstablecimientoCard(postas: postas),
-          ],
-        ),
-      ),
+      body: state.isLoading
+          ? const Center(child: CircularProgressIndicator(color: _kBlue))
+          : RefreshIndicator(
+              color: _kBlue,
+              onRefresh: () => context.read<EstadoPostasViewModel>().load(),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _AdherenciaGlobalCard(globalCoverage: globalAdherence),
+                    const SizedBox(height: 16),
+                    _DetalleEstablecimientoCard(postas: state.postas),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 }
@@ -149,9 +156,29 @@ class _DetalleEstablecimientoCard extends StatelessWidget {
         children: [
           _DetalleHeader(),
           const Divider(height: 1, thickness: 1, color: Color(0xFFF0F5FA)),
-          ...postas.map((p) => _EstablecimientoItem(posta: p)),
+          if (postas.isEmpty)
+            const _DetalleEmptyState()
+          else
+            ...postas.map((p) => _EstablecimientoItem(posta: p)),
           const SizedBox(height: 8),
         ],
+      ),
+    );
+  }
+}
+
+class _DetalleEmptyState extends StatelessWidget {
+  const _DetalleEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 32),
+      child: Center(
+        child: Text(
+          'No hay establecimientos registrados',
+          style: TextStyle(fontSize: 14, color: Color(0xFF9EAFC0)),
+        ),
       ),
     );
   }
@@ -162,12 +189,12 @@ class _DetalleHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 12, 16),
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(16, 16, 12, 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
+          Text(
             'Detalle por Establecimiento',
             style: TextStyle(
               fontSize: 15,
@@ -175,21 +202,58 @@ class _DetalleHeader extends StatelessWidget {
               color: _kNavy,
             ),
           ),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _kBlue,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              elevation: 0,
-            ),
-            child: const Text('Exportar', style: TextStyle(fontSize: 13)),
-          ),
+          _ExportButton(),
         ],
       ),
+    );
+  }
+}
+
+class _ExportButton extends StatelessWidget {
+  const _ExportButton();
+
+  Future<void> _onExport(BuildContext context) async {
+    final viewModel = context.read<EstadoPostasViewModel>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final bytes = await viewModel.exportReport();
+
+    if (bytes == null) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('No se pudo generar el reporte PDF'),
+          backgroundColor: _kRed,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    await Printing.sharePdf(bytes: bytes, filename: 'reporte_postas.pdf');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isExporting = context.watch<EstadoPostasViewModel>().isExporting;
+
+    return ElevatedButton(
+      onPressed: isExporting ? null : () => _onExport(context),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: _kBlue,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        elevation: 0,
+      ),
+      child: isExporting
+          ? const SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            )
+          : const Text('Exportar', style: TextStyle(fontSize: 13)),
     );
   }
 }
