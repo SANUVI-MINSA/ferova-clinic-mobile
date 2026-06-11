@@ -1,3 +1,5 @@
+import 'package:ferova_clinic_flutter/feature/health-facility/domain/model/appointment.dart';
+
 class AppointmentResponseDto {
   final String appointmentId;
   final String patientId;
@@ -20,6 +22,17 @@ class AppointmentResponseDto {
       appointmentDate: json['appointmentDate'] as String,
       appointmentTime: json['appointmentTime'] as String,
       status: json['status'] as String,
+    );
+  }
+
+  Appointment toDomain() {
+    return Appointment(
+      id: appointmentId,
+      patientId: patientId,
+      patientName: '',
+      appointmentDate: appointmentDate,
+      appointmentTime: appointmentTime,
+      status: status,
     );
   }
 }
