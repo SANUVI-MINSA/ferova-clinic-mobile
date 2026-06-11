@@ -1,8 +1,7 @@
 import 'dart:async';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../domain/auth_repository.dart';
-import '../../domain/user.dart';
 import 'login_state.dart';
 
 class LoginViewModel extends ChangeNotifier {
@@ -14,16 +13,36 @@ class LoginViewModel extends ChangeNotifier {
   LoginState _state = LoginState();
   LoginState get state => _state;
 
-  // Stream para manejar mensajes de manera más limpia
   final _messageController = StreamController<String>.broadcast();
   Stream<String> get messageStream => _messageController.stream;
+
+  // ⭐ Función para decodificar JWT y extraer el userId
+  String? _decodeJwtUserId(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
+
+      final payload = parts[1];
+      // Ajustar el padding base64
+      String normalized = payload.replaceAll('-', '+').replaceAll('_', '/');
+      while (normalized.length % 4 != 0) {
+        normalized += '=';
+      }
+
+      final decoded = utf8.decode(base64.decode(normalized));
+      final json = jsonDecode(decoded);
+
+      return json['id'] as String? ?? json['motherId'] as String?;
+    } catch (e) {
+      return null;
+    }
+  }
 
   Future<void> login({required String dni, required String password}) async {
     if (_isLoggingIn) return;
 
     _isLoggingIn = true;
 
-    // Resetear estado antes de login
     _state = _state.copyWith(
       isLoading: true,
       errorMessage: null,
@@ -33,21 +52,10 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final User? user = await repository.login(dni: dni, password: password);
-      final String? token = await repository.getToken();
+      // 1. Login para obtener el token
+      final result = await repository.login(dni: dni, password: password);
 
-      if (user != null && token != null) {
-        _state = _state.copyWith(
-          isLoading: false,
-          user: user,
-          token: token,
-          errorMessage: null,
-        );
-        notifyListeners();
-        
-        // Enviar mensaje de éxito
-        _messageController.add('Bienvenido ${user.fullName}');
-      } else {
+      if (result == null) {
         _state = _state.copyWith(
           isLoading: false,
           user: null,
@@ -55,10 +63,82 @@ class LoginViewModel extends ChangeNotifier {
           errorMessage: 'DNI o contraseña incorrectos',
         );
         notifyListeners();
-        
-        // Enviar mensaje de error
         _messageController.add('DNI o contraseña incorrectos');
+        _isLoggingIn = false;
+        return;
       }
+
+      // 2. Obtener el token guardado
+      final token = await repository.getToken();
+
+      if (token == null) {
+        _state = _state.copyWith(
+          isLoading: false,
+          user: null,
+          token: null,
+          errorMessage: 'Error al obtener token',
+        );
+        notifyListeners();
+        _isLoggingIn = false;
+        return;
+      }
+
+      // 3. Decodificar JWT para obtener userId
+      final userId = _decodeJwtUserId(token);
+
+      if (userId == null) {
+        _state = _state.copyWith(
+          isLoading: false,
+          user: null,
+          token: null,
+          errorMessage: 'Token inválido',
+        );
+        notifyListeners();
+        _isLoggingIn = false;
+        return;
+      }
+
+      // 4. Obtener datos completos del usuario (incluyendo role)
+      final user = await repository.getUserById(userId);
+
+      if (user == null) {
+        _state = _state.copyWith(
+          isLoading: false,
+          user: null,
+          token: null,
+          errorMessage: 'Error al obtener datos del usuario',
+        );
+        notifyListeners();
+        _isLoggingIn = false;
+        return;
+      }
+
+      // 5. VALIDACIÓN DE ROL - Solo Admin y Nurse pueden entrar
+      if (user.role != "Admin" && user.role != "Nurse") {
+        // Es Mother u otro rol - rechazar acceso
+        await repository.logout();
+        _state = _state.copyWith(
+          isLoading: false,
+          user: null,
+          token: null,
+          errorMessage: 'ACCESO DENEGADO\n\nFerovaClinic es exclusiva para personal.\n\nTu cuenta es de tipo: ${user.role}\n\nUsa la app FEROVAFAMILY.',
+        );
+        notifyListeners();
+        _messageController.add('ACCESO DENEGADO: Esta app es solo para personal (Admin/Nurse)');
+        _isLoggingIn = false;
+        return;
+      }
+
+      // Admin o Nurse - acceso permitido
+      _state = _state.copyWith(
+        isLoading: false,
+        user: user,
+        token: token,
+        errorMessage: null,
+      );
+      notifyListeners();
+      _messageController.add('Bienvenido ${user.fullName}');
+
     } catch (e) {
       _state = _state.copyWith(
         isLoading: false,
@@ -91,7 +171,7 @@ class LoginViewModel extends ChangeNotifier {
     _state = LoginState();
     notifyListeners();
   }
-  
+
   @override
   void dispose() {
     _messageController.close();

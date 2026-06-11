@@ -15,6 +15,7 @@ class NewPasswordState {
     this.errorMessage,
     this.successMessage,
     StreamController<String>? messageStreamController,
+  // ignore: prefer_initializing_formals
   }) : _messageStreamController = messageStreamController;
 
   NewPasswordState copyWith({
