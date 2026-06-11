@@ -15,11 +15,11 @@ class AppointmentResponseDto {
 
   factory AppointmentResponseDto.fromJson(Map<String, dynamic> json) {
     return AppointmentResponseDto(
-      appointmentId: json['appointmentId'] as String? ?? '',
-      patientId: json['patientId'] as String? ?? '',
-      appointmentDate: json['appointmentDate'] as String? ?? '',
-      appointmentTime: json['appointmentTime'] as String? ?? '',
-      status: json['status'] as String? ?? '',
+      appointmentId: json['appointmentId'] as String,
+      patientId: json['patientId'] as String,
+      appointmentDate: json['appointmentDate'] as String,
+      appointmentTime: json['appointmentTime'] as String,
+      status: json['status'] as String,
     );
   }
 }
