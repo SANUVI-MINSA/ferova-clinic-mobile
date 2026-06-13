@@ -1,4 +1,4 @@
-import 'package:ferova_clinic_flutter/feature/health-facility/domain/model/admin_facility.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/admin_facility.dart';
 
 class AdminFacilityResponseDto {
   final String id;

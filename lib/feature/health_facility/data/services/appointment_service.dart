@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:ferova_clinic_flutter/config/app_config.dart';
-import 'package:ferova_clinic_flutter/feature/health-facility/data/dtos/appointment_response_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/appointment_response_dto.dart';
 import 'package:http/http.dart' as http;
 
 class AppointmentService {

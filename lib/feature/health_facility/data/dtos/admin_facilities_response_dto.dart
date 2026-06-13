@@ -1,4 +1,4 @@
-import 'package:ferova_clinic_flutter/feature/health-facility/data/dtos/admin_facility_response_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_response_dto.dart';
 
 class AdminFacilitiesResponseDto {
   final int total;

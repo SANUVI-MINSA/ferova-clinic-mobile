@@ -1,6 +1,6 @@
 import 'package:ferova_clinic_flutter/feature/auth/domain/auth_repository.dart';
-import 'package:ferova_clinic_flutter/feature/health-facility/domain/model/appointment.dart';
-import 'package:ferova_clinic_flutter/feature/health-facility/domain/repositories/appointment_repository.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/appointment.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositories/appointment_repository.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_state.dart';
 import 'package:flutter/cupertino.dart';
 

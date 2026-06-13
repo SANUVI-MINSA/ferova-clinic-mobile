@@ -1,5 +1,5 @@
-import 'package:ferova_clinic_flutter/feature/health-facility/domain/model/appointment.dart';
-import 'package:ferova_clinic_flutter/feature/health-facility/presentation/nurse_pages/nurse_appointments_page.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/appointment.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/nurse_appointments_page.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_state.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/today_appointment_card.dart';

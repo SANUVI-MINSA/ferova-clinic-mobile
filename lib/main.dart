@@ -1,4 +1,4 @@
-import 'package:ferova_clinic_flutter/feature/health-facility/presentation/nurse_pages/appointment_view_model.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/appointment_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ferova_clinic_flutter/core/di/dependency_injection.dart';

@@ -1,7 +1,10 @@
-import 'package:ferova_clinic_flutter/feature/health-facility/data/repositories/appointment_repository_impl.dart';
-import 'package:ferova_clinic_flutter/feature/health-facility/data/services/appointment_service.dart';
-import 'package:ferova_clinic_flutter/feature/health-facility/domain/repositories/appointment_repository.dart';
-import 'package:ferova_clinic_flutter/feature/health-facility/presentation/nurse_pages/appointment_view_model.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/repositories/admin_facility_repository_impl.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/repositories/appointment_repository_impl.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/services/admin_facility_service.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/services/appointment_service.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositories/admin_facility_repository.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositories/appointment_repository.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/appointment_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_view_model.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ferova_clinic_flutter/feature/auth/domain/auth_repository.dart';
@@ -93,5 +96,16 @@ void setup() {
   //ViewModel
   getIt.registerFactory<AppointmentViewModel>(
     () => AppointmentViewModel(repository: getIt<AppointmentRepository>()),
+  );
+
+  //Admin
+  //Service
+  getIt.registerLazySingleton<AdminFacilityService>(
+    () => AdminFacilityService(),
+  );
+
+  //Repository
+  getIt.registerLazySingleton<AdminFacilityRepository>(
+    () => AdminFacilityRepositoryImpl(service: getIt<AdminFacilityService>()),
   );
 }

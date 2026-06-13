@@ -1,7 +1,7 @@
-import 'package:ferova_clinic_flutter/feature/health-facility/domain/model/appointment.dart';
-import 'package:ferova_clinic_flutter/feature/health-facility/presentation/nurse_pages/appointment_state.dart';
-import 'package:ferova_clinic_flutter/feature/health-facility/presentation/nurse_pages/appointment_view_model.dart';
-import 'package:ferova_clinic_flutter/feature/health-facility/presentation/nurse_pages/appointment_card.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/appointment.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/appointment_state.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/appointment_view_model.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/appointment_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

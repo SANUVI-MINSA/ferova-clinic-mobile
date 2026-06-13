@@ -1,5 +1,5 @@
-import 'package:ferova_clinic_flutter/feature/health-facility/data/services/appointment_service.dart';
-import 'package:ferova_clinic_flutter/feature/health-facility/domain/model/appointment.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/services/appointment_service.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/appointment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/repositories/appointment_repository.dart';
 
