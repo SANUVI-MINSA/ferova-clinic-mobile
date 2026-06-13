@@ -1,3 +1,4 @@
+import 'package:ferova_clinic_flutter/feature/health-facility/presentation/nurse_pages/appointment_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ferova_clinic_flutter/core/di/dependency_injection.dart';
@@ -18,19 +19,16 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (context) => getIt<LoginViewModel>()),
+        ChangeNotifierProvider(create: (context) => getIt<RegisterViewModel>()),
         ChangeNotifierProvider(
-          create: (context) => getIt<LoginViewModel>(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => getIt<RegisterViewModel>(),
+          create: (context) => getIt<AppointmentViewModel>(),
         ),
       ],
       child: MaterialApp(
         title: 'Ferova Clinic',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
+        theme: ThemeData(primarySwatch: Colors.blue),
         home: const LoginPage(),
       ),
     );
