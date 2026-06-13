@@ -17,7 +17,6 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
   Future<List<Appointment>> getNurseAppointments() async {
     final token = await _token();
     final dtos = await service.getNurseAppointments(token);
-    //Falta agregar el nombre del paciente, service de patients necesario
     return dtos.map((dto) => dto.toDomain()).toList();
   }
 }

@@ -1,16 +1,18 @@
-class AdminFacilityResponseDto {
-  final int total;
-  final List<AdminFacilityResponseDto> adminFacilities;
+import 'package:ferova_clinic_flutter/feature/health-facility/data/dtos/admin_facility_response_dto.dart';
 
-  const AdminFacilityResponseDto({
+class AdminFacilitiesResponseDto {
+  final int total;
+  final List<AdminFacilityResponseDto> healthFacilities; // ← tipo correcto
+
+  const AdminFacilitiesResponseDto({
     required this.total,
-    required this.adminFacilities,
+    required this.healthFacilities,
   });
 
-  factory AdminFacilityResponseDto.fromJson(Map<String, dynamic> json) {
-    return AdminFacilityResponseDto(
+  factory AdminFacilitiesResponseDto.fromJson(Map<String, dynamic> json) {
+    return AdminFacilitiesResponseDto(
       total: json['total'] as int,
-      adminFacilities: (json['healthFacilities'] as List)
+      healthFacilities: (json['healthFacilities'] as List)
           .map((item) => AdminFacilityResponseDto.fromJson(item))
           .toList(),
     );

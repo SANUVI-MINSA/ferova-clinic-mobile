@@ -1,3 +1,5 @@
+import 'package:ferova_clinic_flutter/feature/health-facility/domain/model/admin_facility.dart';
+
 class AdminFacilityResponseDto {
   final String id;
   final String name;
@@ -23,6 +25,17 @@ class AdminFacilityResponseDto {
       assignedNurseName: json['assignedNurseName'] as String?,
       hasNurseAssigned: json['hasNurseAssigned'] as bool,
       displayMessage: json['displayMessage'] as String?,
+    );
+  }
+
+  AdminFacility toDomain() {
+    return AdminFacility(
+      id: id,
+      name: name,
+      address: address,
+      hasNurseAssigned: hasNurseAssigned,
+      assignedNurseName: assignedNurseName ?? '',
+      displayMessage: displayMessage ?? '',
     );
   }
 }
