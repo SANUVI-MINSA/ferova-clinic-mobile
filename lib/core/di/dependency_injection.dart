@@ -1,3 +1,7 @@
+import 'package:ferova_clinic_flutter/feature/health-facility/data/repositories/appointment_repository_impl.dart';
+import 'package:ferova_clinic_flutter/feature/health-facility/data/services/appointment_service.dart';
+import 'package:ferova_clinic_flutter/feature/health-facility/domain/repositories/appointment_repository.dart';
+import 'package:ferova_clinic_flutter/feature/health-facility/presentation/nurse_pages/appointment_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_view_model.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ferova_clinic_flutter/feature/auth/domain/auth_repository.dart';
@@ -17,59 +21,77 @@ import '../../feature/auth/presentation/forgot_password/verification_indentity_p
 final getIt = GetIt.instance;
 
 void setup() {
-  // 1 Auth
+  // 1) Auth
   // Services
   getIt.registerLazySingleton<AuthService>(() => AuthService());
 
   // Repositories
   getIt.registerLazySingleton<AuthRepository>(
-        () => AuthRepositoryImpl(authService: getIt<AuthService>()),
+    () => AuthRepositoryImpl(authService: getIt<AuthService>()),
   );
 
   // ViewModels
   getIt.registerFactory<LoginViewModel>(
-        () => LoginViewModel(repository: getIt<AuthRepository>()),
+    () => LoginViewModel(repository: getIt<AuthRepository>()),
   );
 
   getIt.registerFactory<RegisterViewModel>(
-        () => RegisterViewModel(repository: getIt<AuthRepository>()),
+    () => RegisterViewModel(repository: getIt<AuthRepository>()),
   );
 
   // Forgot Password ViewModels
   getIt.registerFactory<RecoveryPasswordViewModel>(
-        () => RecoveryPasswordViewModel(repository: getIt<AuthRepository>()),
+    () => RecoveryPasswordViewModel(repository: getIt<AuthRepository>()),
   );
 
   getIt.registerFactory<VerificationIdentityViewModel>(
-        () => VerificationIdentityViewModel(repository: getIt<AuthRepository>()),
+    () => VerificationIdentityViewModel(repository: getIt<AuthRepository>()),
   );
 
   getIt.registerFactory<NewPasswordViewModel>(
-        () => NewPasswordViewModel(repository: getIt<AuthRepository>()),
+    () => NewPasswordViewModel(repository: getIt<AuthRepository>()),
   );
 
-  // 2 Home / Analytics
+  // 2) Home / Analytics
   // Services
   getIt.registerLazySingleton<AnalyticsService>(() => AnalyticsService());
 
   // Repositories
   getIt.registerLazySingleton<AnalyticsRepository>(
-        () => AnalyticsRepositoryImpl(service: getIt<AnalyticsService>()),
+    () => AnalyticsRepositoryImpl(service: getIt<AnalyticsService>()),
   );
 
   // ViewModels
   getIt.registerFactory<AdminHomeViewModel>(
-        () => AdminHomeViewModel(
-          repository: getIt<AnalyticsRepository>(),
-          authRepository: getIt<AuthRepository>(),
-        ),
+    () => AdminHomeViewModel(
+      repository: getIt<AnalyticsRepository>(),
+      authRepository: getIt<AuthRepository>(),
+    ),
   );
 
   getIt.registerFactory<EstadoPostasViewModel>(
-        () => EstadoPostasViewModel(repository: getIt<AnalyticsRepository>()),
+    () => EstadoPostasViewModel(repository: getIt<AnalyticsRepository>()),
   );
 
   getIt.registerFactory<NurseHomeViewModel>(
-        () => NurseHomeViewModel(authRepository: getIt<AuthRepository>()),
+    () => NurseHomeViewModel(
+      authRepository: getIt<AuthRepository>(),
+      appointmentRepository: getIt<AppointmentRepository>(),
+    ),
+  );
+
+  //3) Health Facility
+  //Nurse
+  //Service
+  getIt.registerLazySingleton<AppointmentService>(() => AppointmentService());
+
+  //Repository
+  getIt.registerLazySingleton<AppointmentRepository>(
+    () => AppointmentRepositoryImpl(service: getIt<AppointmentService>()),
+  );
+
+  //ViewModel
+  getIt.registerFactory<AppointmentViewModel>(
+    () => AppointmentViewModel(repository: getIt<AppointmentRepository>()),
   );
 }
