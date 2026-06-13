@@ -97,6 +97,14 @@ class _NurseHomePageState extends State<NurseHomePage> {
     return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
   }
 
+  String _initials(String fullName) {
+    final words = fullName.trim().split(' ');
+    if (words.length >= 2) {
+      return '${words[0][0]}${words[1][0]}'.toUpperCase();
+    }
+    return fullName.substring(0, 2).toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<NurseHomeViewModel>();
@@ -138,7 +146,10 @@ class _NurseHomePageState extends State<NurseHomePage> {
             const SizedBox(height: 20),
             _buildQuickAccess(),
             const SizedBox(height: 20),
-            _buildDaySchedule(state.todayAppointments),
+            _buildDaySchedule(
+              state.todayAppointments,
+              state.isLoadingAppointments,
+            ),
             const SizedBox(height: 20),
           ],
         ),
@@ -470,7 +481,10 @@ class _NurseHomePageState extends State<NurseHomePage> {
   }
 
   // ── Agenda del Día ────────────────────────────────────────────────────────
-  Widget _buildDaySchedule(List<Appointment> todayAppointments) {
+  Widget _buildDaySchedule(
+    List<Appointment> todayAppointments,
+    bool isLoadingAppointments,
+  ) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -538,6 +552,10 @@ class _NurseHomePageState extends State<NurseHomePage> {
                 ),
               ),
             )
+          else if (isLoadingAppointments)
+            const Center(
+              child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+            )
           else
             ClipRRect(
               borderRadius: const BorderRadius.only(
@@ -553,7 +571,7 @@ class _NurseHomePageState extends State<NurseHomePage> {
                   final Appointment a = todayAppointments[index];
                   return TodayAppointmentCard(
                     appointment: a,
-                    initials: a.patientName,
+                    initials: _initials(a.patientName),
                     formattedDate: _formatDate(a.appointmentDate),
                     formattedTime: _formatTime(a.appointmentTime),
                   );

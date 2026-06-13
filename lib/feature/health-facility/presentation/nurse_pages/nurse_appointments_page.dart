@@ -47,6 +47,14 @@ class NurseAppointmentsPage extends StatelessWidget {
     return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
   }
 
+  String _initials(String fullName) {
+    final words = fullName.trim().split(' ');
+    if (words.length >= 2) {
+      return '${words[0][0]}${words[1][0]}'.toUpperCase();
+    }
+    return fullName.substring(0, 2).toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppointmentViewModel viewModel = context
@@ -104,7 +112,7 @@ class NurseAppointmentsPage extends StatelessWidget {
                       final Appointment a = state.appointments[index];
                       return AppointmentCard(
                         appointment: a,
-                        initials: a.patientName,
+                        initials: _initials(a.patientName),
                         formattedDate: _formatDate(a.appointmentDate),
                         formattedTime: _formatTime(a.appointmentTime),
                       );
