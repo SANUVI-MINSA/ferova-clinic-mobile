@@ -33,8 +33,7 @@ class NurseHomeViewModel extends ChangeNotifier {
     try {
       List<Appointment> appointments = await appointmentRepository
           .getNurseAppointments();
-      final String today = '2026-06-18';
-      //final String today = DateTime.now().toIso8601String().substring(0, 10);
+      final String today = DateTime.now().toIso8601String().substring(0, 10);
 
       final List<Appointment> todayAppointments = appointments
           .where((a) => a.appointmentDate == today)
