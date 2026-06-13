@@ -99,7 +99,7 @@ class NurseAppointmentsPage extends StatelessWidget {
                       vertical: 12,
                     ),
                     itemCount: state.appointments.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final Appointment a = state.appointments[index];
                       return AppointmentCard(
