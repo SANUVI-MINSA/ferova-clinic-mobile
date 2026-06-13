@@ -3,6 +3,7 @@ import 'package:ferova_clinic_flutter/feature/health-facility/domain/model/appoi
 class AppointmentResponseDto {
   final String appointmentId;
   final String patientId;
+  final String patientName;
   final String appointmentDate; // YYYY-MM-DD
   final String appointmentTime; // HH:mm
   final String status;
@@ -10,6 +11,7 @@ class AppointmentResponseDto {
   const AppointmentResponseDto({
     required this.appointmentId,
     required this.patientId,
+    required this.patientName,
     required this.appointmentDate,
     required this.appointmentTime,
     required this.status,
@@ -19,6 +21,7 @@ class AppointmentResponseDto {
     return AppointmentResponseDto(
       appointmentId: json['appointmentId'] as String,
       patientId: json['patientId'] as String,
+      patientName: json['patientName'],
       appointmentDate: json['appointmentDate'] as String,
       appointmentTime: json['appointmentTime'] as String,
       status: json['status'] as String,
@@ -29,7 +32,7 @@ class AppointmentResponseDto {
     return Appointment(
       id: appointmentId,
       patientId: patientId,
-      patientName: '',
+      patientName: patientName,
       appointmentDate: appointmentDate,
       appointmentTime: appointmentTime,
       status: status,
