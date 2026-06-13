@@ -4,6 +4,7 @@ import 'package:ferova_clinic_flutter/feature/health_facility/data/services/admi
 import 'package:ferova_clinic_flutter/feature/health_facility/data/services/appointment_service.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositories/admin_facility_repository.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositories/appointment_repository.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/appointment_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_view_model.dart';
 import 'package:get_it/get_it.dart';
@@ -107,5 +108,10 @@ void setup() {
   //Repository
   getIt.registerLazySingleton<AdminFacilityRepository>(
     () => AdminFacilityRepositoryImpl(service: getIt<AdminFacilityService>()),
+  );
+
+  //ViewModel
+  getIt.registerFactory<AdminFacilityViewModel>(
+    () => AdminFacilityViewModel(repository: getIt<AdminFacilityRepository>()),
   );
 }

@@ -1,3 +1,4 @@
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/appointment_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +24,9 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => getIt<RegisterViewModel>()),
         ChangeNotifierProvider(
           create: (context) => getIt<AppointmentViewModel>(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => getIt<AdminFacilityViewModel>(),
         ),
       ],
       child: MaterialApp(

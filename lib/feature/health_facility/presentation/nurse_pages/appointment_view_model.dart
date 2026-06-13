@@ -1,7 +1,7 @@
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/appointment.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositories/appointment_repository.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/appointment_state.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class AppointmentViewModel extends ChangeNotifier {
   final AppointmentRepository repository;
