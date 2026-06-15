@@ -1,4 +1,5 @@
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/admin_facility.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/nurse.dart';
 
 class AdminFacilityState {
   final bool isLoadingFacilities;
@@ -6,6 +7,8 @@ class AdminFacilityState {
   final List<AdminFacility> adminFacilities;
   final bool isLoadingNurseAvailability;
   final bool canRegisterFacilty;
+  final bool isLoadingAvailableNurses;
+  final List<Nurse> availableNurses;
 
   const AdminFacilityState({
     this.isLoadingFacilities = false,
@@ -13,6 +16,8 @@ class AdminFacilityState {
     this.adminFacilities = const [],
     this.isLoadingNurseAvailability = false,
     this.canRegisterFacilty = false,
+    this.isLoadingAvailableNurses = false,
+    this.availableNurses = const [],
   });
 
   AdminFacilityState copyWith({
@@ -21,6 +26,8 @@ class AdminFacilityState {
     List<AdminFacility>? adminFacilities,
     bool? isLoadingNurseAvailability,
     bool? canRegisterFacilty,
+    bool? isLoadingAvailableNurses,
+    List<Nurse>? availableNurses,
   }) {
     return AdminFacilityState(
       isLoadingFacilities: isLoadingFacilities ?? this.isLoadingFacilities,
@@ -29,6 +36,9 @@ class AdminFacilityState {
       isLoadingNurseAvailability:
           isLoadingNurseAvailability ?? this.isLoadingNurseAvailability,
       canRegisterFacilty: canRegisterFacilty ?? this.canRegisterFacilty,
+      isLoadingAvailableNurses:
+          isLoadingFacilities ?? this.isLoadingAvailableNurses,
+      availableNurses: availableNurses ?? this.availableNurses,
     );
   }
 }

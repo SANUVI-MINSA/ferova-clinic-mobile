@@ -1,5 +1,6 @@
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_availability_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/admin_facility.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/nurse.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositories/admin_facility_repository.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_state.dart';
 import 'package:flutter/material.dart';
@@ -46,5 +47,24 @@ class AdminFacilityViewModel extends ChangeNotifier {
         errorMessage: '$e',
       );
     }
+  }
+
+  Future<void> getAvailableNurses() async {
+    state = state.copyWith(isLoadingAvailableNurses: true);
+    notifyListeners();
+
+    try {
+      List<Nurse> availableNurses = await repository.getAvailableNurses();
+      state = state.copyWith(
+        availableNurses: availableNurses,
+        isLoadingAvailableNurses: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoadingAvailableNurses: false,
+        errorMessage: '$e',
+      );
+    }
+    notifyListeners();
   }
 }
