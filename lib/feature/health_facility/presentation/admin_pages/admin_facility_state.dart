@@ -9,6 +9,9 @@ class AdminFacilityState {
   final bool canRegisterFacilty;
   final bool isLoadingAvailableNurses;
   final List<Nurse> availableNurses;
+  final bool isLoadingNurseAssignment;
+  final bool isNurseAssigned;
+  final String? assignmentMessage;
 
   const AdminFacilityState({
     this.isLoadingFacilities = false,
@@ -18,6 +21,9 @@ class AdminFacilityState {
     this.canRegisterFacilty = false,
     this.isLoadingAvailableNurses = false,
     this.availableNurses = const [],
+    this.isLoadingNurseAssignment = false,
+    this.isNurseAssigned = false,
+    this.assignmentMessage,
   });
 
   AdminFacilityState copyWith({
@@ -28,6 +34,9 @@ class AdminFacilityState {
     bool? canRegisterFacilty,
     bool? isLoadingAvailableNurses,
     List<Nurse>? availableNurses,
+    bool? isLoadingNurseAssignment,
+    bool? isNurseAssigned,
+    String? assignmentMessage,
   }) {
     return AdminFacilityState(
       isLoadingFacilities: isLoadingFacilities ?? this.isLoadingFacilities,
@@ -39,6 +48,10 @@ class AdminFacilityState {
       isLoadingAvailableNurses:
           isLoadingFacilities ?? this.isLoadingAvailableNurses,
       availableNurses: availableNurses ?? this.availableNurses,
+      isLoadingNurseAssignment:
+          isLoadingNurseAssignment ?? this.isLoadingNurseAssignment,
+      isNurseAssigned: isNurseAssigned ?? this.isNurseAssigned,
+      assignmentMessage: assignmentMessage ?? this.assignmentMessage,
     );
   }
 }

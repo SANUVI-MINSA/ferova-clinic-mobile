@@ -1,3 +1,5 @@
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_request_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_availability_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/admin_facility.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/nurse.dart';
@@ -14,7 +16,7 @@ class AdminFacilityViewModel extends ChangeNotifier {
   }
 
   Future<void> getHealthFacilities() async {
-    state = state.copyWith(isLoadingFacilities: true);
+    state = state.copyWith(isLoadingFacilities: true, errorMessage: null);
     notifyListeners();
 
     try {
@@ -31,7 +33,10 @@ class AdminFacilityViewModel extends ChangeNotifier {
   }
 
   Future<void> canRegisterFacility() async {
-    state = state.copyWith(isLoadingNurseAvailability: true);
+    state = state.copyWith(
+      isLoadingNurseAvailability: true,
+      errorMessage: null,
+    );
     notifyListeners();
 
     try {
@@ -50,7 +55,7 @@ class AdminFacilityViewModel extends ChangeNotifier {
   }
 
   Future<void> getAvailableNurses() async {
-    state = state.copyWith(isLoadingAvailableNurses: true);
+    state = state.copyWith(isLoadingAvailableNurses: true, errorMessage: null);
     notifyListeners();
 
     try {
@@ -66,5 +71,29 @@ class AdminFacilityViewModel extends ChangeNotifier {
       );
     }
     notifyListeners();
+  }
+
+  Future<void> assignNurse(String facilityId, String nurseId) async {
+    state = state.copyWith(isLoadingNurseAssignment: true, errorMessage: null);
+    notifyListeners();
+
+    NurseAssignmentRequestDto request = NurseAssignmentRequestDto(
+      facilityId: facilityId,
+      nurseId: nurseId,
+    );
+    NurseAssignmentResponseDto dto = await repository.assignNurse(request);
+    if (dto.message != null) {
+      state = state.copyWith(
+        isNurseAssigned: true,
+        isLoadingNurseAssignment: false,
+        assignmentMessage: dto.message,
+      );
+    } else {
+      state = state.copyWith(
+        isNurseAssigned: false,
+        isLoadingNurseAssignment: false,
+        errorMessage: dto.error,
+      );
+    }
   }
 }
