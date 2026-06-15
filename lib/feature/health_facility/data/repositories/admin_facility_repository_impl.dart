@@ -1,3 +1,5 @@
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_request_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_availability_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/services/admin_facility_service.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/admin_facility.dart';
@@ -34,5 +36,14 @@ class AdminFacilityRepositoryImpl implements AdminFacilityRepository {
     final token = await _token();
     final dto = await service.getAvailableNurses(token);
     return dto.data.map((item) => item.toDomain()).toList();
+  }
+
+  @override
+  Future<NurseAssignmentResponseDto> assignNurse(
+    NurseAssignmentRequestDto request,
+  ) async {
+    final token = await _token();
+    final dto = await service.postNurseAssignment(token, request);
+    return dto;
   }
 }
