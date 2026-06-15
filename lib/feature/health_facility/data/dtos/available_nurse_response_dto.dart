@@ -1,3 +1,5 @@
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/nurse.dart';
+
 class AvailableNurseResponseDto {
   final String id;
   final String fullName;
@@ -9,5 +11,9 @@ class AvailableNurseResponseDto {
       id: json['id'] as String,
       fullName: json['fullName'] as String,
     );
+  }
+
+  Nurse toDomain() {
+    return Nurse(id: id, fullName: fullName);
   }
 }

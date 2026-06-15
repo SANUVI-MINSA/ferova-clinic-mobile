@@ -30,8 +30,9 @@ class AdminFacilityRepositoryImpl implements AdminFacilityRepository {
   }
 
   @override
-  Future<List<Nurse>> getAvailableNurses() {
-    // TODO: implement getAvailableNurses
-    throw UnimplementedError();
+  Future<List<Nurse>> getAvailableNurses() async {
+    final token = await _token();
+    final dto = await service.getAvailableNurses(token);
+    return dto.data.map((item) => item.toDomain()).toList();
   }
 }
