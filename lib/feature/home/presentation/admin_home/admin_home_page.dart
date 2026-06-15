@@ -1,3 +1,4 @@
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ferova_clinic_flutter/core/di/dependency_injection.dart';
@@ -49,7 +50,11 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       title: const Text(
         'FerovaClinic',
-        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
       ),
       centerTitle: true,
       actions: [
@@ -89,13 +94,14 @@ class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       if (context.mounted) {
         // Opción 1: Si tienes el widget de Login disponible
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const LoginPage()), // ← Usa tu LoginPage
-              (route) => false,
+          MaterialPageRoute(
+            builder: (_) => const LoginPage(),
+          ), // ← Usa tu LoginPage
+          (route) => false,
         );
       }
     }
   }
-
 }
 
 // ─── AppBar del Mapa ─────────────────────────────────────────────────────────
@@ -113,7 +119,11 @@ class _MapaAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       title: const Text(
         'Mapa de Calor',
-        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
       ),
       centerTitle: true,
     );
@@ -135,7 +145,11 @@ class _PostasAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       title: const Text(
         'Postas',
-        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
       ),
       centerTitle: true,
     );
@@ -170,7 +184,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
       backgroundColor: _kBg,
       appBar: switch (_selectedIndex) {
         1 => const _MapaAppBar(),
-        2 => const _PostasAppBar(),
+        2 => null,
         _ => const _HomeAppBar(),
       },
       body: IndexedStack(
@@ -178,7 +192,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         children: [
           _HomeTab(state: state),
           MapaCalorPage(postas: state.heatmapPostas),
-          const _PostasTab(),
+          const AdminFacilityPage(),
         ],
       ),
       bottomNavigationBar: _AdminBottomNav(
@@ -204,17 +218,17 @@ class _AdminBottomNav extends StatelessWidget {
       backgroundColor: Colors.white,
       selectedItemColor: _kBlue,
       unselectedItemColor: const Color(0xFF9EAFC0),
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
+      selectedLabelStyle: const TextStyle(
+        fontWeight: FontWeight.w600,
+        fontSize: 11,
+      ),
       unselectedLabelStyle: const TextStyle(fontSize: 11),
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home_rounded),
           label: 'Inicio',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.map_rounded),
-          label: 'Mapa',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.map_rounded), label: 'Mapa'),
         BottomNavigationBarItem(
           icon: Icon(Icons.local_hospital_rounded),
           label: 'Postas',
@@ -283,10 +297,29 @@ class _GreetingCard extends StatelessWidget {
   String get _formattedDate {
     final now = DateTime.now();
     const months = [
-      '', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+      '',
+      'enero',
+      'febrero',
+      'marzo',
+      'abril',
+      'mayo',
+      'junio',
+      'julio',
+      'agosto',
+      'septiembre',
+      'octubre',
+      'noviembre',
+      'diciembre',
     ];
-    const weekdays = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+    const weekdays = [
+      'lunes',
+      'martes',
+      'miércoles',
+      'jueves',
+      'viernes',
+      'sábado',
+      'domingo',
+    ];
     final day = weekdays[now.weekday - 1];
     final capitalDay = day[0].toUpperCase() + day.substring(1);
     return '$capitalDay ${now.day} de ${months[now.month]} ${now.year}';
@@ -437,7 +470,10 @@ class _StatCard extends StatelessWidget {
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(
+              color: iconBg,
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: Icon(icon, color: iconColor, size: 22),
           ),
           const SizedBox(width: 12),
@@ -503,9 +539,7 @@ class _AdherenciaCard extends StatelessWidget {
           ),
           const SizedBox(width: 16),
           Text(
-            globalCoverage > 0
-                ? '${globalCoverage.toStringAsFixed(2)}%'
-                : '0',
+            globalCoverage > 0 ? '${globalCoverage.toStringAsFixed(2)}%' : '0',
             style: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.bold,
@@ -528,7 +562,11 @@ class _MiniBarChart extends StatelessWidget {
       return const SizedBox(
         height: 60,
         child: Center(
-          child: Icon(Icons.bar_chart_rounded, size: 40, color: Color(0xFFD0D9E4)),
+          child: Icon(
+            Icons.bar_chart_rounded,
+            size: 40,
+            color: Color(0xFFD0D9E4),
+          ),
         ),
       );
     }
@@ -570,7 +608,10 @@ class _MiniBar extends StatelessWidget {
 class _EstadoPostasCard extends StatelessWidget {
   final List<Posta> postas;
   final double globalAdherence;
-  const _EstadoPostasCard({required this.postas, required this.globalAdherence});
+  const _EstadoPostasCard({
+    required this.postas,
+    required this.globalAdherence,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -603,7 +644,10 @@ class _EstadoPostasCard extends StatelessWidget {
 class _EstadoPostasHeader extends StatelessWidget {
   final List<Posta> postas;
   final double globalAdherence;
-  const _EstadoPostasHeader({required this.postas, required this.globalAdherence});
+  const _EstadoPostasHeader({
+    required this.postas,
+    required this.globalAdherence,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -638,7 +682,11 @@ class _EstadoPostasHeader extends StatelessWidget {
                     style: TextStyle(fontSize: 13, color: Color(0xFF6B7D8F)),
                   ),
                   SizedBox(width: 4),
-                  Icon(Icons.arrow_forward_rounded, size: 16, color: Color(0xFF6B7D8F)),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 16,
+                    color: Color(0xFF6B7D8F),
+                  ),
                 ],
               ),
             ),
@@ -680,7 +728,10 @@ class _PostaListItem extends StatelessWidget {
                 ),
                 Text(
                   posta.location,
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF9EAFC0)),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF9EAFC0),
+                  ),
                 ),
               ],
             ),
@@ -711,33 +762,6 @@ class _EmptyPostasState extends StatelessWidget {
           'No tienes postas asignadas',
           style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
         ),
-      ),
-    );
-  }
-}
-
-// ─── Tab: Postas (placeholder) ───────────────────────────────────────────────
-class _PostasTab extends StatelessWidget {
-  const _PostasTab();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.local_hospital_rounded, size: 64, color: Colors.grey.shade300),
-          const SizedBox(height: 16),
-          Text(
-            'Módulo de Postas',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey.shade400),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Próximamente',
-            style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
-          ),
-        ],
       ),
     );
   }

@@ -18,7 +18,10 @@ class AdminFacilityViewModel extends ChangeNotifier {
     try {
       List<AdminFacility> healthFacilities = await repository
           .getHealthFacilities();
-      state = state.copyWith(adminFacilities: healthFacilities);
+      state = state.copyWith(
+        adminFacilities: healthFacilities,
+        isLoadingFacilities: false,
+      );
     } catch (e) {
       state = state.copyWith(isLoadingFacilities: false, errorMessage: '$e');
     }
