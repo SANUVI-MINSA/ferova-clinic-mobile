@@ -4,6 +4,8 @@ import 'package:ferova_clinic_flutter/config/app_config.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facilities_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/available_nurses_response_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_request_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_availability_response_dto.dart';
 import 'package:http/http.dart' as http;
 
@@ -62,6 +64,29 @@ class AdminFacilityService {
       throw Exception('Failed to fetch available nurses. ${response.body}');
     } catch (e) {
       throw Exception('Failed to check available nurses. $e');
+    }
+  }
+
+  Future<NurseAssignmentResponseDto> postNurseAssignment(
+    String token,
+    NurseAssignmentRequestDto request,
+  ) async {
+    try {
+      final Uri uri = Uri.parse('$_baseUrl/assign-nurse');
+      final response = await http.post(
+        uri,
+        headers: _headers(token),
+        body: request.toJson(),
+      );
+
+      if (response.statusCode == HttpStatus.ok) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return NurseAssignmentResponseDto.fromJson(json);
+      }
+
+      throw Exception('Failed to fetch nurse assignment. ${response.body}');
+    } catch (e) {
+      throw Exception('Failed to post nurse assignment. $e');
     }
   }
 }
