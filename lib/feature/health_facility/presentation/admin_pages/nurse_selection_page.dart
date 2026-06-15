@@ -88,7 +88,7 @@ class _NurseSelectionPageState extends State<NurseSelectionPage> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: state.availableNurses.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               const SizedBox(height: 12),
                           itemBuilder: (context, index) {
                             final Nurse nurse = state.availableNurses[index];
