@@ -1,6 +1,7 @@
-import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_available_response_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_availability_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/services/admin_facility_service.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/admin_facility.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/nurse.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositories/admin_facility_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,9 +23,15 @@ class AdminFacilityRepositoryImpl implements AdminFacilityRepository {
   }
 
   @override
-  Future<NurseAvailableResponseDto> canRegisterFacility() async {
+  Future<NurseAvailabilityResponseDto> canRegisterFacility() async {
     final token = await _token();
     final dto = await service.canRegisterFacility(token);
     return dto;
+  }
+
+  @override
+  Future<List<Nurse>> getAvailableNurses() {
+    // TODO: implement getAvailableNurses
+    throw UnimplementedError();
   }
 }
