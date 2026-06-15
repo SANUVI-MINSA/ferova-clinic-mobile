@@ -1,5 +1,7 @@
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/admin_facility.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AdminFacilityCard extends StatelessWidget {
   final AdminFacility facility;
@@ -125,8 +127,90 @@ class AdminFacilityCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: asignar enfermero
+                onPressed: () async {
+                  final viewModel = context.read<AdminFacilityViewModel>();
+                  await viewModel.canRegisterFacility();
+
+                  if (!context.mounted) return;
+
+                  if (viewModel.state.canRegisterFacilty) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => Placeholder()),
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 32,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 90,
+                                height: 90,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEFF6FF),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: const Icon(
+                                  Icons.calendar_month_outlined,
+                                  size: 44,
+                                  color: Color(0xFF003178),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              const Text(
+                                'Sin enfermeros\ndisponibles',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF003178),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Actualmente, todo el personal de enfermería registrado ha sido asignado a una posta médica. Por favor, espere al registro de nuevo personal.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xFF6B7D8F),
+                                  height: 1.5,
+                                ),
+                              ),
+                              const SizedBox(height: 28),
+                              const Divider(color: Color(0xFFE2E8F0)),
+                              const SizedBox(height: 8),
+                              TextButton.icon(
+                                onPressed: () => Navigator.pop(ctx),
+                                icon: const Icon(
+                                  Icons.arrow_back,
+                                  color: Color(0xFF003178),
+                                  size: 18,
+                                ),
+                                label: const Text(
+                                  'Cerrar',
+                                  style: TextStyle(
+                                    color: Color(0xFF003178),
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF003178),

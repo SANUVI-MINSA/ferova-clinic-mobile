@@ -39,8 +39,6 @@ class AdminFacilityViewModel extends ChangeNotifier {
       state = state.copyWith(
         isLoadingNurseAvailability: false,
         canRegisterFacilty: response.available,
-        canRegisterMessage: response.message,
-        canRegisterDetails: response.details,
       );
     } catch (e) {
       state = state.copyWith(
