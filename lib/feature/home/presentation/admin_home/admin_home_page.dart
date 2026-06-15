@@ -130,32 +130,6 @@ class _MapaAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-// ─── AppBar de Postas ─────────────────────────────────────────────────────────
-class _PostasAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const _PostasAppBar();
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: _kNavy,
-      elevation: 0,
-      automaticallyImplyLeading: false,
-      title: const Text(
-        'Postas',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 18,
-        ),
-      ),
-      centerTitle: true,
-    );
-  }
-}
-
 // ─── Página principal ────────────────────────────────────────────────────────
 class AdminHomePage extends StatefulWidget {
   final User user;
