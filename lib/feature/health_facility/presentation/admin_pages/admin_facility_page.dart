@@ -17,6 +17,14 @@ class _AdminFacilityPageState extends State<AdminFacilityPage> {
   String _searchQuery = '';
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AdminFacilityViewModel>().getHealthFacilities();
+    });
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
