@@ -36,16 +36,6 @@ class _AdminFacilityRegistrationPageState
   List<String> _availableDays = [];
   List<String> _availableSlots = [];
 
-  final List<String> _weekDays = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ];
-
   @override
   void dispose() {
     _facilityNameController.dispose();
