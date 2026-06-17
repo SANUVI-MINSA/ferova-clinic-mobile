@@ -80,6 +80,7 @@ class _AdminFacilityRegistrationPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -129,7 +130,7 @@ class _AdminFacilityRegistrationPageState
           ),
           // ── Contenido del paso actual ────────────────────────────────────
           Expanded(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
@@ -149,53 +150,52 @@ class _AdminFacilityRegistrationPageState
               ),
             ),
           ),
+
           // ── Botones de navegación ────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                if (_currentStep > 0)
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _previousStep,
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: const BorderSide(color: Color(0xFF003178)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: const Text(
-                        'Atrás',
-                        style: TextStyle(color: Color(0xFF003178)),
-                      ),
+        ],
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            if (_currentStep > 0)
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: _previousStep,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: const BorderSide(color: Color(0xFF003178)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                if (_currentStep > 0) const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _nextStep,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF003178),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      _currentStep < _totalSteps - 1
-                          ? 'Siguiente'
-                          : 'Finalizar',
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
+                  child: const Text(
+                    'Atrás',
+                    style: TextStyle(color: Color(0xFF003178)),
                   ),
                 ),
-              ],
+              ),
+            if (_currentStep > 0) const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: _nextStep,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF003178),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 0,
+                ),
+                child: Text(
+                  _currentStep < _totalSteps - 1 ? 'Siguiente' : 'Finalizar',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
