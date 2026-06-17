@@ -25,6 +25,7 @@ class _AdminFacilityRegistrationPageState
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   String? _selectedDistrictId;
+  bool _isLoadingAddress = false;
   double? _latitude;
   double? _longitude;
   List<String> _services = [];
@@ -174,7 +175,9 @@ class _AdminFacilityRegistrationPageState
             if (_currentStep > 0) const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton(
-                onPressed: _nextStep,
+                onPressed: (_currentStep == 1 && _isLoadingAddress)
+                    ? null
+                    : _nextStep,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF003178),
                   foregroundColor: Colors.white,
@@ -217,6 +220,11 @@ class _AdminFacilityRegistrationPageState
           onLocationChanged: (location) {
             _latitude = location.latitude;
             _longitude = location.longitude;
+          },
+          onAddressLoadingChanged: (isLoading) {
+            if (mounted) {
+              setState(() => _isLoadingAddress = isLoading);
+            }
           },
         );
       case 2:

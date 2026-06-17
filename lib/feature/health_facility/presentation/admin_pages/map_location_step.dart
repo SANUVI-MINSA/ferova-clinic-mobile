@@ -9,12 +9,14 @@ class MapLocationStep extends StatefulWidget {
   final double? initialLatitude;
   final double? initialLongitude;
   final ValueChanged<LatLng> onLocationChanged;
+  final ValueChanged<bool> onAddressLoadingChanged;
 
   const MapLocationStep({
     super.key,
     this.initialLatitude,
     this.initialLongitude,
     required this.onLocationChanged,
+    required this.onAddressLoadingChanged,
   });
 
   @override
@@ -29,6 +31,7 @@ class _MapLocationStepState extends State<MapLocationStep> {
   String? _errorMessage;
   String? _streetReference;
   Timer? _debounce;
+  bool _disposed = false;
 
   @override
   void initState() {
@@ -39,7 +42,12 @@ class _MapLocationStepState extends State<MapLocationStep> {
         widget.initialLongitude!,
       );
       _isLoadingLocation = false;
-      _getAddressFromCoordinates(_selectedLocation);
+      // Solo busca la dirección si no la tenías ya calculada
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _getAddressFromCoordinates(_selectedLocation);
+        }
+      });
     } else {
       _determinePosition();
     }
@@ -47,15 +55,18 @@ class _MapLocationStepState extends State<MapLocationStep> {
 
   @override
   void dispose() {
+    _disposed = true;
     _debounce?.cancel();
     super.dispose();
   }
 
   Future<void> _determinePosition() async {
+    if (!mounted) return;
     setState(() => _isLoadingLocation = true);
     try {
       final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
+        if (!mounted) return;
         setState(() {
           _errorMessage = 'Activa el servicio de ubicación de tu dispositivo.';
           _isLoadingLocation = false;
@@ -67,6 +78,7 @@ class _MapLocationStepState extends State<MapLocationStep> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
+          if (!mounted) return;
           setState(() {
             _errorMessage = 'Permiso de ubicación denegado.';
             _isLoadingLocation = false;
@@ -76,6 +88,7 @@ class _MapLocationStepState extends State<MapLocationStep> {
       }
 
       if (permission == LocationPermission.deniedForever) {
+        if (!mounted) return;
         setState(() {
           _errorMessage =
               'Permiso denegado permanentemente. Habilítalo desde ajustes.';
@@ -86,6 +99,8 @@ class _MapLocationStepState extends State<MapLocationStep> {
 
       final Position position = await Geolocator.getCurrentPosition();
       final LatLng newLocation = LatLng(position.latitude, position.longitude);
+
+      if (!mounted) return;
       setState(() {
         _selectedLocation = newLocation;
         _isLoadingLocation = false;
@@ -99,6 +114,7 @@ class _MapLocationStepState extends State<MapLocationStep> {
         }
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = 'No se pudo obtener tu ubicación. $e';
         _isLoadingLocation = false;
@@ -107,12 +123,17 @@ class _MapLocationStepState extends State<MapLocationStep> {
   }
 
   Future<void> _getAddressFromCoordinates(LatLng location) async {
+    if (_disposed || !mounted) return;
     setState(() => _isLoadingAddress = true);
+    if (!_disposed) widget.onAddressLoadingChanged(true);
+
     try {
       final List<Placemark> placemarks = await placemarkFromCoordinates(
         location.latitude,
         location.longitude,
       );
+
+      if (_disposed || !mounted) return;
 
       if (placemarks.isNotEmpty) {
         final Placemark place = placemarks.first;
@@ -134,10 +155,15 @@ class _MapLocationStepState extends State<MapLocationStep> {
         });
       }
     } catch (e) {
+      if (_disposed || !mounted) return;
       setState(() {
         _streetReference = 'No se pudo obtener la dirección';
         _isLoadingAddress = false;
       });
+    } finally {
+      if (!_disposed && mounted) {
+        widget.onAddressLoadingChanged(false);
+      }
     }
   }
 
@@ -145,10 +171,11 @@ class _MapLocationStepState extends State<MapLocationStep> {
     setState(() => _selectedLocation = newLocation);
     widget.onLocationChanged(newLocation);
 
-    // Debounce — espera que el usuario deje de mover el mapa antes de consultar
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 700), () {
-      _getAddressFromCoordinates(newLocation);
+      if (mounted) {
+        _getAddressFromCoordinates(newLocation);
+      }
     });
   }
 
@@ -171,8 +198,6 @@ class _MapLocationStepState extends State<MapLocationStep> {
           style: TextStyle(fontSize: 13, color: Color(0xFF6B7D8F)),
         ),
         const SizedBox(height: 16),
-
-        // Mapa
         SizedBox(
           height: 400,
           child: _isLoadingLocation
@@ -229,9 +254,7 @@ class _MapLocationStepState extends State<MapLocationStep> {
                   ),
                 ),
         ),
-
         const SizedBox(height: 16),
-
         if (_errorMessage != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -241,7 +264,6 @@ class _MapLocationStepState extends State<MapLocationStep> {
               textAlign: TextAlign.center,
             ),
           ),
-
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
