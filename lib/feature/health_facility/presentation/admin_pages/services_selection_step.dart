@@ -15,6 +15,7 @@ class ServicesSelectionStep extends StatefulWidget {
 }
 
 class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   final List<_ServiceOption> _defaultServices = const [
     _ServiceOption(name: 'Vacunación', icon: Icons.vaccines_outlined),
     _ServiceOption(name: 'Pediatría', icon: Icons.child_care_outlined),
@@ -26,7 +27,6 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
   ];
 
   final List<String> _customServices = [];
-
   final TextEditingController _customServiceController =
       TextEditingController();
 
@@ -45,7 +45,19 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
 
     if (updated.contains(serviceName)) {
       updated.remove(serviceName);
-      _customServices.remove(serviceName);
+
+      final int customIndex = _customServices.indexOf(serviceName);
+      if (customIndex != -1) {
+        final String removedService = _customServices[customIndex];
+        _customServices.removeAt(customIndex);
+
+        _listKey.currentState?.removeItem(
+          customIndex,
+          (context, animation) =>
+              _buildAnimatedTile(removedService, animation, isRemoving: true),
+          duration: const Duration(milliseconds: 300),
+        );
+      }
     } else {
       updated.add(serviceName);
     }
@@ -72,6 +84,31 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
       _customServices.add(value);
       _customServiceController.clear();
     });
+
+    _listKey.currentState?.insertItem(
+      _customServices.length - 1,
+      duration: const Duration(milliseconds: 300),
+    );
+  }
+
+  Widget _buildAnimatedTile(
+    String service,
+    Animation<double> animation, {
+    bool isRemoving = false,
+  }) {
+    return SizeTransition(
+      sizeFactor: animation,
+      fixedCrossAxisSizeFactor: 1.0,
+      child: FadeTransition(
+        opacity: animation,
+        child: _ServiceCheckboxTile(
+          label: service,
+          icon: Icons.add_circle_outline,
+          isSelected: isRemoving ? true : _isSelected(service),
+          onTap: () => _toggleService(service),
+        ),
+      ),
+    );
   }
 
   @override
@@ -87,7 +124,6 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Row(
             children: const [
               Icon(
@@ -113,6 +149,7 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  // Servicios predeterminados — sin animación, son fijos
                   ..._defaultServices.map((service) {
                     return _ServiceCheckboxTile(
                       label: service.name,
@@ -122,15 +159,22 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
                     );
                   }),
 
-                  ..._customServices.map((service) {
-                    return _AnimatedServiceTile(
-                      key: ValueKey(service),
-                      label: service,
-                      icon: Icons.add_circle_outline,
-                      isSelected: _isSelected(service),
-                      onTap: () => _toggleService(service),
-                    );
-                  }),
+                  // Servicios personalizados — con animación de entrada/salida
+                  SizedBox(
+                    height:
+                        _customServices.length *
+                        60.0, // alto aproximado por item
+                    child: AnimatedList(
+                      key: _listKey,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      initialItemCount: _customServices.length,
+                      itemBuilder: (context, index, animation) {
+                        final String service = _customServices[index];
+                        return _buildAnimatedTile(service, animation);
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -246,36 +290,6 @@ class _ServiceCheckboxTile extends StatelessWidget {
             Icon(icon, color: const Color(0xFF6B7D8F), size: 22),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _AnimatedServiceTile extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _AnimatedServiceTile({
-    super.key,
-    required this.label,
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween<double>(begin: 1, end: 1),
-      duration: const Duration(milliseconds: 250),
-      builder: (context, value, child) => child!,
-      child: _ServiceCheckboxTile(
-        label: label,
-        icon: icon,
-        isSelected: isSelected,
-        onTap: onTap,
       ),
     );
   }
