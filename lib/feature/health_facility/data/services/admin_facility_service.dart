@@ -76,7 +76,7 @@ class AdminFacilityService {
       final response = await http.post(
         uri,
         headers: _headers(token),
-        body: request.toJson(),
+        body: jsonEncode(request.toJson()),
       );
 
       if (response.statusCode == HttpStatus.ok) {
