@@ -13,6 +13,8 @@ class AdminFacilityState {
   final bool isLoadingNurseAssignment;
   final bool isNurseAssigned;
   final String? assignmentMessage;
+  final bool isLoadingAdminFacilityRegistration;
+  final bool isAdminFacilityRegistered;
   final bool isLoadingDistricts;
   final List<District> districts;
 
@@ -27,6 +29,8 @@ class AdminFacilityState {
     this.isLoadingNurseAssignment = false,
     this.isNurseAssigned = false,
     this.assignmentMessage,
+    this.isLoadingAdminFacilityRegistration = false,
+    this.isAdminFacilityRegistered = false,
     this.isLoadingDistricts = false,
     this.districts = const [],
   });
@@ -42,6 +46,8 @@ class AdminFacilityState {
     bool? isLoadingNurseAssignment,
     bool? isNurseAssigned,
     String? assignmentMessage,
+    bool? isLoadingAdminFacilityRegistration,
+    bool? isAdminFacilityRegistered,
     bool? isLoadingDistricts,
     List<District>? districts,
   }) {
@@ -59,6 +65,11 @@ class AdminFacilityState {
           isLoadingNurseAssignment ?? this.isLoadingNurseAssignment,
       isNurseAssigned: isNurseAssigned ?? this.isNurseAssigned,
       assignmentMessage: assignmentMessage ?? this.assignmentMessage,
+      isLoadingAdminFacilityRegistration:
+          isLoadingAdminFacilityRegistration ??
+          this.isLoadingAdminFacilityRegistration,
+      isAdminFacilityRegistered:
+          isAdminFacilityRegistered ?? this.isAdminFacilityRegistered,
       isLoadingDistricts: isLoadingDistricts ?? this.isLoadingDistricts,
       districts: districts ?? this.districts,
     );

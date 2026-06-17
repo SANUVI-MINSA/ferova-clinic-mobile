@@ -1,3 +1,5 @@
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_registration_request_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_registration_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_availability_response_dto.dart';
@@ -94,6 +96,58 @@ class AdminFacilityViewModel extends ChangeNotifier {
         isNurseAssigned: false,
         isLoadingNurseAssignment: false,
         errorMessage: dto.error,
+      );
+    }
+  }
+
+  Future<void> registerAdminFacility(
+    String name,
+    String address,
+    String districtId,
+    double latitude,
+    double longitude,
+    String phoneNumber,
+    List<String> services,
+    List<String> availableDays,
+    List<String> availableSlots,
+  ) async {
+    state = state.copyWith(
+      isLoadingAdminFacilityRegistration: true,
+      errorMessage: null,
+    );
+    notifyListeners();
+    try {
+      AdminFacilityRegistrationRequestDto request =
+          AdminFacilityRegistrationRequestDto(
+            name: name,
+            address: address,
+            districtId: districtId,
+            latitude: latitude,
+            longitude: longitude,
+            phoneNumber: phoneNumber,
+            services: services,
+            availableDays: availableDays,
+            availableSlots: availableSlots,
+          );
+      AdminFacilityRegistrationResponseDto dto = await repository
+          .registerAdminFacility(request);
+      if (dto.message != null) {
+        state = state.copyWith(
+          isNurseAssigned: true,
+          isLoadingNurseAssignment: false,
+          assignmentMessage: dto.message,
+        );
+      } else {
+        state = state.copyWith(
+          isNurseAssigned: false,
+          isLoadingNurseAssignment: false,
+          errorMessage: dto.error,
+        );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isLoadingAdminFacilityRegistration: false,
+        errorMessage: '$e',
       );
     }
   }
