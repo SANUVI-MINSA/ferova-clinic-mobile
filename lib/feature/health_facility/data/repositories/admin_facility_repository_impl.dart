@@ -1,3 +1,5 @@
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_registration_request_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_registration_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_availability_response_dto.dart';
@@ -44,6 +46,15 @@ class AdminFacilityRepositoryImpl implements AdminFacilityRepository {
   ) async {
     final token = await _token();
     final dto = await service.postNurseAssignment(token, request);
+    return dto;
+  }
+
+  @override
+  Future<AdminFacilityRegistrationResponseDto> registerAdminFacility(
+    AdminFacilityRegistrationRequestDto request,
+  ) async {
+    final token = await _token();
+    final dto = await service.postAdminFacility(token, request);
     return dto;
   }
 }

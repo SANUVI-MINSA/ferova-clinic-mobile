@@ -1,3 +1,5 @@
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_registration_request_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_registration_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_availability_response_dto.dart';
@@ -13,5 +15,9 @@ abstract class AdminFacilityRepository {
 
   Future<NurseAssignmentResponseDto> assignNurse(
     NurseAssignmentRequestDto request,
+  );
+
+  Future<AdminFacilityRegistrationResponseDto> registerAdminFacility(
+    AdminFacilityRegistrationRequestDto request,
   );
 }
