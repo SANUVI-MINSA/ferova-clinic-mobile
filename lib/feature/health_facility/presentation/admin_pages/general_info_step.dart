@@ -1,7 +1,8 @@
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/district.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class GeneralInfoStep extends StatelessWidget {
+class GeneralInfoStep extends StatefulWidget {
   final TextEditingController facilityNameController;
   final TextEditingController addressController;
   final TextEditingController phoneNumberController;
@@ -9,6 +10,7 @@ class GeneralInfoStep extends StatelessWidget {
   final bool isLoadingDistricts;
   final String? selectedDistrictId;
   final ValueChanged<String?> onDistrictChanged;
+  final ValueChanged<bool> onValidationChanged;
 
   const GeneralInfoStep({
     super.key,
@@ -19,7 +21,56 @@ class GeneralInfoStep extends StatelessWidget {
     required this.isLoadingDistricts,
     required this.selectedDistrictId,
     required this.onDistrictChanged,
+    required this.onValidationChanged,
   });
+
+  @override
+  State<GeneralInfoStep> createState() => _GeneralInfoStepState();
+}
+
+class _GeneralInfoStepState extends State<GeneralInfoStep> {
+  @override
+  void initState() {
+    super.initState();
+    widget.facilityNameController.addListener(_validate);
+    widget.addressController.addListener(_validate);
+    widget.phoneNumberController.addListener(_validate);
+
+    Future.microtask(() {
+      if (mounted) _validate();
+    });
+  }
+
+  @override
+  void didUpdateWidget(GeneralInfoStep oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedDistrictId != widget.selectedDistrictId) {
+      Future.microtask(() {
+        if (mounted) _validate();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.facilityNameController.removeListener(_validate);
+    widget.addressController.removeListener(_validate);
+    widget.phoneNumberController.removeListener(_validate);
+    super.dispose();
+  }
+
+  void _validate() {
+    final String phone = widget.phoneNumberController.text.trim();
+    final bool isPhoneValid = RegExp(r'^\d{9}$').hasMatch(phone);
+
+    final bool isValid =
+        widget.facilityNameController.text.trim().isNotEmpty &&
+        widget.selectedDistrictId != null &&
+        widget.addressController.text.trim().isNotEmpty &&
+        isPhoneValid;
+
+    widget.onValidationChanged(isValid);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +85,6 @@ class GeneralInfoStep extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Row(
             children: const [
               Icon(
@@ -55,7 +105,6 @@ class GeneralInfoStep extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // Nombre de la Posta
           const Text(
             'Nombre de la Posta *',
             style: TextStyle(
@@ -66,7 +115,7 @@ class GeneralInfoStep extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           TextField(
-            controller: facilityNameController,
+            controller: widget.facilityNameController,
             decoration: InputDecoration(
               hintText: 'Ej: Posta Sanitaria Norte',
               hintStyle: const TextStyle(color: Color(0xFF9EAFC0)),
@@ -88,7 +137,6 @@ class GeneralInfoStep extends StatelessWidget {
           ),
           const SizedBox(height: 18),
 
-          // Distrito
           const Text(
             'Distrito *',
             style: TextStyle(
@@ -98,7 +146,7 @@ class GeneralInfoStep extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          isLoadingDistricts
+          widget.isLoadingDistricts
               ? Container(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(
@@ -125,7 +173,7 @@ class GeneralInfoStep extends StatelessWidget {
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
-                      value: selectedDistrictId,
+                      value: widget.selectedDistrictId,
                       isExpanded: true,
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       icon: const Padding(
@@ -139,7 +187,7 @@ class GeneralInfoStep extends StatelessWidget {
                         'Seleccionar Distrito',
                         style: TextStyle(color: Color(0xFF9EAFC0)),
                       ),
-                      items: districts.map((district) {
+                      items: widget.districts.map((district) {
                         return DropdownMenuItem<String>(
                           value: district.id,
                           child: Text(
@@ -151,13 +199,12 @@ class GeneralInfoStep extends StatelessWidget {
                           ),
                         );
                       }).toList(),
-                      onChanged: onDistrictChanged,
+                      onChanged: widget.onDistrictChanged,
                     ),
                   ),
                 ),
           const SizedBox(height: 18),
 
-          // Dirección Completa
           const Text(
             'Dirección Completa *',
             style: TextStyle(
@@ -168,7 +215,7 @@ class GeneralInfoStep extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           TextField(
-            controller: addressController,
+            controller: widget.addressController,
             maxLength: 30,
             decoration: InputDecoration(
               hintText: 'Calle, Número, Referencia',
@@ -188,9 +235,8 @@ class GeneralInfoStep extends StatelessWidget {
           ),
           const SizedBox(height: 18),
 
-          // Teléfono de Contacto
           const Text(
-            'Teléfono de Contacto',
+            'Teléfono de Contacto *',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -199,15 +245,37 @@ class GeneralInfoStep extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           TextField(
-            controller: phoneNumberController,
+            controller: widget.phoneNumberController,
             keyboardType: TextInputType.phone,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(9),
+            ],
             decoration: InputDecoration(
-              hintText: '+51 000-000-000',
+              hintText: '987654321',
               hintStyle: const TextStyle(color: Color(0xFF9EAFC0)),
-              prefixIcon: const Icon(
-                Icons.phone_outlined,
-                color: Color(0xFF6B7D8F),
-                size: 20,
+              prefixIcon: const Padding(
+                padding: EdgeInsets.only(left: 14, right: 4),
+                child: Icon(
+                  Icons.phone_outlined,
+                  color: Color(0xFF6B7D8F),
+                  size: 20,
+                ),
+              ),
+              prefixIconConstraints: const BoxConstraints(
+                minWidth: 0,
+                minHeight: 0,
+              ),
+              prefix: const Padding(
+                padding: EdgeInsets.only(right: 4),
+                child: Text(
+                  '+51 ',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFF1A1A2E),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
               filled: true,
               fillColor: const Color(0xFFF8FAFC),

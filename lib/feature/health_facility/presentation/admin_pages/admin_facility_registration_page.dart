@@ -24,10 +24,12 @@ class _AdminFacilityRegistrationPageState
   final TextEditingController _facilityNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
+  bool _isGeneralInfoValid = false;
   String? _selectedDistrictId;
   bool _isLoadingAddress = false;
   double? _latitude;
   double? _longitude;
+  bool _isServicesValid = false;
   List<String> _services = [];
   List<String> _availableDays = [];
   List<String> _availableSlots = [];
@@ -68,6 +70,13 @@ class _AdminFacilityRegistrationPageState
         _currentStep--;
       });
     }
+  }
+
+  bool _isNextButtonDisabled() {
+    if (_currentStep == 0 && !_isGeneralInfoValid) return true;
+    if (_currentStep == 1 && _isLoadingAddress) return true;
+    if (_currentStep == 2 && !_isServicesValid) return true;
+    return false;
   }
 
   @override
@@ -175,12 +184,14 @@ class _AdminFacilityRegistrationPageState
             if (_currentStep > 0) const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton(
-                onPressed: (_currentStep == 1 && _isLoadingAddress)
-                    ? null
-                    : _nextStep,
+                onPressed: _isNextButtonDisabled() ? null : _nextStep,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF003178),
-                  foregroundColor: Colors.white,
+                  backgroundColor: _isNextButtonDisabled()
+                      ? const Color(0xFFE2E8F0)
+                      : const Color(0xFF003178),
+                  foregroundColor: _isNextButtonDisabled()
+                      ? const Color(0xFF9EAFC0)
+                      : Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -212,6 +223,9 @@ class _AdminFacilityRegistrationPageState
           selectedDistrictId: _selectedDistrictId,
           onDistrictChanged: (value) =>
               setState(() => _selectedDistrictId = value),
+          onValidationChanged: (isValid) {
+            setState(() => _isGeneralInfoValid = isValid);
+          },
         );
       case 1:
         return MapLocationStep(
@@ -231,9 +245,10 @@ class _AdminFacilityRegistrationPageState
         return ServicesSelectionStep(
           selectedServices: _services,
           onServicesChanged: (updated) {
-            setState(() {
-              _services = updated;
-            });
+            _services = updated;
+          },
+          onValidationChanged: (isValid) {
+            setState(() => _isServicesValid = isValid);
           },
         );
       case 3:
