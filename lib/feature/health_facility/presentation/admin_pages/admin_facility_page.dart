@@ -1,5 +1,6 @@
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/admin_facility.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_card.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_registration_page.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_state.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_view_model.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +47,12 @@ class _AdminFacilityPageState extends State<AdminFacilityPage> {
           : FloatingActionButton(
               backgroundColor: const Color(0xFF003178),
               onPressed: () {
-                // TODO: navegar a registro de posta
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AdminFacilityRegistrationPage(),
+                  ),
+                );
               },
               child: const Icon(Icons.add, color: Colors.white),
             ),
@@ -140,7 +146,15 @@ class _AdminFacilityPageState extends State<AdminFacilityPage> {
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const AdminFacilityRegistrationPage(),
+                                    ),
+                                  );
+                                },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF003178),
                                   foregroundColor: Colors.white,
