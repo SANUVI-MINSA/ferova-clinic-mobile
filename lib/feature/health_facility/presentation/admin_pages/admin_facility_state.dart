@@ -1,4 +1,5 @@
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/admin_facility.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/district.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/nurse.dart';
 
 class AdminFacilityState {
@@ -12,6 +13,7 @@ class AdminFacilityState {
   final bool isLoadingNurseAssignment;
   final bool isNurseAssigned;
   final String? assignmentMessage;
+  final List<District> districts;
 
   const AdminFacilityState({
     this.isLoadingFacilities = false,
@@ -24,6 +26,7 @@ class AdminFacilityState {
     this.isLoadingNurseAssignment = false,
     this.isNurseAssigned = false,
     this.assignmentMessage,
+    this.districts = const [],
   });
 
   AdminFacilityState copyWith({
@@ -37,6 +40,7 @@ class AdminFacilityState {
     bool? isLoadingNurseAssignment,
     bool? isNurseAssigned,
     String? assignmentMessage,
+    List<District>? districts,
   }) {
     return AdminFacilityState(
       isLoadingFacilities: isLoadingFacilities ?? this.isLoadingFacilities,
@@ -52,6 +56,7 @@ class AdminFacilityState {
           isLoadingNurseAssignment ?? this.isLoadingNurseAssignment,
       isNurseAssigned: isNurseAssigned ?? this.isNurseAssigned,
       assignmentMessage: assignmentMessage ?? this.assignmentMessage,
+      districts: districts ?? this.districts,
     );
   }
 }
