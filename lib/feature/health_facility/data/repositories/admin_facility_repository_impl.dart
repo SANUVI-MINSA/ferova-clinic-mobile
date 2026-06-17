@@ -5,6 +5,7 @@ import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_as
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_availability_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/services/admin_facility_service.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/admin_facility.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/district.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/nurse.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositories/admin_facility_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,5 +57,12 @@ class AdminFacilityRepositoryImpl implements AdminFacilityRepository {
     final token = await _token();
     final dto = await service.postAdminFacility(token, request);
     return dto;
+  }
+
+  @override
+  Future<List<District>> getDistricts() async {
+    final token = await _token();
+    final dtos = await service.getDistricts(token);
+    return dtos.map((item) => item.toDomain()).toList();
   }
 }
