@@ -2,6 +2,7 @@ import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_as
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_availability_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/admin_facility.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/district.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/nurse.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositories/admin_facility_repository.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_state.dart';
@@ -95,5 +96,17 @@ class AdminFacilityViewModel extends ChangeNotifier {
         errorMessage: dto.error,
       );
     }
+  }
+
+  Future<void> getDistricts() async {
+    state = state.copyWith(isLoadingDistricts: true, errorMessage: null);
+    notifyListeners();
+    try {
+      List<District> districts = await repository.getDistricts();
+      state = state.copyWith(districts: districts, isLoadingDistricts: false);
+    } catch (e) {
+      state = state.copyWith(isLoadingDistricts: false, errorMessage: '$e');
+    }
+    notifyListeners();
   }
 }
