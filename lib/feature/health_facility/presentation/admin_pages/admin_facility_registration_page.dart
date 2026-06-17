@@ -2,6 +2,7 @@ import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/general_info_step.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/map_location_step.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/services_selection_step.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/time_selection_step.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,6 +32,7 @@ class _AdminFacilityRegistrationPageState
   double? _longitude;
   bool _isServicesValid = false;
   List<String> _services = [];
+  bool _isTimeSelectionValid = false;
   List<String> _availableDays = [];
   List<String> _availableSlots = [];
 
@@ -76,6 +78,7 @@ class _AdminFacilityRegistrationPageState
     if (_currentStep == 0 && !_isGeneralInfoValid) return true;
     if (_currentStep == 1 && _isLoadingAddress) return true;
     if (_currentStep == 2 && !_isServicesValid) return true;
+    if (_currentStep == 3 && !_isTimeSelectionValid) return true;
     return false;
   }
 
@@ -252,8 +255,15 @@ class _AdminFacilityRegistrationPageState
           },
         );
       case 3:
-        // TODO: Disponibilidad — availableDays, availableSlots
-        return const SizedBox();
+        return TimeSelectionStep(
+          selectedDays: _availableDays,
+          selectedSlots: _availableSlots,
+          onDaysChanged: (updated) => _availableDays = updated,
+          onSlotsChanged: (updated) => _availableSlots = updated,
+          onValidationChanged: (isValid) {
+            setState(() => _isTimeSelectionValid = isValid);
+          },
+        );
       default:
         return const SizedBox();
     }

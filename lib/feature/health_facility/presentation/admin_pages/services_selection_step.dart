@@ -80,7 +80,10 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
     }
 
     widget.onServicesChanged(updated);
-    _validate();
+
+    // ← calcula directo con `updated`, ya no con widget.selectedServices
+    widget.onValidationChanged(updated.isNotEmpty);
+
     setState(() {});
   }
 
@@ -97,7 +100,9 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
     final List<String> updated = List<String>.from(widget.selectedServices)
       ..add(value);
     widget.onServicesChanged(updated);
-    _validate();
+
+    // ← calcula directo con `updated`
+    widget.onValidationChanged(updated.isNotEmpty);
 
     setState(() {
       _customServices.add(value);
