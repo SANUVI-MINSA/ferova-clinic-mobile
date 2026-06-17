@@ -16,6 +16,7 @@ class AdminFacilityState {
   final bool isLoadingAdminFacilityRegistration;
   final bool isAdminFacilityRegistered;
   final bool isLoadingDistricts;
+  final String? registrationMessage;
   final List<District> districts;
 
   const AdminFacilityState({
@@ -31,6 +32,7 @@ class AdminFacilityState {
     this.assignmentMessage,
     this.isLoadingAdminFacilityRegistration = false,
     this.isAdminFacilityRegistered = false,
+    this.registrationMessage,
     this.isLoadingDistricts = false,
     this.districts = const [],
   });
@@ -48,6 +50,7 @@ class AdminFacilityState {
     String? assignmentMessage,
     bool? isLoadingAdminFacilityRegistration,
     bool? isAdminFacilityRegistered,
+    String? registrationMessage,
     bool? isLoadingDistricts,
     List<District>? districts,
   }) {
@@ -70,6 +73,7 @@ class AdminFacilityState {
           this.isLoadingAdminFacilityRegistration,
       isAdminFacilityRegistered:
           isAdminFacilityRegistered ?? this.isAdminFacilityRegistered,
+      registrationMessage: registrationMessage ?? this.registrationMessage,
       isLoadingDistricts: isLoadingDistricts ?? this.isLoadingDistricts,
       districts: districts ?? this.districts,
     );

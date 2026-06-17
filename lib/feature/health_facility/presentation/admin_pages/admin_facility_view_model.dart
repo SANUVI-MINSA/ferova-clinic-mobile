@@ -133,13 +133,13 @@ class AdminFacilityViewModel extends ChangeNotifier {
           .registerAdminFacility(request);
       if (dto.message != null) {
         state = state.copyWith(
-          isNurseAssigned: true,
+          isAdminFacilityRegistered: true,
           isLoadingNurseAssignment: false,
-          assignmentMessage: dto.message,
+          registrationMessage: dto.message,
         );
       } else {
         state = state.copyWith(
-          isNurseAssigned: false,
+          isAdminFacilityRegistered: false,
           isLoadingNurseAssignment: false,
           errorMessage: dto.error,
         );

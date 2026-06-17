@@ -7,6 +7,7 @@ class ServiceCheckboxTile extends StatelessWidget {
   final VoidCallback onTap;
 
   const ServiceCheckboxTile({
+    super.key,
     required this.label,
     required this.icon,
     required this.isSelected,
