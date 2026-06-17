@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:ferova_clinic_flutter/config/app_config.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facilities_response_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_registration_request_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_registration_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/available_nurses_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_request_dto.dart';
@@ -87,6 +89,29 @@ class AdminFacilityService {
       throw Exception('Failed to fetch nurse assignment. ${response.body}');
     } catch (e) {
       throw Exception('Failed to post nurse assignment. $e');
+    }
+  }
+
+  Future<AdminFacilityRegistrationResponseDto> postAdminFacility(
+    String token,
+    AdminFacilityRegistrationRequestDto request,
+  ) async {
+    try {
+      final Uri uri = Uri.parse(_baseUrl);
+      final response = await http.post(
+        uri,
+        headers: _headers(token),
+        body: jsonEncode(request.toJson()),
+      );
+      if (response.statusCode == HttpStatus.ok) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return AdminFacilityRegistrationResponseDto.fromJson(json);
+      }
+      throw Exception(
+        'Failed to fetch health facility registration. ${response.body}',
+      );
+    } catch (e) {
+      throw Exception('Failed to post health facility. $e');
     }
   }
 }
