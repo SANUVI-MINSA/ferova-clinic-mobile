@@ -1,13 +1,17 @@
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/value_objects/service_option.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/service_checkbox_tile.dart';
 import 'package:flutter/material.dart';
 
 class ServicesSelectionStep extends StatefulWidget {
   final List<String> selectedServices;
   final ValueChanged<List<String>> onServicesChanged;
+  final ValueChanged<bool> onValidationChanged;
 
   const ServicesSelectionStep({
     super.key,
     required this.selectedServices,
     required this.onServicesChanged,
+    required this.onValidationChanged,
   });
 
   @override
@@ -16,14 +20,14 @@ class ServicesSelectionStep extends StatefulWidget {
 
 class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  final List<_ServiceOption> _defaultServices = const [
-    _ServiceOption(name: 'Vacunación', icon: Icons.vaccines_outlined),
-    _ServiceOption(name: 'Pediatría', icon: Icons.child_care_outlined),
-    _ServiceOption(
+  final List<ServiceOption> _defaultServices = const [
+    ServiceOption(name: 'Vacunación', icon: Icons.vaccines_outlined),
+    ServiceOption(name: 'Pediatría', icon: Icons.child_care_outlined),
+    ServiceOption(
       name: 'Medicina General',
       icon: Icons.health_and_safety_outlined,
     ),
-    _ServiceOption(name: 'Enfermería', icon: Icons.healing_outlined),
+    ServiceOption(name: 'Enfermería', icon: Icons.healing_outlined),
   ];
 
   final List<String> _customServices = [];
@@ -31,9 +35,22 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
       TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Valida apenas se monta, por si ya hay servicios seleccionados (al regresar de otro step)
+    Future.microtask(() {
+      if (mounted) _validate();
+    });
+  }
+
+  @override
   void dispose() {
     _customServiceController.dispose();
     super.dispose();
+  }
+
+  void _validate() {
+    widget.onValidationChanged(widget.selectedServices.isNotEmpty);
   }
 
   bool _isSelected(String serviceName) {
@@ -63,6 +80,7 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
     }
 
     widget.onServicesChanged(updated);
+    _validate();
     setState(() {});
   }
 
@@ -79,6 +97,7 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
     final List<String> updated = List<String>.from(widget.selectedServices)
       ..add(value);
     widget.onServicesChanged(updated);
+    _validate();
 
     setState(() {
       _customServices.add(value);
@@ -101,7 +120,7 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
       fixedCrossAxisSizeFactor: 1.0,
       child: FadeTransition(
         opacity: animation,
-        child: _ServiceCheckboxTile(
+        child: ServiceCheckboxTile(
           label: service,
           icon: Icons.add_circle_outline,
           isSelected: isRemoving ? true : _isSelected(service),
@@ -149,21 +168,16 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  // Servicios predeterminados — sin animación, son fijos
                   ..._defaultServices.map((service) {
-                    return _ServiceCheckboxTile(
+                    return ServiceCheckboxTile(
                       label: service.name,
                       icon: service.icon,
                       isSelected: _isSelected(service.name),
                       onTap: () => _toggleService(service.name),
                     );
                   }),
-
-                  // Servicios personalizados — con animación de entrada/salida
                   SizedBox(
-                    height:
-                        _customServices.length *
-                        60.0, // alto aproximado por item
+                    height: _customServices.length * 60.0,
                     child: AnimatedList(
                       key: _listKey,
                       shrinkWrap: true,
@@ -234,62 +248,6 @@ class _ServicesSelectionStepState extends State<ServicesSelectionStep> {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ServiceOption {
-  final String name;
-  final IconData icon;
-
-  const _ServiceOption({required this.name, required this.icon});
-}
-
-class _ServiceCheckboxTile extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _ServiceCheckboxTile({
-    required this.label,
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          children: [
-            IgnorePointer(
-              child: Checkbox(
-                value: isSelected,
-                onChanged: (_) {},
-                activeColor: const Color(0xFF003178),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF1A1A2E),
-                ),
-              ),
-            ),
-            Icon(icon, color: const Color(0xFF6B7D8F), size: 22),
-          ],
-        ),
       ),
     );
   }
