@@ -6,6 +6,7 @@ import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_fa
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_registration_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/available_nurses_response_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/district_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_availability_response_dto.dart';
@@ -112,6 +113,25 @@ class AdminFacilityService {
       );
     } catch (e) {
       throw Exception('Failed to post health facility. $e');
+    }
+  }
+
+  Future<List<DistrictDto>> getDistricts(String token) async {
+    try {
+      final Uri uri = Uri.parse('$_baseUrl/districts');
+      final http.Response response = await http.get(
+        uri,
+        headers: _headers(token),
+      );
+
+      if (response.statusCode == HttpStatus.ok) {
+        final json = jsonDecode(response.body) as List;
+        return json.map((item) => DistrictDto.fromJson(item)).toList();
+      }
+
+      throw Exception('Failed to fetch districts. ${response.body}');
+    } catch (e) {
+      throw Exception('Failed to get info from endpoint. $e');
     }
   }
 }
