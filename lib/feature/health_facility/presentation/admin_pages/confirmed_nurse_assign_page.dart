@@ -171,7 +171,6 @@ class ConfirmedNurseAssignPage extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                // Botón regresar al inicio
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(

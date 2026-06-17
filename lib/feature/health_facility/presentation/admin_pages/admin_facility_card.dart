@@ -132,7 +132,6 @@ class AdminFacilityCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                //Al presionar el boton de asignar un enfermero/a
                 onPressed: state.isLoadingNurseAvailability
                     ? null
                     : () async {

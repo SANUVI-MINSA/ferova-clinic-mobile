@@ -1,7 +1,8 @@
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/general_info_step.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/map_location_step.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/services_selection_step.dart';
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 class AdminFacilityRegistrationPage extends StatefulWidget {
@@ -20,17 +21,16 @@ class _AdminFacilityRegistrationPageState
 
   double get _progress => (_currentStep + 1) / _totalSteps;
 
-  // ── Datos del registro (viven en el padre, persisten entre pasos) ────────
   final TextEditingController _facilityNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   String? _selectedDistrictId;
-  LatLng? _selectedLocation; // contiene latitude y longitude
-  final List<String> _services = [];
-  final List<String> _availableDays = [];
-  final List<String> _availableSlots = [];
+  double? _latitude;
+  double? _longitude;
+  List<String> _services = [];
+  List<String> _availableDays = [];
+  List<String> _availableSlots = [];
 
-  // Días disponibles en inglés
   final List<String> _weekDays = [
     'Monday',
     'Tuesday',
@@ -100,7 +100,6 @@ class _AdminFacilityRegistrationPageState
       ),
       body: Column(
         children: [
-          // ── Barra de progreso animada ──────────────────────────────────
           TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: _previousProgress, end: _progress),
             duration: const Duration(milliseconds: 350),
@@ -128,7 +127,6 @@ class _AdminFacilityRegistrationPageState
               ),
             ),
           ),
-          // ── Contenido del paso actual ────────────────────────────────────
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -150,8 +148,6 @@ class _AdminFacilityRegistrationPageState
               ),
             ),
           ),
-
-          // ── Botones de navegación ────────────────────────────────────────
         ],
       ),
       bottomNavigationBar: Padding(
@@ -215,11 +211,23 @@ class _AdminFacilityRegistrationPageState
               setState(() => _selectedDistrictId = value),
         );
       case 1:
-        // TODO: Ubicación en mapa — latitude, longitude
-        return const SizedBox();
+        return MapLocationStep(
+          initialLatitude: _latitude,
+          initialLongitude: _longitude,
+          onLocationChanged: (location) {
+            _latitude = location.latitude;
+            _longitude = location.longitude;
+          },
+        );
       case 2:
-        // TODO: Servicios — services
-        return const SizedBox();
+        return ServicesSelectionStep(
+          selectedServices: _services,
+          onServicesChanged: (updated) {
+            setState(() {
+              _services = updated;
+            });
+          },
+        );
       case 3:
         // TODO: Disponibilidad — availableDays, availableSlots
         return const SizedBox();

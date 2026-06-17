@@ -239,9 +239,7 @@ class _NurseSelectionPageState extends State<NurseSelectionPage> {
                                         width: double.infinity,
                                         child: ElevatedButton(
                                           onPressed: () async {
-                                            Navigator.pop(
-                                              ctx,
-                                            ); // cierra el bottomsheet
+                                            Navigator.pop(ctx);
 
                                             final viewModel = context
                                                 .read<AdminFacilityViewModel>();

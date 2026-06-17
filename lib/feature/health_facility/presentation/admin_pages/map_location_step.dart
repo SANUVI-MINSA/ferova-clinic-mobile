@@ -242,7 +242,6 @@ class _MapLocationStepState extends State<MapLocationStep> {
             ),
           ),
 
-        // Referencia de calle + coordenadas como dato secundario
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
