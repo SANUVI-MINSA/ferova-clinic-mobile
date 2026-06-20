@@ -52,9 +52,11 @@ class AdminFacilityViewModel extends ChangeNotifier {
     } catch (e) {
       state = state.copyWith(
         isLoadingNurseAvailability: false,
+        canRegisterFacilty: false,
         errorMessage: '$e',
       );
     }
+    notifyListeners();
   }
 
   Future<void> getAvailableNurses() async {
@@ -98,6 +100,7 @@ class AdminFacilityViewModel extends ChangeNotifier {
         errorMessage: dto.error,
       );
     }
+    notifyListeners();
   }
 
   Future<void> registerAdminFacility(
@@ -134,13 +137,13 @@ class AdminFacilityViewModel extends ChangeNotifier {
       if (dto.message != null) {
         state = state.copyWith(
           isAdminFacilityRegistered: true,
-          isLoadingNurseAssignment: false,
+          isLoadingAdminFacilityRegistration: false,
           registrationMessage: dto.message,
         );
       } else {
         state = state.copyWith(
           isAdminFacilityRegistered: false,
-          isLoadingNurseAssignment: false,
+          isLoadingAdminFacilityRegistration: false,
           errorMessage: dto.error,
         );
       }
@@ -149,6 +152,7 @@ class AdminFacilityViewModel extends ChangeNotifier {
         isLoadingAdminFacilityRegistration: false,
         errorMessage: '$e',
       );
+      notifyListeners();
     }
   }
 
