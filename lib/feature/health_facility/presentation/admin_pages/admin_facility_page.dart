@@ -21,7 +21,10 @@ class _AdminFacilityPageState extends State<AdminFacilityPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AdminFacilityViewModel>().getHealthFacilities();
+      final viewModel = context.read<AdminFacilityViewModel>();
+      viewModel.getHealthFacilities();
+      // ✅ NUEVO: Verificar disponibilidad al cargar la página
+      viewModel.canRegisterFacility();
     });
   }
 
@@ -42,182 +45,301 @@ class _AdminFacilityPageState extends State<AdminFacilityPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      // ✅ MODIFICADO: FAB con verificación de disponibilidad
       floatingActionButton: state.adminFacilities.isEmpty
           ? null
           : FloatingActionButton(
-              backgroundColor: const Color(0xFF003178),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const AdminFacilityRegistrationPage(),
-                  ),
-                );
-              },
-              child: const Icon(Icons.add, color: Colors.white),
-            ),
+        backgroundColor: const Color(0xFF003178),
+        onPressed: () async {
+          // Verificar disponibilidad antes de navegar
+          await viewModel.canRegisterFacility();
+
+          if (!context.mounted) return;
+
+          if (viewModel.state.canRegisterFacilty) {
+            // Si hay enfermeros disponibles, navegar al registro
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const AdminFacilityRegistrationPage(),
+              ),
+            );
+          } else {
+            // ✅ NUEVO: Mostrar diálogo cuando no hay enfermeros
+            _showNoNursesAvailableDialog(context);
+          }
+        },
+        child: state.isLoadingNurseAvailability
+            ? const SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(
+            color: Colors.white,
+            strokeWidth: 2,
+          ),
+        )
+            : const Icon(Icons.add, color: Colors.white),
+      ),
       body: SafeArea(
         child: state.isLoadingFacilities
             ? const Center(
-                child: CircularProgressIndicator(color: Color(0xFF003178)),
-              )
+          child: CircularProgressIndicator(color: Color(0xFF003178)),
+        )
             : state.errorMessage != null
             ? Center(
-                child: Text(
-                  state.errorMessage!,
-                  style: const TextStyle(color: Colors.redAccent),
-                  textAlign: TextAlign.center,
-                ),
-              )
+          child: Text(
+            state.errorMessage!,
+            style: const TextStyle(color: Colors.redAccent),
+            textAlign: TextAlign.center,
+          ),
+        )
             : SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 32,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 32,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Mis Postas',
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1A2E),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Mis Postas',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A1A2E),
-                      ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Gestione y supervise las instalaciones de salud asignadas a su red.',
+                style: TextStyle(fontSize: 14, color: Color(0xFF6B7D8F)),
+              ),
+              const SizedBox(height: 24),
+              if (state.adminFacilities.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 48,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFE2E8F0),
+                      width: 1,
                     ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Gestione y supervise las instalaciones de salud asignadas a su red.',
-                      style: TextStyle(fontSize: 14, color: Color(0xFF6B7D8F)),
-                    ),
-                    const SizedBox(height: 24),
-                    if (state.adminFacilities.isEmpty)
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 48,
-                        ),
+                        width: 90,
+                        height: 90,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: const Color(0xFFF1F5F9),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: const Color(0xFFE2E8F0),
-                            width: 1,
-                          ),
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 90,
-                              height: 90,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF1F5F9),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Icon(
-                                Icons.add_box_outlined,
-                                size: 44,
-                                color: Color(0xFF003178),
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            const Text(
-                              'No hay postas registradas aún',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF1A1A2E),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            const Text(
-                              'Comience a organizar su red de salud agregando la primera posta médica para gestionar personal y pacientes.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Color(0xFF6B7D8F),
-                                height: 1.5,
-                              ),
-                            ),
-                            const SizedBox(height: 28),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const AdminFacilityRegistrationPage(),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF003178),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  elevation: 0,
-                                ),
-                                child: const Text(
-                                  'Registrar Primera Posta',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    else ...[
-                      // Barra de búsqueda
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (value) =>
-                              setState(() => _searchQuery = value),
-                          decoration: const InputDecoration(
-                            hintText: 'Filtrar postas...',
-                            hintStyle: TextStyle(color: Color(0xFF9EAFC0)),
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color: Color(0xFF9EAFC0),
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(vertical: 14),
-                          ),
+                        child: const Icon(
+                          Icons.add_box_outlined,
+                          size: 44,
+                          color: Color(0xFF003178),
                         ),
                       ),
                       const SizedBox(height: 24),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: filtered.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: AdminFacilityCard(facility: filtered[index]),
-                          );
-                        },
+                      const Text(
+                        'No hay postas registradas aún',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1A1A2E),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Comience a organizar su red de salud agregando la primera posta médica para gestionar personal y pacientes.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF6B7D8F),
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            // ✅ MODIFICADO: Verificar disponibilidad antes de navegar
+                            await viewModel.canRegisterFacility();
+
+                            if (!context.mounted) return;
+
+                            if (viewModel.state.canRegisterFacilty) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                  const AdminFacilityRegistrationPage(),
+                                ),
+                              );
+                            } else {
+                              _showNoNursesAvailableDialog(context);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF003178),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: state.isLoadingNurseAvailability
+                              ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                              : const Text(
+                            'Registrar Primera Posta',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
-                  ],
+                  ),
+                )
+              else ...[
+                // Barra de búsqueda
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) =>
+                        setState(() => _searchQuery = value),
+                    decoration: const InputDecoration(
+                      hintText: 'Filtrar postas...',
+                      hintStyle: TextStyle(color: Color(0xFF9EAFC0)),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: Color(0xFF9EAFC0),
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 14),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: AdminFacilityCard(facility: filtered[index]),
+                    );
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ✅ NUEVO: Método para mostrar el diálogo cuando no hay enfermeros
+  void _showNoNursesAvailableDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 32,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF7ED),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(
+                  Icons.person_off_outlined,
+                  size: 44,
+                  color: Color(0xFFF59E0B),
                 ),
               ),
+              const SizedBox(height: 24),
+              const Text(
+                'Sin enfermeros disponibles',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1A2E),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Actualmente, todo el personal de enfermería registrado ha sido asignado a una posta médica.\n\nNo es posible registrar nuevas postas sin enfermeros disponibles para asignar.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF6B7D8F),
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF003178),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Entendido',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
