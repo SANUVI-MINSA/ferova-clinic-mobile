@@ -53,11 +53,24 @@ class _TimeSelectionStepState extends State<TimeSelectionStep> {
   }
 
   void _toggleDay(String dayValue) {
+    const List<String> weekOrder = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+
     final List<String> updated = List<String>.from(widget.selectedDays);
     if (updated.contains(dayValue)) {
       updated.remove(dayValue);
     } else {
       updated.add(dayValue);
+      updated.sort(
+        (a, b) => weekOrder.indexOf(a).compareTo(weekOrder.indexOf(b)),
+      );
     }
     widget.onDaysChanged(updated);
 
@@ -73,6 +86,7 @@ class _TimeSelectionStepState extends State<TimeSelectionStep> {
       updated.remove(slot);
     } else {
       updated.add(slot);
+      updated.sort();
     }
     widget.onSlotsChanged(updated);
 
