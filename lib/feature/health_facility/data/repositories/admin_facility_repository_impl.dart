@@ -1,0 +1,68 @@
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_registration_request_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/admin_facility_registration_response_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_request_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_assignment_response_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/dtos/nurse_availability_response_dto.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/services/admin_facility_service.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/admin_facility.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/district.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/nurse.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositories/admin_facility_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class AdminFacilityRepositoryImpl implements AdminFacilityRepository {
+  final AdminFacilityService service;
+
+  const AdminFacilityRepositoryImpl({required this.service});
+
+  Future<String> _token() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token') ?? '';
+  }
+
+  @override
+  Future<List<AdminFacility>> getHealthFacilities() async {
+    final token = await _token();
+    final dtos = await service.getFacilities(token);
+    return dtos.map((item) => item.toDomain()).toList();
+  }
+
+  @override
+  Future<NurseAvailabilityResponseDto> canRegisterFacility() async {
+    final token = await _token();
+    final dto = await service.canRegisterFacility(token);
+    return dto;
+  }
+
+  @override
+  Future<List<Nurse>> getAvailableNurses() async {
+    final token = await _token();
+    final dto = await service.getAvailableNurses(token);
+    return dto.data.map((item) => item.toDomain()).toList();
+  }
+
+  @override
+  Future<NurseAssignmentResponseDto> assignNurse(
+    NurseAssignmentRequestDto request,
+  ) async {
+    final token = await _token();
+    final dto = await service.postNurseAssignment(token, request);
+    return dto;
+  }
+
+  @override
+  Future<AdminFacilityRegistrationResponseDto> registerAdminFacility(
+    AdminFacilityRegistrationRequestDto request,
+  ) async {
+    final token = await _token();
+    final dto = await service.postAdminFacility(token, request);
+    return dto;
+  }
+
+  @override
+  Future<List<District>> getDistricts() async {
+    final token = await _token();
+    final dtos = await service.getDistricts(token);
+    return dtos.map((item) => item.toDomain()).toList();
+  }
+}
