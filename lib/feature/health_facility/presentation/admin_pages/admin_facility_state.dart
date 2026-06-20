@@ -62,7 +62,7 @@ class AdminFacilityState {
           isLoadingNurseAvailability ?? this.isLoadingNurseAvailability,
       canRegisterFacilty: canRegisterFacilty ?? this.canRegisterFacilty,
       isLoadingAvailableNurses:
-          isLoadingFacilities ?? this.isLoadingAvailableNurses,
+          isLoadingAvailableNurses ?? this.isLoadingAvailableNurses,
       availableNurses: availableNurses ?? this.availableNurses,
       isLoadingNurseAssignment:
           isLoadingNurseAssignment ?? this.isLoadingNurseAssignment,
