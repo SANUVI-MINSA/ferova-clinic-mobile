@@ -104,7 +104,7 @@ class AdminFacilityService {
         headers: _headers(token),
         body: jsonEncode(request.toJson()),
       );
-      if (response.statusCode == HttpStatus.ok) {
+      if (response.statusCode == HttpStatus.created) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         return AdminFacilityRegistrationResponseDto.fromJson(json);
       }
