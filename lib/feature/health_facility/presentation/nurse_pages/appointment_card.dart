@@ -55,7 +55,9 @@ class AppointmentCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  appointment.patientName,
+                  appointment.patientName.isNotEmpty
+                      ? appointment.patientName
+                      : 'Paciente: ${appointment.patientId}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(

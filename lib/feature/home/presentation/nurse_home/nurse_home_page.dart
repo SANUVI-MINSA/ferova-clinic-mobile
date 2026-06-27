@@ -1,4 +1,4 @@
-import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/appointment.dart';
+﻿import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/appointment.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/nurse_appointments_page.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_state.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_view_model.dart';
@@ -22,12 +22,11 @@ class _NurseHomePageState extends State<NurseHomePage> {
   int _selectedIndex = 0;
 
   void _logout(BuildContext context, NurseHomeViewModel viewModel) async {
-    // Diálogo de confirmación
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Cerrar sesión'),
-        content: const Text('¿Estás seguro de que quieres salir?'),
+        title: const Text('Cerrar sesion'),
+        content: const Text('Estas seguro de que quieres salir?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -42,16 +41,10 @@ class _NurseHomePageState extends State<NurseHomePage> {
     );
 
     if (confirm == true) {
-      // Limpiar token usando el ViewModel
       await viewModel.logout();
-
-      // Navegar al login y limpiar todo el stack
       if (context.mounted) {
-        // Opción 1: Si tienes el widget de Login disponible
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (_) => const LoginPage(),
-          ), // ← Usa tu LoginPage
+          MaterialPageRoute(builder: (_) => const LoginPage()),
           (route) => false,
         );
       }
@@ -60,30 +53,9 @@ class _NurseHomePageState extends State<NurseHomePage> {
 
   String _formatDate(String dateStr) {
     final date = DateTime.parse(dateStr);
-    const days = [
-      'Lunes',
-      'Martes',
-      'Miércoles',
-      'Jueves',
-      'Viernes',
-      'Sábado',
-      'Domingo',
-    ];
-    const months = [
-      '',
-      'Enero',
-      'Febrero',
-      'Marzo',
-      'Abril',
-      'Mayo',
-      'Junio',
-      'Julio',
-      'Agosto',
-      'Septiembre',
-      'Octubre',
-      'Noviembre',
-      'Diciembre',
-    ];
+    const days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+    const months = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     return '${days[date.weekday - 1]} ${date.day} de ${months[date.month]}, ${date.year}';
   }
 
@@ -98,10 +70,12 @@ class _NurseHomePageState extends State<NurseHomePage> {
   }
 
   String _initials(String fullName) {
+    if (fullName.trim().isEmpty) return '?';
     final words = fullName.trim().split(' ');
     if (words.length >= 2) {
       return '${words[0][0]}${words[1][0]}'.toUpperCase();
     }
+    if (fullName.length < 2) return fullName.toUpperCase();
     return fullName.substring(0, 2).toUpperCase();
   }
 
@@ -119,11 +93,7 @@ class _NurseHomePageState extends State<NurseHomePage> {
         ),
         title: const Text(
           'FerovaClinic',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
         ),
         centerTitle: true,
         backgroundColor: const Color(0xFF0D6EA8),
@@ -134,22 +104,15 @@ class _NurseHomePageState extends State<NurseHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildNurseHeader(),
+            _buildNurseHeader(state.facilityName),
             const SizedBox(height: 16),
             _buildActivePatientCard(state.activePatients),
             const SizedBox(height: 16),
-            _buildRiskStatusSection(
-              state.highRiskCount,
-              state.mediumRiskCount,
-              state.lowRiskCount,
-            ),
+            _buildRiskStatusSection(state.highRiskCount, state.mediumRiskCount, state.lowRiskCount),
             const SizedBox(height: 20),
             _buildQuickAccess(),
             const SizedBox(height: 20),
-            _buildDaySchedule(
-              state.todayAppointments,
-              state.isLoadingAppointments,
-            ),
+            _buildDaySchedule(state.todayAppointments, state.isLoadingAppointments),
             const SizedBox(height: 20),
           ],
         ),
@@ -158,8 +121,7 @@ class _NurseHomePageState extends State<NurseHomePage> {
     );
   }
 
-  // ── Header enfermera ──────────────────────────────────────────────────────
-  Widget _buildNurseHeader() {
+  Widget _buildNurseHeader(String facilityName) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -168,24 +130,16 @@ class _NurseHomePageState extends State<NurseHomePage> {
           children: [
             Text(
               'Enf. ${widget.user.name}',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1A3A5C),
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1A3A5C)),
             ),
             const SizedBox(height: 4),
             Row(
-              children: const [
-                Icon(
-                  Icons.location_on_outlined,
-                  size: 14,
-                  color: Color(0xFF6B7D8F),
-                ),
-                SizedBox(width: 2),
+              children: [
+                const Icon(Icons.location_on_outlined, size: 14, color: Color(0xFF6B7D8F)),
+                const SizedBox(width: 2),
                 Text(
-                  'Posta Médica Huáscar',
-                  style: TextStyle(fontSize: 13, color: Color(0xFF6B7D8F)),
+                  facilityName,
+                  style: const TextStyle(fontSize: 13, color: Color(0xFF6B7D8F)),
                 ),
               ],
             ),
@@ -198,11 +152,8 @@ class _NurseHomePageState extends State<NurseHomePage> {
             child: Image.asset(
               'assets/images/nurse_avatar.png',
               fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => const Icon(
-                Icons.person_rounded,
-                size: 34,
-                color: Color(0xFF0D6EA8),
-              ),
+              errorBuilder: (_, _, _) =>
+                  const Icon(Icons.person_rounded, size: 34, color: Color(0xFF0D6EA8)),
             ),
           ),
         ),
@@ -210,7 +161,6 @@ class _NurseHomePageState extends State<NurseHomePage> {
     );
   }
 
-  // ── Cartera de pacientes ──────────────────────────────────────────────────
   Widget _buildActivePatientCard(int activePatients) {
     return Container(
       width: double.infinity,
@@ -218,25 +168,14 @@ class _NurseHomePageState extends State<NurseHomePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'CARTERA DE PACIENTES',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF0D6EA8),
-              letterSpacing: 0.8,
-            ),
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF0D6EA8), letterSpacing: 0.8),
           ),
           const SizedBox(height: 6),
           Row(
@@ -245,17 +184,10 @@ class _NurseHomePageState extends State<NurseHomePage> {
             children: [
               Text(
                 activePatients.toString(),
-                style: const TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A3A5C),
-                ),
+                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFF1A3A5C)),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'Activos',
-                style: TextStyle(fontSize: 16, color: Color(0xFF6B7D8F)),
-              ),
+              const Text('Activos', style: TextStyle(fontSize: 16, color: Color(0xFF6B7D8F))),
             ],
           ),
         ],
@@ -263,64 +195,31 @@ class _NurseHomePageState extends State<NurseHomePage> {
     );
   }
 
-  // ── Estado de Riesgo Clínico ──────────────────────────────────────────────
-  Widget _buildRiskStatusSection(
-    int highRiskCount,
-    int mediumRiskCount,
-    int lowRiskCount,
-  ) {
+  Widget _buildRiskStatusSection(int highRiskCount, int mediumRiskCount, int lowRiskCount) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Estado de Riesgo Clínico',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1A3A5C),
-            ),
+            'Estado de Riesgo Clinico',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A3A5C)),
           ),
           const SizedBox(height: 14),
-          _buildRiskCard(
-            label: 'HIGH',
-            count: highRiskCount,
-            subtitle: 'score mayor de 70',
-            bgColor: const Color(0xFFFFEBEB),
-            textColor: const Color(0xFFD32F2F),
-            icon: Icons.warning_rounded,
-          ),
+          _buildRiskCard(label: 'HIGH', count: highRiskCount, subtitle: 'score mayor de 70',
+              bgColor: const Color(0xFFFFEBEB), textColor: const Color(0xFFD32F2F), icon: Icons.warning_rounded),
           const SizedBox(height: 10),
-          _buildRiskCard(
-            label: 'MEDIUM',
-            count: mediumRiskCount,
-            subtitle: 'score entre 30 y 70',
-            bgColor: const Color(0xFFFFF9C4),
-            textColor: const Color(0xFFF57F17),
-            icon: Icons.error_rounded,
-          ),
+          _buildRiskCard(label: 'MEDIUM', count: mediumRiskCount, subtitle: 'score entre 30 y 70',
+              bgColor: const Color(0xFFFFF9C4), textColor: const Color(0xFFF57F17), icon: Icons.error_rounded),
           const SizedBox(height: 10),
-          _buildRiskCard(
-            label: 'LOW',
-            count: lowRiskCount,
-            subtitle: 'score menor de 30',
-            bgColor: const Color(0xFFE8F5E9),
-            textColor: const Color(0xFF2E7D32),
-            icon: Icons.check_circle_rounded,
-          ),
+          _buildRiskCard(label: 'LOW', count: lowRiskCount, subtitle: 'score menor de 30',
+              bgColor: const Color(0xFFE8F5E9), textColor: const Color(0xFF2E7D32), icon: Icons.check_circle_rounded),
         ],
       ),
     );
@@ -337,10 +236,7 @@ class _NurseHomePageState extends State<NurseHomePage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -348,82 +244,31 @@ class _NurseHomePageState extends State<NurseHomePage> {
             children: [
               Icon(icon, color: textColor, size: 18),
               const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: textColor,
-                ),
-              ),
+              Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: textColor)),
             ],
           ),
           const SizedBox(height: 4),
-          Text(
-            '$count pacientes',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
-          ),
+          Text('$count pacientes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor)),
           const SizedBox(height: 2),
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 12,
-              color: textColor.withValues(alpha: 0.8),
-            ),
-          ),
+          Text(subtitle, style: TextStyle(fontSize: 12, color: textColor.withValues(alpha: 0.8))),
         ],
       ),
     );
   }
 
-  // ── Accesos Rápidos ───────────────────────────────────────────────────────
   Widget _buildQuickAccess() {
     final List<_QuickAccessItem> items = [
-      _QuickAccessItem(
-        icon: Icons.medical_information_rounded,
-        label: 'Iniciar\nTratamiento',
-        onTap: () {
-          /* TODO */
-        },
-      ),
-      _QuickAccessItem(
-        icon: Icons.fact_check_rounded,
-        label: 'Registrar\nControl',
-        onTap: () {
-          /* TODO */
-        },
-      ),
-      _QuickAccessItem(
-        icon: Icons.checklist_rounded,
-        label: 'Mis\nTratamientos',
-        onTap: () {
-          /* TODO */
-        },
-      ),
-      _QuickAccessItem(
-        icon: Icons.person_add_rounded,
-        label: 'Dar de Alta',
-        onTap: () {
-          /* TODO */
-        },
-      ),
+      _QuickAccessItem(icon: Icons.medical_information_rounded, label: 'Iniciar\nTratamiento', onTap: () {}),
+      _QuickAccessItem(icon: Icons.fact_check_rounded, label: 'Registrar\nControl', onTap: () {}),
+      _QuickAccessItem(icon: Icons.checklist_rounded, label: 'Mis\nTratamientos', onTap: () {}),
+      _QuickAccessItem(icon: Icons.person_add_rounded, label: 'Dar de Alta', onTap: () {}),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Accesos Rápidos',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1A3A5C),
-          ),
-        ),
+        const Text('Accesos Rapidos',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A3A5C))),
         const SizedBox(height: 12),
         GridView.count(
           crossAxisCount: 2,
@@ -445,58 +290,33 @@ class _NurseHomePageState extends State<NurseHomePage> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE8F3FB),
-                borderRadius: BorderRadius.circular(10),
-              ),
+              decoration: BoxDecoration(color: const Color(0xFFE8F3FB), borderRadius: BorderRadius.circular(10)),
               child: Icon(item.icon, color: const Color(0xFF0D6EA8), size: 24),
             ),
             const SizedBox(height: 8),
-            Text(
-              item.label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF1A3A5C),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            Text(item.label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12, color: Color(0xFF1A3A5C), fontWeight: FontWeight.w500)),
           ],
         ),
       ),
     );
   }
 
-  // ── Agenda del Día ────────────────────────────────────────────────────────
-  Widget _buildDaySchedule(
-    List<Appointment> todayAppointments,
-    bool isLoadingAppointments,
-  ) {
+  Widget _buildDaySchedule(List<Appointment> topAppointments, bool isLoadingAppointments) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,56 +325,38 @@ class _NurseHomePageState extends State<NurseHomePage> {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
             child: Row(
               children: [
-                const Icon(
-                  Icons.calendar_today_rounded,
-                  color: Color(0xFF0D6EA8),
-                  size: 20,
-                ),
+                const Icon(Icons.calendar_today_rounded, color: Color(0xFF0D6EA8), size: 20),
                 const SizedBox(width: 8),
                 const Text(
-                  'Agenda del Día',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A3A5C),
-                  ),
+                  'Proximas Citas',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A3A5C)),
                 ),
                 const Spacer(),
                 GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const NurseAppointmentsPage(),
-                      ),
-                    );
-                  },
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const NurseAppointmentsPage()),
+                  ),
                   child: const Text(
                     'Ver todas',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF2563EB),
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF2563EB)),
                   ),
                 ),
               ],
             ),
           ),
           const Divider(height: 1, thickness: 3, color: Color(0xFFF1F5F9)),
-          if (todayAppointments.isEmpty)
+          if (isLoadingAppointments)
+            const Center(child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+            ))
+          else if (topAppointments.isEmpty)
             const Center(
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 20),
-                child: Text(
-                  'Hoy no tienes citas',
-                  style: TextStyle(fontSize: 14, color: Color(0xFF9EAFC0)),
-                ),
+                child: Text('No tienes citas proximas', style: TextStyle(fontSize: 14, color: Color(0xFF9EAFC0))),
               ),
-            )
-          else if (isLoadingAppointments)
-            const Center(
-              child: CircularProgressIndicator(color: Color(0xFF2563EB)),
             )
           else
             ClipRRect(
@@ -566,9 +368,9 @@ class _NurseHomePageState extends State<NurseHomePage> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 padding: EdgeInsets.zero,
-                itemCount: todayAppointments.length,
+                itemCount: topAppointments.length,
                 itemBuilder: (context, index) {
-                  final Appointment a = todayAppointments[index];
+                  final Appointment a = topAppointments[index];
                   return TodayAppointmentCard(
                     appointment: a,
                     initials: _initials(a.patientName),
@@ -583,7 +385,6 @@ class _NurseHomePageState extends State<NurseHomePage> {
     );
   }
 
-  // ── Bottom Navigation Bar ─────────────────────────────────────────────────
   Widget _buildBottomNavBar() {
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
@@ -593,42 +394,23 @@ class _NurseHomePageState extends State<NurseHomePage> {
       unselectedItemColor: const Color(0xFF9EAFC0),
       backgroundColor: Colors.white,
       elevation: 12,
-      selectedLabelStyle: const TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w600,
-      ),
+      selectedLabelStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
       unselectedLabelStyle: const TextStyle(fontSize: 11),
       items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.grid_view_rounded),
-          label: 'INICIO',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.people_rounded),
-          label: 'PACIENTES',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.show_chart_rounded),
-          label: 'CONSULTAS',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.history_rounded),
-          label: 'HISTORIAL',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded), label: 'INICIO'),
+        BottomNavigationBarItem(icon: Icon(Icons.people_rounded), label: 'PACIENTES'),
+        BottomNavigationBarItem(icon: Icon(Icons.show_chart_rounded), label: 'CONSULTAS'),
+        BottomNavigationBarItem(icon: Icon(Icons.history_rounded), label: 'HISTORIAL'),
       ],
     );
   }
 }
 
-// ── Helper class ──────────────────────────────────────────────────────────────
 class _QuickAccessItem {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
 
-  _QuickAccessItem({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+  _QuickAccessItem({required this.icon, required this.label, required this.onTap});
 }
+

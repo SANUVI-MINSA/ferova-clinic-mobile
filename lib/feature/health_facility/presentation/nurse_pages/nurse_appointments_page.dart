@@ -48,10 +48,12 @@ class NurseAppointmentsPage extends StatelessWidget {
   }
 
   String _initials(String fullName) {
+    if (fullName.trim().isEmpty) return '?';
     final words = fullName.trim().split(' ');
     if (words.length >= 2) {
       return '${words[0][0]}${words[1][0]}'.toUpperCase();
     }
+    if (fullName.length < 2) return fullName.toUpperCase();
     return fullName.substring(0, 2).toUpperCase();
   }
 
