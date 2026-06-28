@@ -1,4 +1,5 @@
-﻿import 'package:ferova_clinic_flutter/feature/auth/domain/auth_repository.dart';
+﻿import 'dart:async';
+import 'package:ferova_clinic_flutter/feature/auth/domain/auth_repository.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositories/nurse_repository.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_state.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,16 +8,33 @@ class NurseHomeViewModel extends ChangeNotifier {
   final AuthRepository authRepository;
   final NurseRepository nurseRepository;
   NurseHomeState state = const NurseHomeState();
+  Timer? _pollingTimer;
 
   NurseHomeViewModel({
     required this.authRepository,
     required this.nurseRepository,
   }) {
     _loadAll();
+    _startPolling();
+  }
+
+  void _startPolling() {
+    _pollingTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      Future.wait([
+        _loadTopAppointments(silent: true),
+        _loadRiskOverview(),
+        _loadActivePatientCount(),
+      ]);
+    });
   }
 
   Future<void> logout() async {
+    _pollingTimer?.cancel();
     await authRepository.logout();
+  }
+
+  Future<void> refresh() async {
+    await _loadAll();
   }
 
   Future<void> _loadAll() async {
@@ -28,9 +46,17 @@ class NurseHomeViewModel extends ChangeNotifier {
     ]);
   }
 
-  Future<void> _loadTopAppointments() async {
-    state = state.copyWith(isLoadingAppointments: true);
-    notifyListeners();
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadTopAppointments({bool silent = false}) async {
+    if (!silent) {
+      state = state.copyWith(isLoadingAppointments: true);
+      notifyListeners();
+    }
     try {
       final appointments = await nurseRepository.getTopAppointments();
       state = state.copyWith(

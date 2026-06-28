@@ -21,6 +21,14 @@ class NurseHomePage extends StatefulWidget {
 class _NurseHomePageState extends State<NurseHomePage> {
   int _selectedIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NurseHomeViewModel>().refresh();
+    });
+  }
+
   void _logout(BuildContext context, NurseHomeViewModel viewModel) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -112,7 +120,7 @@ class _NurseHomePageState extends State<NurseHomePage> {
             const SizedBox(height: 20),
             _buildQuickAccess(),
             const SizedBox(height: 20),
-            _buildDaySchedule(state.todayAppointments, state.isLoadingAppointments),
+            _buildDaySchedule(state),
             const SizedBox(height: 20),
           ],
         ),
@@ -310,7 +318,9 @@ class _NurseHomePageState extends State<NurseHomePage> {
     );
   }
 
-  Widget _buildDaySchedule(List<Appointment> topAppointments, bool isLoadingAppointments) {
+  Widget _buildDaySchedule(NurseHomeState state) {
+    final topAppointments = state.todayAppointments;
+    final isLoadingAppointments = state.isLoadingAppointments;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -352,10 +362,16 @@ class _NurseHomePageState extends State<NurseHomePage> {
               child: CircularProgressIndicator(color: Color(0xFF2563EB)),
             ))
           else if (topAppointments.isEmpty)
-            const Center(
+            Center(
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Text('No tienes citas proximas', style: TextStyle(fontSize: 14, color: Color(0xFF9EAFC0))),
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Text(
+                  state.errorMessage != null
+                      ? 'Error: ${state.errorMessage}'
+                      : 'No tienes citas proximas',
+                  style: const TextStyle(fontSize: 14, color: Color(0xFF9EAFC0)),
+                  textAlign: TextAlign.center,
+                ),
               ),
             )
           else

@@ -81,47 +81,52 @@ class NurseAppointmentsPage extends StatelessWidget {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: state.isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF2563EB)),
-                  )
-                : state.errorMessage != null
-                ? Center(
+      body: RefreshIndicator(
+        color: const Color(0xFF2563EB),
+        onRefresh: () => viewModel.getNurseAppointments(),
+        child: state.isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFF2563EB)),
+              )
+            : state.errorMessage != null
+            ? ListView(
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.4),
+                  Center(
                     child: Text(
                       state.errorMessage!,
                       style: const TextStyle(color: Colors.redAccent),
                       textAlign: TextAlign.center,
                     ),
-                  )
-                : state.appointments.isEmpty
-                ? const Center(
+                  ),
+                ],
+              )
+            : state.appointments.isEmpty
+            ? ListView(
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.4),
+                  const Center(
                     child: Text(
                       'No hay citas programadas',
                       style: TextStyle(color: Colors.grey),
                     ),
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    itemCount: state.appointments.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      final Appointment a = state.appointments[index];
-                      return AppointmentCard(
-                        appointment: a,
-                        initials: _initials(a.patientName),
-                        formattedDate: _formatDate(a.appointmentDate),
-                        formattedTime: _formatTime(a.appointmentTime),
-                      );
-                    },
                   ),
-          ),
-        ],
+                ],
+              )
+            : ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                itemCount: state.appointments.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  final Appointment a = state.appointments[index];
+                  return AppointmentCard(
+                    appointment: a,
+                    initials: _initials(a.patientName),
+                    formattedDate: _formatDate(a.appointmentDate),
+                    formattedTime: _formatTime(a.appointmentTime),
+                  );
+                },
+              ),
       ),
     );
   }

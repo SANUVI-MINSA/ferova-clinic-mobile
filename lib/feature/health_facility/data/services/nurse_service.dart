@@ -18,7 +18,9 @@ class NurseService {
   Future<List<TopAppointmentDto>> getTopAppointments(String token, {int limit = 4}) async {
     try {
       final uri = Uri.parse('$_baseUrl/health-facilities/appointments/nurse/top?limit=$limit');
+      debugPrint('TOP APPOINTMENTS → GET $uri');
       final response = await http.get(uri, headers: _headers(token));
+      debugPrint('TOP APPOINTMENTS ← ${response.statusCode}: ${response.body}');
       if (response.statusCode == HttpStatus.ok) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         final list = json['data'] as List<dynamic>;
@@ -26,7 +28,6 @@ class NurseService {
             .map((e) => TopAppointmentDto.fromJson(e as Map<String, dynamic>))
             .toList();
       }
-      debugPrint('TopAppointments error ${response.statusCode}: ${response.body}');
       return [];
     } catch (e) {
       debugPrint('TopAppointments network error: $e');
