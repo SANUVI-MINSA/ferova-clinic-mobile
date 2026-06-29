@@ -8,6 +8,7 @@ import 'package:ferova_clinic_flutter/feature/auth/domain/user.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../auth/presentation/login/login_page.dart';
+import '../../../treatment/presentation/pending_patients/pending_patients_page.dart';
 
 class NurseHomePage extends StatefulWidget {
   final User user;
@@ -57,6 +58,16 @@ class _NurseHomePageState extends State<NurseHomePage> {
         );
       }
     }
+  }
+
+  //  MÉTODO PARA NAVEGAR A PENDING PATIENTS
+  void _navigateToPendingPatients(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const PendingPatientsPage(),
+      ),
+    );
   }
 
   String _formatDate(String dateStr) {
@@ -266,9 +277,13 @@ class _NurseHomePageState extends State<NurseHomePage> {
 
   Widget _buildQuickAccess() {
     final List<_QuickAccessItem> items = [
-      _QuickAccessItem(icon: Icons.medical_information_rounded, label: 'Iniciar\nTratamiento', onTap: () {}),
+      _QuickAccessItem(
+        icon: Icons.medical_information_rounded,
+        label: 'Iniciar\nTratamiento',
+        onTap: () => _navigateToPendingPatients(context),
+      ),
       _QuickAccessItem(icon: Icons.fact_check_rounded, label: 'Registrar\nControl', onTap: () {}),
-      _QuickAccessItem(icon: Icons.checklist_rounded, label: 'Mis\nTratamientos', onTap: () {}),
+      _QuickAccessItem(icon: Icons.checklist_rounded, label: 'Mis\nTratamientos',  onTap: () {}),
       _QuickAccessItem(icon: Icons.person_add_rounded, label: 'Dar de Alta', onTap: () {}),
     ];
 
