@@ -5,8 +5,8 @@ import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/start_treatmen
 import 'package:http/http.dart' as http;
 
 import '../../../../config/app_config.dart';
-import '../dtos/AbandonTreatmentRequestDto.dart';
-import '../dtos/CompleteTreatmentRequestDto.dart';
+import '../dtos/abandon_treatment_request_dto.dart';
+import '../dtos/complete_treatment_request_dto.dart';
 import '../dtos/pending_patients_response_dto.dart';
 import '../dtos/start_treatment_request_dto.dart';
 import '../dtos/treatment_detail_response_dto.dart';

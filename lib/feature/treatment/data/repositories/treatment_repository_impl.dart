@@ -1,5 +1,5 @@
-import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/AbandonTreatmentRequestDto.dart';
-import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/CompleteTreatmentRequestDto.dart';
+import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/abandon_treatment_request_dto.dart';
+import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/complete_treatment_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/pending_patients_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/start_treatment_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/start_treatment_response_dto.dart';
