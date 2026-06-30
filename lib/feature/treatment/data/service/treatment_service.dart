@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/start_treatment_response_dto.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../../config/app_config.dart';
 import '../dtos/pending_patients_response_dto.dart';
+import '../dtos/start_treatment_request_dto.dart';
 
 class TreatmentService {
   final String _baseUrl = '${AppConfig.baseUrl}/treatment-tracking';
@@ -29,4 +31,27 @@ class TreatmentService {
     }
   }
 
+  Future<StartTreatmentResponseDto> startTreatment(
+      StartTreatmentRequestDto request, String token
+      ) async {
+      try {
+        final Uri uri = Uri.parse('$_baseUrl/treatments');
+        final response = await http.post(
+          uri,
+          headers: _headers(token),
+          body: jsonEncode(request.toJson()),
+        );
+
+        if (response.statusCode == HttpStatus.created) {
+          final json = jsonDecode(response.body) as Map<String, dynamic>;
+          return StartTreatmentResponseDto.fromJson(json);
+        }
+
+        // Manejar error específico del backend
+        final errorJson = jsonDecode(response.body) as Map<String, dynamic>;
+        throw Exception(errorJson['error'] as String? ?? 'Error al iniciar el tratamiento');
+      } catch (e) {
+        throw Exception('Error al iniciar el tratamiento: $e');
+      }
+  }
 }
