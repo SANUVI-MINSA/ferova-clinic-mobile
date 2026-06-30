@@ -29,6 +29,7 @@ import '../../feature/auth/data/auth_service.dart';
 import '../../feature/auth/presentation/forgot_password/new_password/new_password_view_model.dart';
 import '../../feature/auth/presentation/forgot_password/recovery_password/recovery_password_view_model.dart';
 import '../../feature/auth/presentation/forgot_password/verification_indentity_page/verification_identity_view_model.dart';
+import '../../feature/treatment/presentation/start_treatment/start_treatment_view_model.dart';
 
 final getIt = GetIt.instance;
 
@@ -111,5 +112,13 @@ void setup() {
   
   getIt.registerFactory<PendingPatientsViewModel>(
       () => PendingPatientsViewModel(repository: getIt<TreatmentRepository>()),
+  );
+
+  getIt.registerFactory<StartTreatmentViewModel>(
+        () => StartTreatmentViewModel(
+      repository: getIt<TreatmentRepository>(),
+      patientId: '', // Placeholder, se actualizará en la página
+      patientName: '', // Placeholder, se actualizará en la página
+    ),
   );
 }
