@@ -8,6 +8,7 @@ import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/treatments_car
 import 'package:ferova_clinic_flutter/feature/treatment/domain/repositories/treatment_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../dtos/patient_monitor_response_dto.dart';
 import '../dtos/risk_patients_response_dto.dart';
 import '../service/treatment_service.dart';
 
@@ -63,6 +64,12 @@ class TreatmentRepositoryImpl implements TreatmentRepository{
   Future<RiskPatientsResponseDto> getPatientsByRiskLevel(String riskLevel) async {
     final token = await _token();
     return await service.getPatientsByRiskLevel(riskLevel, token);
+  }
+
+  @override
+  Future<PatientMonitorResponseDto> getPatientMonitor(String patientId) async {
+    final token = await _token();
+    return await service.getPatientMonitor(patientId, token);
   }
 
 }
