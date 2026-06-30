@@ -1,4 +1,8 @@
 ﻿import 'package:ferova_clinic_flutter/feature/health_facility/data/repositories/admin_facility_repository_impl.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/repositories/discharge_repository_impl.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/data/services/discharge_service.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositories/discharge_repository.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/discharge_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/repositories/appointment_repository_impl.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/repositories/nurse_repository_impl.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/data/services/admin_facility_service.dart';
@@ -84,7 +88,16 @@ void setup() {
     ),
   );
 
-  // 4) Health Facility — Admin
+  // 4) Health Facility — Discharge
+  getIt.registerLazySingleton<DischargeService>(() => DischargeService());
+  getIt.registerLazySingleton<DischargeRepository>(
+    () => DischargeRepositoryImpl(service: getIt<DischargeService>()),
+  );
+  getIt.registerFactory<DischargeViewModel>(
+    () => DischargeViewModel(repository: getIt<DischargeRepository>()),
+  );
+
+  // 5) Health Facility — Admin
   getIt.registerLazySingleton<AdminFacilityService>(
     () => AdminFacilityService(),
   );

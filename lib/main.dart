@@ -1,5 +1,6 @@
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/appointment_view_model.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/discharge_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -31,6 +32,9 @@ class MainApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => getIt<NurseHomeViewModel>(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => getIt<DischargeViewModel>(),
         ),
       ],
       child: MaterialApp(

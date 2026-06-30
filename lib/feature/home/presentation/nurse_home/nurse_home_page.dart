@@ -1,5 +1,6 @@
 ﻿import 'package:ferova_clinic_flutter/feature/health_facility/domain/model/appointment.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/nurse_appointments_page.dart';
+import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/discharge_patients_page.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_state.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/today_appointment_card.dart';
@@ -269,7 +270,16 @@ class _NurseHomePageState extends State<NurseHomePage> {
       _QuickAccessItem(icon: Icons.medical_information_rounded, label: 'Iniciar\nTratamiento', onTap: () {}),
       _QuickAccessItem(icon: Icons.fact_check_rounded, label: 'Registrar\nControl', onTap: () {}),
       _QuickAccessItem(icon: Icons.checklist_rounded, label: 'Mis\nTratamientos', onTap: () {}),
-      _QuickAccessItem(icon: Icons.person_add_rounded, label: 'Dar de Alta', onTap: () {}),
+      _QuickAccessItem(
+        icon: Icons.person_add_rounded,
+        label: 'Dar de Alta',
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const DischargePatientsPage()),
+          );
+        },
+      ),
     ];
 
     return Column(
