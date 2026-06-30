@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import '../../../../config/app_config.dart';
 import '../dtos/abandon_treatment_request_dto.dart';
 import '../dtos/complete_treatment_request_dto.dart';
+import '../dtos/patient_monitor_response_dto.dart';
 import '../dtos/pending_patients_response_dto.dart';
 import '../dtos/start_treatment_request_dto.dart';
 import '../dtos/treatment_detail_response_dto.dart';
@@ -147,6 +148,21 @@ class TreatmentService {
 
     } catch (e) {
       throw Exception('Failed to get patients by risk level. $e');
+    }
+  }
+
+  Future<PatientMonitorResponseDto> getPatientMonitor(String patientId, String token) async {
+    try {
+      final Uri uri = Uri.parse('$_baseUrl/patients/$patientId/treatment-detail');
+      final response = await http.get(uri, headers: _headers(token));
+
+      if (response.statusCode == HttpStatus.ok) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return PatientMonitorResponseDto.fromJson(json);
+      }
+      throw Exception('Failed to fetch patient monitor. ${response.body}');
+    } catch (e) {
+      throw Exception('Failed to get patient monitor. $e');
     }
   }
 }
