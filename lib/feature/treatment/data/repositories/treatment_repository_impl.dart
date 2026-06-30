@@ -1,6 +1,9 @@
+import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/AbandonTreatmentRequestDto.dart';
+import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/CompleteTreatmentRequestDto.dart';
 import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/pending_patients_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/start_treatment_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/start_treatment_response_dto.dart';
+import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/treatment_detail_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/treatments_card_response_dto.dart';
 import 'package:ferova_clinic_flutter/feature/treatment/domain/repositories/treatment_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,6 +38,24 @@ class TreatmentRepositoryImpl implements TreatmentRepository{
   Future<TreatmentsCardResponseDto> getTreatmentsByNurse({String? status}) async {
     final token = await _token();
     return await service.getTreatmentsByNurse(status, token);
+  }
+
+  @override
+  Future<void> abandonTreatment(AbandonTreatmentRequestDto request) async {
+    final token = await _token();
+    return await service.abandonTreatment(request, token);
+  }
+
+  @override
+  Future<void> completeTreatment(CompleteTreatmentRequestDto request) async {
+    final token = await _token();
+    return await service.completeTreatment(request, token);
+  }
+
+  @override
+  Future<TreatmentDetailResponseDto> getTreatmentDetail(String treatmentId) async {
+    final token = await _token();
+    return await service.getTreatmentDetail(treatmentId, token);
   }
 
 }

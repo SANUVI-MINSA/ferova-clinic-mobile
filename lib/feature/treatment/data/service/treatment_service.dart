@@ -5,8 +5,11 @@ import 'package:ferova_clinic_flutter/feature/treatment/data/dtos/start_treatmen
 import 'package:http/http.dart' as http;
 
 import '../../../../config/app_config.dart';
+import '../dtos/AbandonTreatmentRequestDto.dart';
+import '../dtos/CompleteTreatmentRequestDto.dart';
 import '../dtos/pending_patients_response_dto.dart';
 import '../dtos/start_treatment_request_dto.dart';
+import '../dtos/treatment_detail_response_dto.dart';
 import '../dtos/treatments_card_response_dto.dart';
 
 class TreatmentService {
@@ -77,6 +80,55 @@ class TreatmentService {
       throw Exception('Failed to fetch treatments. ${response.body}');
     } catch (e){
       throw Exception('Failed to get treatments. $e');
+    }
+  }
+
+  // OBTENER DETALLE DEL TRATAMIENTO
+  Future<TreatmentDetailResponseDto> getTreatmentDetail(String treatmentId, token) async {
+    try {
+      final Uri uri = Uri.parse('$_baseUrl/treatments/$treatmentId');
+      final response = await http.get(uri, headers: _headers(token));
+
+
+      if (response.statusCode == HttpStatus.ok) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+
+        return TreatmentDetailResponseDto.fromJson(json);
+      }
+      throw Exception('Failed to fetch treatment detail. ${response.body}');
+    } catch (e) {
+      throw Exception('Failed to get treatment detail. $e');
+    }
+  }
+
+  // COMPLETAR TRATAMIENTO
+  Future<void> completeTreatment(CompleteTreatmentRequestDto request, token) async {
+    try {
+
+      final Uri uri = Uri.parse('$_baseUrl/treatments/complete');
+      final response = await http.put(uri, headers: _headers(token), body: jsonEncode(request.toJson()),);
+
+      if (response.statusCode == HttpStatus.ok) {
+        return;
+      }
+      throw Exception('Failed to complete treatment. ${response.body}');
+    } catch (e) {
+      throw Exception('Failed to complete treatment. $e');
+    }
+  }
+
+  // ABANDONAR TRATAMIENTO
+  Future<void> abandonTreatment(AbandonTreatmentRequestDto request, String token) async {
+    try {
+      final Uri uri = Uri.parse('$_baseUrl/treatments/abandon');
+      final response = await http.put(uri, headers: _headers(token), body: jsonEncode(request.toJson()),);
+
+      if (response.statusCode == HttpStatus.ok) {
+        return;
+      }
+      throw Exception('Failed to abandon treatment. ${response.body}');
+    } catch (e) {
+      throw Exception('Failed to abandon treatment. $e');
     }
   }
 
