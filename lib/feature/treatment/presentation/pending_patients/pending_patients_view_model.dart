@@ -2,6 +2,8 @@
 import 'package:ferova_clinic_flutter/feature/treatment/domain/repositories/treatment_repository.dart';
 import 'package:ferova_clinic_flutter/feature/treatment/presentation/pending_patients/pending_patients_state.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import '../start_treatment/start_treatment_page.dart';
 
 class PendingPatientsViewModel extends ChangeNotifier {
   final TreatmentRepository repository;
@@ -31,8 +33,16 @@ class PendingPatientsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void selectPatient(String patientId) {
-    // TODO: Navegar a la página de iniciar tratamiento
+  void selectPatient(BuildContext context, String patientId, String patientName) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StartTreatmentPage(
+          patientId: patientId,
+          patientName: patientName,
+        ),
+      ),
+    );
   }
 
   void assignPatients() {

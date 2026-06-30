@@ -271,7 +271,11 @@ class _PendingPatientsContent extends StatelessWidget {
       PendingPatient patient,
       ) {
     return GestureDetector(
-      onTap: () => viewModel.selectPatient(patient.patientId),
+      onTap: () => viewModel.selectPatient(
+          context,
+          patient.patientId,
+          patient.patientName
+      ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         decoration: BoxDecoration(
