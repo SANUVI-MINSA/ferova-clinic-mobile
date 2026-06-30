@@ -1,5 +1,6 @@
 import '../../data/dtos/abandon_treatment_request_dto.dart';
 import '../../data/dtos/complete_treatment_request_dto.dart';
+import '../../data/dtos/patient_monitor_response_dto.dart';
 import '../../data/dtos/pending_patients_response_dto.dart';
 import '../../data/dtos/risk_patients_response_dto.dart';
 import '../../data/dtos/start_treatment_request_dto.dart';
@@ -30,5 +31,8 @@ abstract class TreatmentRepository {
 
   // Ver pacientes por nivel de riesgo
   Future<RiskPatientsResponseDto> getPatientsByRiskLevel(String riskLevel);
+
+
+  Future<PatientMonitorResponseDto> getPatientMonitor(String patientId);
 
 }
