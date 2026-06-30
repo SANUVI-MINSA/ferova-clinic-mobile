@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../auth/presentation/login/login_page.dart';
 import '../../../treatment/presentation/pending_patients/pending_patients_page.dart';
+import '../../../treatment/presentation/risk_patients/risk_patients_page.dart';
 import '../../../treatment/presentation/treatments_list/treatments_list_page.dart';
 
 class NurseHomePage extends StatefulWidget {
@@ -67,6 +68,17 @@ class _NurseHomePageState extends State<NurseHomePage> {
       context,
       MaterialPageRoute(
         builder: (context) => const PendingPatientsPage(),
+      ),
+    );
+  }
+
+  void _navigateToRiskPatients(BuildContext context, String riskLevel) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RiskPatientsPage(
+          riskLevel: riskLevel,
+        ),
       ),
     );
   }
@@ -242,14 +254,35 @@ class _NurseHomePageState extends State<NurseHomePage> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A3A5C)),
           ),
           const SizedBox(height: 14),
-          _buildRiskCard(label: 'HIGH', count: highRiskCount, subtitle: 'score mayor de 70',
-              bgColor: const Color(0xFFFFEBEB), textColor: const Color(0xFFD32F2F), icon: Icons.warning_rounded),
+          _buildRiskCard(
+            label: 'HIGH',
+            count: highRiskCount,
+            subtitle: 'score mayor de 70',
+            bgColor: const Color(0xFFFFEBEB),
+            textColor: const Color(0xFFD32F2F),
+            icon: Icons.warning_rounded,
+            onTap: () => _navigateToRiskPatients(context, 'HIGH'), // ✅ NAVEGACIÓN
+          ),
           const SizedBox(height: 10),
-          _buildRiskCard(label: 'MEDIUM', count: mediumRiskCount, subtitle: 'score entre 30 y 70',
-              bgColor: const Color(0xFFFFF9C4), textColor: const Color(0xFFF57F17), icon: Icons.error_rounded),
+          _buildRiskCard(
+            label: 'MEDIUM',
+            count: mediumRiskCount,
+            subtitle: 'score entre 30 y 70',
+            bgColor: const Color(0xFFFFF9C4),
+            textColor: const Color(0xFFF57F17),
+            icon: Icons.error_rounded,
+            onTap: () => _navigateToRiskPatients(context, 'MEDIUM'), // ✅ NAVEGACIÓN
+          ),
           const SizedBox(height: 10),
-          _buildRiskCard(label: 'LOW', count: lowRiskCount, subtitle: 'score menor de 30',
-              bgColor: const Color(0xFFE8F5E9), textColor: const Color(0xFF2E7D32), icon: Icons.check_circle_rounded),
+          _buildRiskCard(
+            label: 'LOW',
+            count: lowRiskCount,
+            subtitle: 'score menor de 30',
+            bgColor: const Color(0xFFE8F5E9),
+            textColor: const Color(0xFF2E7D32),
+            icon: Icons.check_circle_rounded,
+            onTap: () => _navigateToRiskPatients(context, 'LOW'), // ✅ NAVEGACIÓN
+          ),
         ],
       ),
     );
@@ -262,26 +295,53 @@ class _NurseHomePageState extends State<NurseHomePage> {
     required Color bgColor,
     required Color textColor,
     required IconData icon,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(12)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: textColor, size: 18),
-              const SizedBox(width: 6),
-              Text(label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: textColor)),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text('$count pacientes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: textColor)),
-          const SizedBox(height: 2),
-          Text(subtitle, style: TextStyle(fontSize: 12, color: textColor.withValues(alpha: 0.8))),
-        ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: textColor, size: 18),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '$count pacientes',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 12,
+                color: textColor.withValues(alpha: 0.8),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
