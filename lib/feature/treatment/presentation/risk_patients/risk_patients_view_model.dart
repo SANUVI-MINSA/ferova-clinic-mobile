@@ -1,7 +1,9 @@
 import 'package:ferova_clinic_flutter/feature/treatment/presentation/risk_patients/risk_patients_state.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import '../../domain/repositories/treatment_repository.dart';
+import '../patient_monitor/patient_monitor_page.dart';
 
 class RiskPatientsViewModel extends ChangeNotifier {
   final TreatmentRepository repository;
@@ -35,8 +37,14 @@ class RiskPatientsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void viewPatientDetail(String patientId) {
-    // TODO: Navegar a detalle del paciente
-    print('Ver detalle del paciente: $patientId');
+  void viewPatientDetail(BuildContext context, String patientId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PatientMonitorPage(
+          patientId: patientId,
+        ),
+      ),
+    );
   }
 }

@@ -201,7 +201,7 @@ class _RiskPatientsContent extends StatelessWidget {
                 return RiskPatientCard(
                   patient: patient,
                   riskLevel: state.riskLevel,
-                  onTap: () => viewModel.viewPatientDetail(patient.patientId),
+                  onTap: () => viewModel.viewPatientDetail(context, patient.patientId),
                 );
               },
             ),
