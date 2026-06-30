@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import '../../../../config/app_config.dart';
 import '../dtos/pending_patients_response_dto.dart';
 import '../dtos/start_treatment_request_dto.dart';
+import '../dtos/treatments_card_response_dto.dart';
 
 class TreatmentService {
   final String _baseUrl = '${AppConfig.baseUrl}/treatment-tracking';
@@ -54,4 +55,29 @@ class TreatmentService {
         throw Exception('Error al iniciar el tratamiento: $e');
       }
   }
+
+  Future<TreatmentsCardResponseDto> getTreatmentsByNurse(
+      String? status, String token
+      ) async {
+    try {
+      // Construir la URL base
+      final baseUri = Uri.parse('$_baseUrl/nurses/treatments');
+
+      // Si status no es null y no es 'TODOS', agregar el parámetro
+      final uri = (status != null && status != 'TODOS')
+          ? baseUri.replace(queryParameters: {'status': status})
+          : baseUri;
+
+      final response = await http.get(uri, headers: _headers(token));
+
+      if (response.statusCode == HttpStatus.ok) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return TreatmentsCardResponseDto.fromJson(json);
+      }
+      throw Exception('Failed to fetch treatments. ${response.body}');
+    } catch (e){
+      throw Exception('Failed to get treatments. $e');
+    }
+  }
+
 }
