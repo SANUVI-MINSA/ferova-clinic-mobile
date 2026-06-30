@@ -224,7 +224,10 @@ class _TreatmentsListContent extends StatelessWidget {
           final treatment = filtered[index];
           return TreatmentCard(
             treatment: treatment,
-            onTap: () => viewModel.viewTreatmentDetails(treatment.treatmentId),
+            onTap: () => viewModel.viewTreatmentDetails(
+              context,
+              treatment.treatmentId,
+            ),
           );
         },
       ),

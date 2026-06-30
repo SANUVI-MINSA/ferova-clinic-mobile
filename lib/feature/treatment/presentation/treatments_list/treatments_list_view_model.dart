@@ -1,7 +1,9 @@
 import 'package:ferova_clinic_flutter/feature/treatment/presentation/treatments_list/treatments_list_state.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import '../../domain/repositories/treatment_repository.dart';
+import '../treatment_detail/treatment_detail_page.dart';
 
 class TreatmentsListViewModel extends ChangeNotifier {
   final TreatmentRepository repository;
@@ -55,7 +57,14 @@ class TreatmentsListViewModel extends ChangeNotifier {
     loadTreatments(status: 'TODOS');
   }
 
-  void viewTreatmentDetails(String treatmentId) {
-    print('Ver detalles del tratamiento: $treatmentId');
+  void viewTreatmentDetails(BuildContext context, String treatmentId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TreatmentDetailPage(
+          treatmentId: treatmentId,
+        ),
+      ),
+    );
   }
 }
