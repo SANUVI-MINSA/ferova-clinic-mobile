@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../auth/presentation/login/login_page.dart';
 import '../../../treatment/presentation/pending_patients/pending_patients_page.dart';
+import '../../../treatment/presentation/treatments_list/treatments_list_page.dart';
 
 class NurseHomePage extends StatefulWidget {
   final User user;
@@ -66,6 +67,16 @@ class _NurseHomePageState extends State<NurseHomePage> {
       context,
       MaterialPageRoute(
         builder: (context) => const PendingPatientsPage(),
+      ),
+    );
+  }
+
+  // METODO PARA NAVEGAR A MIS TRATAMIENTOS
+  void _navigateToTreatmentsList(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const TreatmentsListPage(),
       ),
     );
   }
@@ -283,7 +294,11 @@ class _NurseHomePageState extends State<NurseHomePage> {
         onTap: () => _navigateToPendingPatients(context),
       ),
       _QuickAccessItem(icon: Icons.fact_check_rounded, label: 'Registrar\nControl', onTap: () {}),
-      _QuickAccessItem(icon: Icons.checklist_rounded, label: 'Mis\nTratamientos',  onTap: () {}),
+      _QuickAccessItem(
+        icon: Icons.checklist_rounded,
+        label: 'Mis\nTratamientos',
+        onTap: () => _navigateToTreatmentsList(context),
+      ),
       _QuickAccessItem(icon: Icons.person_add_rounded, label: 'Dar de Alta', onTap: () {}),
     ];
 
