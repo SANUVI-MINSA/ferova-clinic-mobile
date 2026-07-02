@@ -1,4 +1,4 @@
-import 'package:ferova_clinic_flutter/feature/medical_record/domain/model/value_objects/hemoglobin_control.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/domain/model/entities/hemoglobin_control.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/domain/model/value_objects/patient_history.dart';
 
 class MedicalRecord {
