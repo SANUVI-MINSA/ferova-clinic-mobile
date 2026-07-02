@@ -14,6 +14,10 @@ import 'package:ferova_clinic_flutter/feature/health_facility/domain/repositorie
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/appointment_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_view_model.dart';
+import 'package:ferova_clinic_flutter/feature/treatment/data/repositories/treatment_repository_impl.dart';
+import 'package:ferova_clinic_flutter/feature/treatment/data/service/treatment_service.dart';
+import 'package:ferova_clinic_flutter/feature/treatment/domain/repositories/treatment_repository.dart';
+import 'package:ferova_clinic_flutter/feature/treatment/presentation/pending_patients/pending_patients_view_model.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ferova_clinic_flutter/feature/auth/domain/auth_repository.dart';
 import 'package:ferova_clinic_flutter/feature/auth/presentation/login/login_view_model.dart';
@@ -23,11 +27,14 @@ import 'package:ferova_clinic_flutter/feature/home/data/analytics_service.dart';
 import 'package:ferova_clinic_flutter/feature/home/domain/analytics_repository.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/admin_home/admin_home_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/estado_postas/estado_postas_view_model.dart';
+import 'package:http/http.dart';
 import '../../feature/auth/data/auth_repository_impl.dart';
 import '../../feature/auth/data/auth_service.dart';
 import '../../feature/auth/presentation/forgot_password/new_password/new_password_view_model.dart';
 import '../../feature/auth/presentation/forgot_password/recovery_password/recovery_password_view_model.dart';
 import '../../feature/auth/presentation/forgot_password/verification_indentity_page/verification_identity_view_model.dart';
+import '../../feature/treatment/presentation/start_treatment/start_treatment_view_model.dart';
+import '../../feature/treatment/presentation/treatments_list/treatments_list_view_model.dart';
 
 final getIt = GetIt.instance;
 
@@ -106,5 +113,32 @@ void setup() {
   );
   getIt.registerFactory<AdminFacilityViewModel>(
     () => AdminFacilityViewModel(repository: getIt<AdminFacilityRepository>()),
+  );
+  
+  // 5) Treatment - Nurse
+  getIt.registerLazySingleton<TreatmentService>(
+      () => TreatmentService(),
+  );
+  
+  getIt.registerLazySingleton<TreatmentRepository>(
+      () => TreatmentRepositoryImpl(service: getIt<TreatmentService>()),
+  );
+  
+  getIt.registerFactory<PendingPatientsViewModel>(
+      () => PendingPatientsViewModel(repository: getIt<TreatmentRepository>()),
+  );
+
+  // Iniciar tratamiento
+  getIt.registerFactory<StartTreatmentViewModel>(
+        () => StartTreatmentViewModel(
+      repository: getIt<TreatmentRepository>(),
+      patientId: '', // Placeholder, se actualizará en la página
+      patientName: '', // Placeholder, se actualizará en la página
+    ),
+  );
+
+  // Lista de tratamientos
+  getIt.registerFactory<TreatmentsListViewModel>(
+        () => TreatmentsListViewModel(repository: getIt<TreatmentRepository>()),
   );
 }
