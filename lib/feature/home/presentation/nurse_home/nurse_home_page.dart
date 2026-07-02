@@ -370,7 +370,6 @@ class _NurseHomePageState extends State<NurseHomePage> {
           );
         },
       ),
-      _QuickAccessItem(icon: Icons.person_add_rounded, label: 'Dar de Alta', onTap: () {}),
     ];
 
     return Column(
