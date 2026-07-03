@@ -4,7 +4,7 @@ class GetHemoglobinControlsResponseDto {
   final String patientId;
   final List<HemoglobinControlDto> controls;
   final double averageHemoglobin;
-  final double evolution;
+  final double? evolution;
 
   const GetHemoglobinControlsResponseDto({
     required this.patientId,
@@ -24,7 +24,7 @@ class GetHemoglobinControlsResponseDto {
           )
           .toList(),
       averageHemoglobin: (json['averageHemoglobin'] as num).toDouble(),
-      evolution: (json['evolution'] as num).toDouble(),
+      evolution: (json['evolution'] as num?)?.toDouble(),
     );
   }
 }
