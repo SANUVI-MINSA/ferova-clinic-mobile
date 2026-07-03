@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:ferova_clinic_flutter/feature/medical_record/data/dtos/create_hemoglobin_level_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/data/dtos/create_medical_record_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/data/dtos/patient_history_dto.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/data/dtos/update_medical_record_request_dto.dart';
@@ -132,7 +133,12 @@ class MedicalRecordRepositoryImpl implements MedicalRecordRepository {
     String patientId,
     double hemoglobinLevel,
   ) async {
-    throw UnimplementedError();
+    final token = await _token();
+    final dto = CreateHemoglobinLevelRequestDto(
+      patientId: patientId,
+      hemoglobinLevel: hemoglobinLevel,
+    );
+    await service.createHemoglobinLevel(token, dto);
   }
 
   @override
