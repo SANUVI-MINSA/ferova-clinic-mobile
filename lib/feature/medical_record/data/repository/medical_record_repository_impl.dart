@@ -145,7 +145,26 @@ class MedicalRecordRepositoryImpl implements MedicalRecordRepository {
   Future<HemoglobinControls> getHemoglobinControls(
     String medicalRecordId,
   ) async {
-    throw UnimplementedError();
+    final token = await _token();
+    final response = await service.getHemoglobinControls(
+      token,
+      medicalRecordId,
+    );
+    return HemoglobinControls(
+      patientId: response.patientId,
+      controls: response.controls
+          .map(
+            (control) => HemoglobinControl(
+              id: control.id,
+              date: control.date,
+              hemoglobinLevel: control.hemoglobinLevel,
+              anemiaStatus: control.anemiaStatus,
+            ),
+          )
+          .toList(),
+      averageHemoglobin: response.averageHemoglobin,
+      evolution: response.evolution,
+    );
   }
 
   @override
