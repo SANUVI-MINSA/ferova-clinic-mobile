@@ -1,7 +1,7 @@
 class HemoglobinControl {
   final String id;
   final String date;
-  final String hemoglobinLevel;
+  final double hemoglobinLevel;
   final String anemiaStatus;
 
   const HemoglobinControl({
