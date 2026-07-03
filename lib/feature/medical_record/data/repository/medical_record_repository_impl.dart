@@ -116,7 +116,8 @@ class MedicalRecordRepositoryImpl implements MedicalRecordRepository {
 
   @override
   Future<Uint8List> getMedicalRecordPDF(String id) async {
-    throw UnimplementedError();
+    final token = await _token();
+    return service.getMedicalRecordPdf(token, id);
   }
 
   @override
