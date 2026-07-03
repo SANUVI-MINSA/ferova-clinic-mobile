@@ -122,7 +122,9 @@ class MedicalRecordRepositoryImpl implements MedicalRecordRepository {
 
   @override
   Future<bool> checkMedicalRecord(String patientId) async {
-    throw UnimplementedError();
+    final token = await _token();
+    final response = await service.checkMedicalRecord(token, patientId);
+    return response.hasMedicalRecord;
   }
 
   @override
