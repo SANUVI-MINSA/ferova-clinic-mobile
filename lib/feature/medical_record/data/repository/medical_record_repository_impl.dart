@@ -169,6 +169,7 @@ class MedicalRecordRepositoryImpl implements MedicalRecordRepository {
 
   @override
   Future<Uint8List> getHemoglobinReportPdf(String medicalRecordId) async {
-    throw UnimplementedError();
+    final token = await _token();
+    return service.getHemoglobinReportPdf(token, medicalRecordId);
   }
 }
