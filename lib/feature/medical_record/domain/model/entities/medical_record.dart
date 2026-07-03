@@ -7,8 +7,8 @@ class MedicalRecord {
   final String patientName;
   final String lastUpdated;
   final String gender;
-  final String weight;
-  final String height;
+  final double weight;
+  final int height;
   final List<HemoglobinControl> controls;
   final String consultationReason;
   final String observations;
