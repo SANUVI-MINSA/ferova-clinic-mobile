@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:ferova_clinic_flutter/feature/medical_record/data/dtos/create_medical_record_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/data/dtos/patient_history_dto.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/data/dtos/update_medical_record_request_dto.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/data/services/medical_record_service.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/domain/model/entities/hemoglobin_control.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/domain/model/entities/hemoglobin_controls.dart';
@@ -93,7 +94,24 @@ class MedicalRecordRepositoryImpl implements MedicalRecordRepository {
 
   @override
   Future<void> updateMedicalRecord(MedicalRecord updatedMedicalRecord) async {
-    throw UnimplementedError();
+    final token = await _token();
+    final dto = UpdateMedicalRecordRequestDto(
+      patientId: updatedMedicalRecord.patientId,
+      weight: updatedMedicalRecord.weight,
+      height: updatedMedicalRecord.height,
+      motivoConsulta: updatedMedicalRecord.consultationReason,
+      observaciones: updatedMedicalRecord.observations,
+      antecedentes: updatedMedicalRecord.patientHistories
+          .map(
+            (history) => PatientHistoryDto(
+              type: history.type,
+              description: history.description,
+            ),
+          )
+          .toList(),
+      sintomas: updatedMedicalRecord.symptoms,
+    );
+    await service.updateMedicalRecord(token, dto);
   }
 
   @override
