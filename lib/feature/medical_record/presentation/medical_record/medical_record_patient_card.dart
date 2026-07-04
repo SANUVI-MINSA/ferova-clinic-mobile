@@ -38,7 +38,11 @@ class MedicalRecordPatientCard extends StatelessWidget {
               color: const Color(0xFFE8F3FB),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.person_rounded, color: Color(0xFF0D6EA8), size: 22),
+            child: const Icon(
+              Icons.person_rounded,
+              color: Color(0xFF0D6EA8),
+              size: 22,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -63,7 +67,10 @@ class MedicalRecordPatientCard extends StatelessWidget {
       return const SizedBox(
         width: 20,
         height: 20,
-        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D6EA8)),
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: Color(0xFF0D6EA8),
+        ),
       );
     }
 
@@ -78,9 +85,14 @@ class MedicalRecordPatientCard extends StatelessWidget {
               side: const BorderSide(color: Color(0xFF0D6EA8)),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               minimumSize: const Size(0, 0),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: const Text('Ver Historial', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            child: const Text(
+              'Ver Historial',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
           ),
           const SizedBox(height: 8),
           ElevatedButton(
@@ -90,9 +102,14 @@ class MedicalRecordPatientCard extends StatelessWidget {
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               minimumSize: const Size(0, 0),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: const Text('Actualizar', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            child: const Text(
+              'Actualizar',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       );
@@ -100,7 +117,11 @@ class MedicalRecordPatientCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onRegister,
-      child: const Icon(Icons.arrow_forward_rounded, color: Color(0xFF0D6EA8), size: 24),
+      child: const Icon(
+        Icons.arrow_forward_rounded,
+        color: Color(0xFF0D6EA8),
+        size: 24,
+      ),
     );
   }
 }
