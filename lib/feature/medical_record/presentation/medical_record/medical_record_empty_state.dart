@@ -62,7 +62,11 @@ class MedicalRecordEmptyState extends StatelessWidget {
                               color: const Color(0xFFD32F2F),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(Icons.assignment_rounded, color: Colors.white, size: 16),
+                            child: const Icon(
+                              Icons.assignment_rounded,
+                              color: Colors.white,
+                              size: 16,
+                            ),
                           ),
                         ),
                       ],
@@ -71,20 +75,37 @@ class MedicalRecordEmptyState extends StatelessWidget {
                   const SizedBox(height: 20),
                   const Text(
                     'Sin pacientes asignados',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF1A3A5C)),
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1A3A5C),
+                    ),
                   ),
                   const SizedBox(height: 10),
                   RichText(
                     textAlign: TextAlign.center,
                     text: const TextSpan(
-                      style: TextStyle(fontSize: 13, color: Color(0xFF6B7D8F), height: 1.4),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF6B7D8F),
+                        height: 1.4,
+                      ),
                       children: [
-                        TextSpan(text: 'Aún no has incorporado pacientes a tu cartera. Ve a la sección de '),
+                        TextSpan(
+                          text:
+                              'Aún no has incorporado pacientes a tu cartera. Ve a la sección de ',
+                        ),
                         TextSpan(
                           text: 'Pacientes',
-                          style: TextStyle(color: Color(0xFF0D6EA8), fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            color: Color(0xFF0D6EA8),
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        TextSpan(text: ' para buscar y asignar a tu primer menor mediante el DNI de la madre.'),
+                        TextSpan(
+                          text:
+                              ' para buscar y asignar a tu primer menor mediante el DNI de la madre.',
+                        ),
                       ],
                     ),
                   ),
@@ -92,12 +113,20 @@ class MedicalRecordEmptyState extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: onAssignPatient,
                     icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
-                    label: const Text('ASIGNAR PACIENTE', style: TextStyle(fontWeight: FontWeight.w600)),
+                    label: const Text(
+                      'ASIGNAR PACIENTE',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0D6EA8),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                 ],
@@ -115,7 +144,11 @@ class MedicalRecordEmptyState extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.help_outline_rounded, color: Color(0xFF0D6EA8), size: 22),
+                const Icon(
+                  Icons.help_outline_rounded,
+                  color: Color(0xFF0D6EA8),
+                  size: 22,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -123,7 +156,11 @@ class MedicalRecordEmptyState extends StatelessWidget {
                     children: [
                       const Text(
                         '¿Cómo empiezo?',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1A3A5C)),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1A3A5C),
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
