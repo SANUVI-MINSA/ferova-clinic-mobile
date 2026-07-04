@@ -30,7 +30,6 @@ class MedicalRecordViewModel extends ChangeNotifier {
   Future<void> checkPatientsMedicalRecord() async {
     state = state.copyWith(isCheckingRecords: true);
     notifyListeners();
-
     try {
       final results = await Future.wait(
         state.patients.map((patient) async {
@@ -38,14 +37,16 @@ class MedicalRecordViewModel extends ChangeNotifier {
           return MapEntry(patient.id, hasRecord);
         }),
       );
-
       state = state.copyWith(
         isCheckingRecords: false,
         patientHasRecord: Map.fromEntries(results),
         errorMessage: null,
       );
     } catch (e) {
-      state = state.copyWith(isCheckingRecords: false, errorMessage: e.toString());
+      state = state.copyWith(
+        isCheckingRecords: false,
+        errorMessage: e.toString(),
+      );
     }
     notifyListeners();
   }
