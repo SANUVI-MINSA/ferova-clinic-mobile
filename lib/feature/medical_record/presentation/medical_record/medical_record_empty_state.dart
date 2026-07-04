@@ -26,7 +26,7 @@ class MedicalRecordEmptyState extends StatelessWidget {
                           width: 130,
                           height: 130,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFEFF4F9),
+                            color: const Color(0xFFF2F7FB),
                             borderRadius: BorderRadius.circular(24),
                           ),
                           child: Center(
@@ -109,7 +109,7 @@ class MedicalRecordEmptyState extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFEAF4FC),
+              color: const Color(0xFFDBF1FE),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
