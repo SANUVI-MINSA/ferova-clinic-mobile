@@ -1,3 +1,4 @@
+import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_empty_state.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_patient_card.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_state.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_view_model.dart';
@@ -39,6 +40,10 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
 
   void _navigateToUpdateHistory(String patientId) {
     // TODO: Navegar a la pantalla de actualizar historial médico
+  }
+
+  void _navigateToAssignPatient() {
+    // TODO: Navegar a la pestaña de Pacientes
   }
 
   @override
@@ -119,7 +124,9 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
                               ),
                             ),
                           )
-                        : filteredPatients.isEmpty
+                        : state.patients.isEmpty
+                            ? MedicalRecordEmptyState(onAssignPatient: _navigateToAssignPatient)
+                            : filteredPatients.isEmpty
                             ? Center(
                                 child: Text(
                                   'No se encontraron pacientes',
