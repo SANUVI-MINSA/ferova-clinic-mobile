@@ -91,4 +91,11 @@ class MedicalRecordViewModel extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  void markPatientHasRecord(String patientId) {
+    state = state.copyWith(
+      patientHasRecord: {...state.patientHasRecord, patientId: true},
+    );
+    notifyListeners();
+  }
 }
