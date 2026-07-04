@@ -8,6 +8,7 @@ import 'package:ferova_clinic_flutter/feature/auth/domain/user.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../auth/presentation/login/login_page.dart';
+import '../../../medical_record/presentation/medical_record/medical_record_page.dart';
 import '../../../treatment/presentation/pending_patients/pending_patients_page.dart';
 import '../../../treatment/presentation/risk_patients/risk_patients_page.dart';
 import '../../../treatment/presentation/treatments_list/treatments_list_page.dart';
@@ -491,10 +492,24 @@ class _NurseHomePageState extends State<NurseHomePage> {
     );
   }
 
+  void _navigateToMedicalRecord(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MedicalRecordPage()),
+    );
+    if (mounted) setState(() => _selectedIndex = 0);
+  }
+
   Widget _buildBottomNavBar() {
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
-      onTap: (index) => setState(() => _selectedIndex = index),
+      onTap: (index) {
+        if (index == 3) {
+          _navigateToMedicalRecord(context);
+          return;
+        }
+        setState(() => _selectedIndex = index);
+      },
       type: BottomNavigationBarType.fixed,
       selectedItemColor: const Color(0xFF0D6EA8),
       unselectedItemColor: const Color(0xFF9EAFC0),
