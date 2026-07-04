@@ -87,6 +87,7 @@ class _RegisterMedicalRecordPageState extends State<RegisterMedicalRecordPage> {
 
     final error = viewModel.state.saveErrorMessage;
     if (error == null) {
+      viewModel.markPatientHasRecord(widget.patientId);
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(
