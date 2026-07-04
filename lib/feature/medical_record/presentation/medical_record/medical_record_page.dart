@@ -2,6 +2,7 @@ import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medica
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_patient_card.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_state.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_view_model.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/register_medical_record_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,7 +32,12 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
   }
 
   void _navigateToRegister(String patientId, String patientName) {
-    // TODO: Navegar a la pantalla de registrar historial médico
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RegisterMedicalRecordPage(patientId: patientId),
+      ),
+    );
   }
 
   void _navigateToViewHistory(String patientId) {
@@ -52,7 +58,11 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
     final MedicalRecordState state = viewModel.state;
 
     final filteredPatients = state.patients
-        .where((patient) => patient.fullName.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .where(
+          (patient) => patient.fullName.toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          ),
+        )
         .toList();
 
     return Scaffold(
@@ -65,7 +75,11 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
             children: [
               const Text(
                 'Historial Medico',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF0D6EA8)),
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0D6EA8),
+                ),
               ),
               const SizedBox(height: 12),
               const Text(
@@ -79,7 +93,10 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
                 decoration: InputDecoration(
                   hintText: 'Buscar paciente...',
                   hintStyle: const TextStyle(color: Color(0xFF9EAFC0)),
-                  prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF9EAFC0)),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: Color(0xFF9EAFC0),
+                  ),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -95,61 +112,84 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
               const SizedBox(height: 16),
               Expanded(
                 child: state.isLoading
-                    ? const Center(child: CircularProgressIndicator(color: Color(0xFF0D6EA8)))
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF0D6EA8),
+                        ),
+                      )
                     : state.errorMessage != null
-                        ? Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(24.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.error_outline_rounded, size: 64, color: Colors.grey[400]),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    'Error: ${state.errorMessage}',
-                                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 24),
-                                  ElevatedButton(
-                                    onPressed: () => viewModel.getNursePatients(),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF0D6EA8),
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                    ),
-                                    child: const Text('Reintentar'),
-                                  ),
-                                ],
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline_rounded,
+                                size: 64,
+                                color: Colors.grey[400],
                               ),
-                            ),
-                          )
-                        : state.patients.isEmpty
-                            ? MedicalRecordEmptyState(onAssignPatient: _navigateToAssignPatient)
-                            : filteredPatients.isEmpty
-                            ? Center(
-                                child: Text(
-                                  'No se encontraron pacientes',
-                                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Error: ${state.errorMessage}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
                                 ),
-                              )
-                            : ListView.separated(
-                                padding: EdgeInsets.zero,
-                                itemCount: filteredPatients.length,
-                                separatorBuilder: (_, _) => const SizedBox(height: 12),
-                                itemBuilder: (context, index) {
-                                  final patient = filteredPatients[index];
-                                  final hasRecord = state.patientHasRecord[patient.id];
-
-                                  return MedicalRecordPatientCard(
-                                    patient: patient,
-                                    hasRecord: hasRecord,
-                                    onViewHistory: () => _navigateToViewHistory(patient.id),
-                                    onUpdate: () => _navigateToUpdateHistory(patient.id),
-                                    onRegister: () => _navigateToRegister(patient.id, patient.fullName),
-                                  );
-                                },
+                                textAlign: TextAlign.center,
                               ),
+                              const SizedBox(height: 24),
+                              ElevatedButton(
+                                onPressed: () => viewModel.getNursePatients(),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF0D6EA8),
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text('Reintentar'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : state.patients.isEmpty
+                    ? MedicalRecordEmptyState(
+                        onAssignPatient: _navigateToAssignPatient,
+                      )
+                    : filteredPatients.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No se encontraron pacientes',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: EdgeInsets.zero,
+                        itemCount: filteredPatients.length,
+                        separatorBuilder: (_, _) => const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final patient = filteredPatients[index];
+                          final hasRecord = state.patientHasRecord[patient.id];
+
+                          return MedicalRecordPatientCard(
+                            patient: patient,
+                            hasRecord: hasRecord,
+                            onViewHistory: () =>
+                                _navigateToViewHistory(patient.id),
+                            onUpdate: () =>
+                                _navigateToUpdateHistory(patient.id),
+                            onRegister: () => _navigateToRegister(
+                              patient.id,
+                              patient.fullName,
+                            ),
+                          );
+                        },
+                      ),
               ),
             ],
           ),
