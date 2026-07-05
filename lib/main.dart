@@ -1,6 +1,7 @@
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/admin_pages/admin_facility_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse_pages/appointment_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/nurse_home/nurse_home_view_model.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/presentation/hemoglobin_control/hemoglobin_control_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_pdf_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/treatment/presentation/pending_patients/pending_patients_view_model.dart';
@@ -34,6 +35,7 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => getIt<TreatmentsListViewModel>(),),
         ChangeNotifierProvider(create: (context) => getIt<MedicalRecordViewModel>(),),
         ChangeNotifierProvider(create: (context) => getIt<MedicalRecordPdfViewModel>(),),
+        ChangeNotifierProvider(create: (context) => getIt<HemoglobinControlViewModel>(),),
       ],
       child: MaterialApp(
         title: 'Ferova Clinic',
