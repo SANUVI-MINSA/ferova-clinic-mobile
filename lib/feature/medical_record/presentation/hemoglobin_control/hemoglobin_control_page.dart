@@ -1,4 +1,5 @@
 import 'package:ferova_clinic_flutter/feature/medical_record/domain/model/entities/patient.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/presentation/hemoglobin_control/new_hemoglobin_control_page.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/hemoglobin_control/no_medical_records_empty_state.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_empty_state.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_state.dart';
@@ -42,8 +43,16 @@ class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
     // TODO: Navegar a la pestaña de Pacientes
   }
 
-  void _navigateToRegisterControl(String patientId) {
-    // TODO: Navegar al registro de un nuevo control de hemoglobina
+  void _navigateToRegisterControl(Patient patient) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => NewHemoglobinControlPage(
+          patientId: patient.id,
+          patientName: patient.fullName,
+        ),
+      ),
+    );
   }
 
   @override
@@ -209,7 +218,7 @@ class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
         final patient = filteredPatients[index];
         return _PatientTile(
           patient: patient,
-          onTap: () => _navigateToRegisterControl(patient.id),
+          onTap: () => _navigateToRegisterControl(patient),
         );
       },
     );
