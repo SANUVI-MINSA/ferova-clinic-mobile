@@ -92,6 +92,45 @@ class MedicalRecordViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateMedicalRecord({
+    required String patientId,
+    required double weight,
+    required int height,
+    required String consultationReason,
+    required String observations,
+    required List<PatientHistory> patientHistories,
+    required List<String> symptoms,
+  }) async {
+    state = state.copyWith(isUpdatingRecord: true, updateErrorMessage: null);
+    notifyListeners();
+
+    try {
+      await repository.updateMedicalRecord(
+        MedicalRecord(
+          id: '',
+          patientId: patientId,
+          patientName: '',
+          lastUpdated: '',
+          gender: '',
+          weight: weight,
+          height: height,
+          controls: const [],
+          consultationReason: consultationReason,
+          observations: observations,
+          patientHistories: patientHistories,
+          symptoms: symptoms,
+        ),
+      );
+      state = state.copyWith(isUpdatingRecord: false, updateErrorMessage: null);
+    } catch (e) {
+      state = state.copyWith(
+        isUpdatingRecord: false,
+        updateErrorMessage: e.toString(),
+      );
+    }
+    notifyListeners();
+  }
+
   Future<void> getMedicalRecord(String patientId) async {
     state = state.copyWith(isLoadingRecord: true, recordErrorMessage: null);
     notifyListeners();
