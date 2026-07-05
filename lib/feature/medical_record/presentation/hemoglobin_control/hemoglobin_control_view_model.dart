@@ -29,4 +29,26 @@ class HemoglobinControlViewModel extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<void> getHemoglobinControls(String medicalRecordId) async {
+    state = state.copyWith(isLoadingControls: true, controlsErrorMessage: null);
+    notifyListeners();
+
+    try {
+      final hemoglobinControls = await repository.getHemoglobinControls(
+        medicalRecordId,
+      );
+      state = state.copyWith(
+        isLoadingControls: false,
+        hemoglobinControls: hemoglobinControls,
+        controlsErrorMessage: null,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoadingControls: false,
+        controlsErrorMessage: e.toString(),
+      );
+    }
+    notifyListeners();
+  }
 }
