@@ -92,6 +92,26 @@ class MedicalRecordViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> getMedicalRecord(String patientId) async {
+    state = state.copyWith(isLoadingRecord: true, recordErrorMessage: null);
+    notifyListeners();
+
+    try {
+      final medicalRecord = await repository.getMedicalRecord(patientId);
+      state = state.copyWith(
+        isLoadingRecord: false,
+        medicalRecord: medicalRecord,
+        recordErrorMessage: null,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoadingRecord: false,
+        recordErrorMessage: e.toString(),
+      );
+    }
+    notifyListeners();
+  }
+
   void markPatientHasRecord(String patientId) {
     state = state.copyWith(
       patientHasRecord: {...state.patientHasRecord, patientId: true},
