@@ -58,11 +58,10 @@ class HemoglobinControlSuccessPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
             child: Column(
               children: [
-                const Spacer(),
                 Container(
                   width: 100,
                   height: 100,
@@ -203,7 +202,7 @@ class HemoglobinControlSuccessPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
