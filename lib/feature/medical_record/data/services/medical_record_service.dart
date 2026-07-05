@@ -157,8 +157,7 @@ class MedicalRecordService {
         headers: _headers(token),
         body: jsonEncode(dto.toJson()),
       );
-      if (response.statusCode == HttpStatus.ok ||
-          response.statusCode == HttpStatus.created) {
+      if (response.statusCode == HttpStatus.created) {
         return;
       }
       throw Exception('Failed to create hemoglobin level. ${response.body}');
@@ -192,9 +191,7 @@ class MedicalRecordService {
     String medicalRecordId,
   ) async {
     try {
-      final Uri uri = Uri.parse(
-        '$_baseUrl/$medicalRecordId/hemoglobin-report',
-      );
+      final Uri uri = Uri.parse('$_baseUrl/$medicalRecordId/hemoglobin-report');
       final http.Response response = await http.get(
         uri,
         headers: _headers(token),
