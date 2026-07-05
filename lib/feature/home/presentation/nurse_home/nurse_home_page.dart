@@ -8,6 +8,7 @@ import 'package:ferova_clinic_flutter/feature/auth/domain/user.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../auth/presentation/login/login_page.dart';
+import '../../../medical_record/presentation/hemoglobin_control/hemoglobin_control_page.dart';
 import '../../../medical_record/presentation/medical_record/medical_record_page.dart';
 import '../../../treatment/presentation/pending_patients/pending_patients_page.dart';
 import '../../../treatment/presentation/risk_patients/risk_patients_page.dart';
@@ -86,6 +87,18 @@ class _NurseHomePageState extends State<NurseHomePage> {
       context,
       MaterialPageRoute(builder: (context) => const TreatmentsListPage()),
     );
+  }
+
+  // METODO PARA NAVEGAR A CONTROL DE HEMOGLOBINA
+  void _navigateToControlHemoglobina(BuildContext context) async {
+    final goToMedicalRecord = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (context) => const HemoglobinControlPage()),
+    );
+
+    if (goToMedicalRecord == true && mounted) {
+      setState(() => _selectedIndex = 3);
+    }
   }
 
   String _formatDate(String dateStr) {
@@ -448,7 +461,7 @@ class _NurseHomePageState extends State<NurseHomePage> {
       _QuickAccessItem(
         icon: Icons.fact_check_rounded,
         label: 'Registrar\nControl',
-        onTap: () {},
+        onTap: () => _navigateToControlHemoglobina(context),
       ),
       _QuickAccessItem(
         icon: Icons.checklist_rounded,
