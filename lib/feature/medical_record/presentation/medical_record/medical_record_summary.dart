@@ -45,6 +45,26 @@ String _formatNumber(num value) {
       : value.toStringAsFixed(1);
 }
 
+const _maxPatientNameLength = 15;
+
+String _truncateName(String name) {
+  if (name.length <= _maxPatientNameLength) return name;
+  return '${name.substring(0, _maxPatientNameLength)}...';
+}
+
+String _translateGender(String gender) {
+  switch (gender.trim().toLowerCase()) {
+    case 'male':
+    case 'm':
+      return 'Masculino';
+    case 'female':
+    case 'f':
+      return 'Femenino';
+    default:
+      return gender;
+  }
+}
+
 class MedicalRecordSummaryPage extends StatefulWidget {
   final String patientId;
 
@@ -177,7 +197,10 @@ class _MedicalRecordSummaryPageState extends State<MedicalRecordSummaryPage> {
             ),
             children: [
               const TextSpan(text: 'Paciente ', style: TextStyle(color: _accentBlue)),
-              TextSpan(text: record.patientName, style: const TextStyle(color: _navy)),
+              TextSpan(
+                text: _truncateName(record.patientName),
+                style: const TextStyle(color: _navy),
+              ),
             ],
           ),
         ),
@@ -203,7 +226,7 @@ class _MedicalRecordSummaryPageState extends State<MedicalRecordSummaryPage> {
                       child: _StatCard(
                         icon: Icons.wc_rounded,
                         label: 'SEXO',
-                        value: record.gender,
+                        value: _translateGender(record.gender),
                       ),
                     ),
                   ],
@@ -410,13 +433,11 @@ class _StatCard extends StatelessWidget {
               color: _navy,
             ),
           ),
-          if (caption != null) ...[
-            const SizedBox(height: 2),
-            Text(
-              caption!,
-              style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-            ),
-          ],
+          const SizedBox(height: 2),
+          Text(
+            caption ?? '',
+            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+          ),
         ],
       ),
     );
@@ -491,15 +512,17 @@ class _HemoglobinCard extends StatelessWidget {
                     backgroundColor: _navy,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                      horizontal: 14,
+                      vertical: 8,
                     ),
+                    minimumSize: const Size(0, 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: const Text(
-                    'REALIZAR PRIMER CONTROL',
+                    'Añadir Control',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
