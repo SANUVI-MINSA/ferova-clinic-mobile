@@ -4,6 +4,7 @@ import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medica
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_summary.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/register_medical_record_page.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/update_medical_record.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -51,7 +52,12 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
   }
 
   void _navigateToUpdateHistory(String patientId) {
-    // TODO: Navegar a la pantalla de actualizar historial médico
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => UpdateMedicalRecordPage(patientId: patientId),
+      ),
+    );
   }
 
   void _navigateToAssignPatient() {
