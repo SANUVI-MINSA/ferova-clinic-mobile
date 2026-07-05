@@ -1,5 +1,6 @@
 import 'package:ferova_clinic_flutter/feature/medical_record/domain/model/entities/hemoglobin_control.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/domain/model/entities/medical_record.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/presentation/hemoglobin_control/hemoglobin_control_history_page.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/hemoglobin_control/new_hemoglobin_control_page.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_pdf_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_state.dart';
@@ -111,8 +112,17 @@ class _MedicalRecordSummaryPageState extends State<MedicalRecordSummaryPage> {
     );
   }
 
-  void _onVerHistorial() {
-    // TODO: Navegar al historial de controles de hemoglobina
+  void _onVerHistorial(MedicalRecord record) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HemoglobinControlHistoryPage(
+          patientId: record.patientId,
+          patientName: record.patientName,
+          medicalRecordId: record.id,
+        ),
+      ),
+    );
   }
 
   Future<void> _onDescargarPdf(BuildContext context, MedicalRecord record) async {
@@ -291,7 +301,7 @@ class _MedicalRecordSummaryPageState extends State<MedicalRecordSummaryPage> {
                 _HemoglobinCard(
                   latestControl: latestControl,
                   onRealizarPrimerControl: () => _onRealizarPrimerControl(record),
-                  onVerHistorial: _onVerHistorial,
+                  onVerHistorial: () => _onVerHistorial(record),
                 ),
                 const SizedBox(height: 20),
                 _InfoCard(
