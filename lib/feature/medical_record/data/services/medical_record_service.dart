@@ -157,7 +157,8 @@ class MedicalRecordService {
         headers: _headers(token),
         body: jsonEncode(dto.toJson()),
       );
-      if (response.statusCode == HttpStatus.created) {
+      if (response.statusCode == HttpStatus.ok ||
+          response.statusCode == HttpStatus.created) {
         return;
       }
       throw Exception('Failed to create hemoglobin level. ${response.body}');
