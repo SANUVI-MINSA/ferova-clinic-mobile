@@ -60,9 +60,9 @@ class _NewHemoglobinControlPageState extends State<NewHemoglobinControlPage> {
     final rawValue = _hemoglobinController.text.trim().replaceAll(',', '.');
     final hemoglobinLevel = double.tryParse(rawValue);
 
-    if (hemoglobinLevel == null || hemoglobinLevel <= 0) {
+    if (hemoglobinLevel == null || hemoglobinLevel <= 0 || hemoglobinLevel > 30) {
       setState(() {
-        _validationError = 'Ingrese un valor de hemoglobina válido';
+        _validationError = 'Ingrese un valor de hemoglobina entre 0 y 30 g/dL';
       });
       return;
     }
