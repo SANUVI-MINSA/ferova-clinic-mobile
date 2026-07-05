@@ -1,7 +1,10 @@
 import 'package:ferova_clinic_flutter/feature/medical_record/domain/model/entities/hemoglobin_control.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/domain/model/entities/medical_record.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_pdf_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_state.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 
 const _navy = Color(0xFF1A3A5C);
@@ -101,8 +104,29 @@ class _MedicalRecordSummaryPageState extends State<MedicalRecordSummaryPage> {
     // TODO: Navegar al historial de controles de hemoglobina
   }
 
-  void _onDescargarPdf() {
-    // TODO: Implementar descarga del PDF del historial médico
+  Future<void> _onDescargarPdf(BuildContext context, MedicalRecord record) async {
+    final pdfViewModel = context.read<MedicalRecordPdfViewModel>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final bytes = await pdfViewModel.getMedicalRecordPDF(record.id);
+
+    if (!mounted) return;
+
+    if (bytes == null) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            'No se pudo generar el PDF: ${pdfViewModel.state.recordPdfErrorMessage}',
+          ),
+        ),
+      );
+      return;
+    }
+
+    await Printing.sharePdf(
+      bytes: bytes,
+      filename: 'historial_medico_${record.patientName}.pdf',
+    );
   }
 
   @override
@@ -367,24 +391,47 @@ class _MedicalRecordSummaryPageState extends State<MedicalRecordSummaryPage> {
             ),
           ),
         ),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _onDescargarPdf,
-            icon: const Icon(Icons.download_rounded, size: 22),
-            label: const Text(
-              'Descargar PDF',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _accentBlue,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+        Builder(
+          builder: (context) {
+            final isDownloading = context
+                .watch<MedicalRecordPdfViewModel>()
+                .state
+                .isDownloadingRecordPdf;
+
+            return SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: isDownloading
+                    ? null
+                    : () => _onDescargarPdf(context, record),
+                icon: isDownloading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.download_rounded, size: 22),
+                label: Text(
+                  isDownloading ? 'Generando PDF...' : 'Descargar PDF',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _accentBlue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ],
     );
