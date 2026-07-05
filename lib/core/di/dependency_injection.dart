@@ -27,7 +27,12 @@ import 'package:ferova_clinic_flutter/feature/home/data/analytics_service.dart';
 import 'package:ferova_clinic_flutter/feature/home/domain/analytics_repository.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/admin_home/admin_home_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/home/presentation/estado_postas/estado_postas_view_model.dart';
-import 'package:http/http.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/data/repository/medical_record_repository_impl.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/data/services/medical_record_service.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/domain/repository/medical_record_repository.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/presentation/hemoglobin_control/hemoglobin_control_view_model.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_pdf_view_model.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_view_model.dart';
 import '../../feature/auth/data/auth_repository_impl.dart';
 import '../../feature/auth/data/auth_service.dart';
 import '../../feature/auth/presentation/forgot_password/new_password/new_password_view_model.dart';
@@ -114,23 +119,21 @@ void setup() {
   getIt.registerFactory<AdminFacilityViewModel>(
     () => AdminFacilityViewModel(repository: getIt<AdminFacilityRepository>()),
   );
-  
+
   // 5) Treatment - Nurse
-  getIt.registerLazySingleton<TreatmentService>(
-      () => TreatmentService(),
-  );
-  
+  getIt.registerLazySingleton<TreatmentService>(() => TreatmentService());
+
   getIt.registerLazySingleton<TreatmentRepository>(
-      () => TreatmentRepositoryImpl(service: getIt<TreatmentService>()),
+    () => TreatmentRepositoryImpl(service: getIt<TreatmentService>()),
   );
-  
+
   getIt.registerFactory<PendingPatientsViewModel>(
-      () => PendingPatientsViewModel(repository: getIt<TreatmentRepository>()),
+    () => PendingPatientsViewModel(repository: getIt<TreatmentRepository>()),
   );
 
   // Iniciar tratamiento
   getIt.registerFactory<StartTreatmentViewModel>(
-        () => StartTreatmentViewModel(
+    () => StartTreatmentViewModel(
       repository: getIt<TreatmentRepository>(),
       patientId: '', // Placeholder, se actualizará en la página
       patientName: '', // Placeholder, se actualizará en la página
@@ -139,6 +142,26 @@ void setup() {
 
   // Lista de tratamientos
   getIt.registerFactory<TreatmentsListViewModel>(
-        () => TreatmentsListViewModel(repository: getIt<TreatmentRepository>()),
+    () => TreatmentsListViewModel(repository: getIt<TreatmentRepository>()),
+  );
+
+  // 6) Medical Record
+  getIt.registerLazySingleton<MedicalRecordService>(
+    () => MedicalRecordService(),
+  );
+  getIt.registerLazySingleton<MedicalRecordRepository>(
+    () => MedicalRecordRepositoryImpl(service: getIt<MedicalRecordService>()),
+  );
+  getIt.registerFactory<MedicalRecordViewModel>(
+    () => MedicalRecordViewModel(repository: getIt<MedicalRecordRepository>()),
+  );
+  getIt.registerFactory<MedicalRecordPdfViewModel>(
+    () =>
+        MedicalRecordPdfViewModel(repository: getIt<MedicalRecordRepository>()),
+  );
+  getIt.registerFactory<HemoglobinControlViewModel>(
+    () => HemoglobinControlViewModel(
+      repository: getIt<MedicalRecordRepository>(),
+    ),
   );
 }
