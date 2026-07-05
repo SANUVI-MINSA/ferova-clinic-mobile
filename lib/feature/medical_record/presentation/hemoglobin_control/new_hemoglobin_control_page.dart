@@ -57,6 +57,8 @@ class _NewHemoglobinControlPageState extends State<NewHemoglobinControlPage> {
   }
 
   Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+
     final rawValue = _hemoglobinController.text.trim().replaceAll(',', '.');
     final hemoglobinLevel = double.tryParse(rawValue);
 
@@ -105,7 +107,7 @@ class _NewHemoglobinControlPageState extends State<NewHemoglobinControlPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,20 +129,11 @@ class _NewHemoglobinControlPageState extends State<NewHemoglobinControlPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _SelectedPatientCard(patientName: widget.patientName),
-                      const SizedBox(height: 16),
-                      _HemoglobinInputCard(
-                        controller: _hemoglobinController,
-                        errorText: _validationError,
-                      ),
-                    ],
-                  ),
-                ),
+              _SelectedPatientCard(patientName: widget.patientName),
+              const SizedBox(height: 16),
+              _HemoglobinInputCard(
+                controller: _hemoglobinController,
+                errorText: _validationError,
               ),
               const SizedBox(height: 16),
               SizedBox(
