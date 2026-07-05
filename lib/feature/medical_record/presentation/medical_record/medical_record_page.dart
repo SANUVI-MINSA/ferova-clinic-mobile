@@ -1,7 +1,7 @@
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_empty_state.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_patient_card.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_state.dart';
-import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_summary.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_summary_page.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/register_medical_record_page.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/update_medical_record_page.dart';
