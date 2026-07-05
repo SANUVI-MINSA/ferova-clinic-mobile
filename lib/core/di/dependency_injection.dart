@@ -26,6 +26,7 @@ import 'package:ferova_clinic_flutter/feature/home/presentation/estado_postas/es
 import 'package:ferova_clinic_flutter/feature/medical_record/data/repository/medical_record_repository_impl.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/data/services/medical_record_service.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/domain/repository/medical_record_repository.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_pdf_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_view_model.dart';
 import '../../feature/auth/data/auth_repository_impl.dart';
 import '../../feature/auth/data/auth_service.dart';
@@ -139,5 +140,9 @@ void setup() {
   );
   getIt.registerFactory<MedicalRecordViewModel>(
     () => MedicalRecordViewModel(repository: getIt<MedicalRecordRepository>()),
+  );
+  getIt.registerFactory<MedicalRecordPdfViewModel>(
+    () =>
+        MedicalRecordPdfViewModel(repository: getIt<MedicalRecordRepository>()),
   );
 }
