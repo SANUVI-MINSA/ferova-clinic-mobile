@@ -1,5 +1,6 @@
 import 'package:ferova_clinic_flutter/feature/medical_record/domain/model/entities/hemoglobin_control.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/domain/model/entities/medical_record.dart';
+import 'package:ferova_clinic_flutter/feature/medical_record/presentation/hemoglobin_control/new_hemoglobin_control_page.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_pdf_view_model.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_state.dart';
 import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medical_record/medical_record_view_model.dart';
@@ -96,8 +97,18 @@ class _MedicalRecordSummaryPageState extends State<MedicalRecordSummaryPage> {
     return sorted.first;
   }
 
-  void _onRealizarPrimerControl() {
-    // TODO: Navegar al registro del primer control de hemoglobina
+  void _onRealizarPrimerControl(MedicalRecord record) {
+    final viewModel = context.read<MedicalRecordViewModel>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => NewHemoglobinControlPage(
+          patientId: record.patientId,
+          patientName: record.patientName,
+          onControlCreated: () => viewModel.getMedicalRecord(record.patientId),
+        ),
+      ),
+    );
   }
 
   void _onVerHistorial() {
@@ -279,7 +290,7 @@ class _MedicalRecordSummaryPageState extends State<MedicalRecordSummaryPage> {
                 const SizedBox(height: 12),
                 _HemoglobinCard(
                   latestControl: latestControl,
-                  onRealizarPrimerControl: _onRealizarPrimerControl,
+                  onRealizarPrimerControl: () => _onRealizarPrimerControl(record),
                   onVerHistorial: _onVerHistorial,
                 ),
                 const SizedBox(height: 20),
