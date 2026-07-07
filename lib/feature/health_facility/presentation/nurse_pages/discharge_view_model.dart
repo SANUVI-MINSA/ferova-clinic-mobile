@@ -7,7 +7,12 @@ class DischargeViewModel extends ChangeNotifier {
   DischargeState state = const DischargeState();
 
   DischargeViewModel({required this.repository}) {
-    getPatients();
+    getPatients(); // ← Esto debería funcionar, pero vamos a mejorarlo
+  }
+
+  // NUEVO MÉTODO: Forzar recarga
+  Future<void> refresh() async {
+    await getPatients(silent: false);
   }
 
   Future<void> getPatients({String? searchTerm, bool silent = false}) async {
@@ -17,9 +22,16 @@ class DischargeViewModel extends ChangeNotifier {
     }
     try {
       final patients = await repository.getDischargePatients(searchTerm: searchTerm);
-      state = state.copyWith(patients: patients, isLoading: false);
+      state = state.copyWith(
+        patients: patients,
+        isLoading: false,
+        errorMessage: null, // ✅ Limpiar error si la carga es exitosa
+      );
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: '$e');
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Error al cargar pacientes: $e',
+      );
     }
     notifyListeners();
   }
@@ -33,7 +45,10 @@ class DischargeViewModel extends ChangeNotifier {
       await getPatients(silent: true);
       state = state.copyWith(isDischarging: false);
     } catch (e) {
-      state = state.copyWith(isDischarging: false, errorMessage: '$e');
+      state = state.copyWith(
+        isDischarging: false,
+        errorMessage: 'Error al dar de alta: $e',
+      );
     }
     notifyListeners();
   }

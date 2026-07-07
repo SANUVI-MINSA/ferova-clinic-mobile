@@ -19,6 +19,17 @@ class _DischargePatientsPageState extends State<DischargePatientsPage> {
   String _searchTerm = '';
 
   @override
+  void initState() {
+    super.initState();
+    // ✅ FORZAR RECARGA AL ENTRAR A LA PÁGINA
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final viewModel = context.read<DischargeViewModel>();
+      debugPrint('🔄 Recargando pacientes al entrar a la página');
+      viewModel.refresh(); // ← Usar el nuevo método refresh()
+    });
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -39,7 +50,6 @@ class _DischargePatientsPageState extends State<DischargePatientsPage> {
   }
 
   void _navigateToAssignPatient() {
-    // 👇 Usar el callback
     if (widget.onGoToPatients != null) {
       widget.onGoToPatients!();
       Navigator.pop(context);
@@ -100,22 +110,22 @@ class _DischargePatientsPageState extends State<DischargePatientsPage> {
                     onPressed: isDischarging
                         ? null
                         : () async {
-                            await context
-                                .read<DischargeViewModel>()
-                                .dischargePatient(patient.id);
-                            if (!context.mounted) return;
-                            Navigator.pop(ctx);
-                            if (context.read<DischargeViewModel>().state.errorMessage != null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    context.read<DischargeViewModel>().state.errorMessage!,
-                                  ),
-                                  backgroundColor: Colors.redAccent,
-                                ),
-                              );
-                            }
-                          },
+                      await context
+                          .read<DischargeViewModel>()
+                          .dischargePatient(patient.id);
+                      if (!context.mounted) return;
+                      Navigator.pop(ctx);
+                      if (context.read<DischargeViewModel>().state.errorMessage != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              context.read<DischargeViewModel>().state.errorMessage!,
+                            ),
+                            backgroundColor: Colors.redAccent,
+                          ),
+                        );
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2563EB),
                       foregroundColor: Colors.white,
@@ -127,20 +137,20 @@ class _DischargePatientsPageState extends State<DischargePatientsPage> {
                     ),
                     child: isDischarging
                         ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
                         : const Text(
-                            'Confirmar alta',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                      'Confirmar alta',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   );
                 },
               ),
@@ -188,7 +198,6 @@ class _DischargePatientsPageState extends State<DischargePatientsPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              // TODO: navegar a la sección de Pacientes (a cargo de Ariana)
               onPressed: _navigateToAssignPatient,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1A3A6B),
@@ -246,7 +255,7 @@ class _DischargePatientsPageState extends State<DischargePatientsPage> {
                           children: [
                             TextSpan(
                               text:
-                                  'Si crees que esto es un error, por favor contacta al administrador de piso o verifica tus ',
+                              'Si crees que esto es un error, por favor contacta al administrador de piso o verifica tus ',
                             ),
                             TextSpan(
                               text: 'pacientes en tratamiento',
@@ -368,6 +377,9 @@ class _DischargePatientsPageState extends State<DischargePatientsPage> {
     final DischargeState state = viewModel.state;
     final bool hasSearch = _searchTerm.isNotEmpty;
 
+    // ✅ LOG PARA DEPURAR
+    debugPrint('🔍 Estado: isLoading=${state.isLoading}, pacientes=${state.patients.length}, error=${state.errorMessage}');
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6FA),
       appBar: AppBar(
@@ -413,9 +425,7 @@ class _DischargePatientsPageState extends State<DischargePatientsPage> {
           Expanded(
             child: RefreshIndicator(
               color: const Color(0xFF2563EB),
-              onRefresh: () => viewModel.getPatients(
-                searchTerm: _searchTerm.isEmpty ? null : _searchTerm,
-              ),
+              onRefresh: () => viewModel.refresh(), // ✅ Usar refresh()
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 switchInCurve: Curves.easeInOut,
@@ -424,27 +434,33 @@ class _DischargePatientsPageState extends State<DischargePatientsPage> {
                     FadeTransition(opacity: animation, child: child),
                 child: state.isLoading
                     ? const Center(
-                        key: ValueKey('loading'),
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF2563EB),
-                        ),
-                      )
+                  key: ValueKey('loading'),
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF2563EB),
+                  ),
+                )
                     : state.errorMessage != null
                     ? ListView(
-                        key: const ValueKey('error'),
+                  key: const ValueKey('error'),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.4,
+                    ),
+                    Center(
+                      child: Column(
                         children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.4,
-                          ),
-                          Center(
-                            child: Text(
-                              state.errorMessage!,
-                              style: const TextStyle(color: Colors.redAccent),
-                              textAlign: TextAlign.center,
-                            ),
+                          Icon(Icons.error_outline, size: 48, color: Colors.red.shade400),
+                          const SizedBox(height: 12),
+                          Text(
+                            state.errorMessage!,
+                            style: const TextStyle(color: Colors.redAccent),
+                            textAlign: TextAlign.center,
                           ),
                         ],
-                      )
+                      ),
+                    ),
+                  ],
+                )
                     : state.patients.isEmpty && !hasSearch
                     ? _buildEmptyState()
                     : state.patients.isEmpty && hasSearch
