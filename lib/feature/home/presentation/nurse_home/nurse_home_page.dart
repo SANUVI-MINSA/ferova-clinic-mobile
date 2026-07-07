@@ -9,8 +9,11 @@ import 'package:ferova_clinic_flutter/feature/auth/domain/user.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../auth/presentation/login/login_page.dart';
+import '../../../communication/presentation/consultation_inbox/consultations_inbox_page.dart';
+import '../../../communication/presentation/consultation_inbox/consultations_inbox_view_model.dart';
 import '../../../medical_record/presentation/hemoglobin_control/hemoglobin_control_page.dart';
 import '../../../medical_record/presentation/medical_record/medical_record_page.dart';
+import '../../../patient_management/presentation/mother_search/mother_search_page.dart';
 import '../../../treatment/presentation/pending_patients/pending_patients_page.dart';
 import '../../../treatment/presentation/risk_patients/risk_patients_page.dart';
 import '../../../treatment/presentation/treatments_list/treatments_list_page.dart';
@@ -65,11 +68,30 @@ class _NurseHomePageState extends State<NurseHomePage> {
     }
   }
 
+  void _navigateToPatientsTab() {
+    setState(() => _selectedIndex = 1);
+  }
+
   //  MÉTODO PARA NAVEGAR A PENDING PATIENTS
   void _navigateToPendingPatients(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const PendingPatientsPage()),
+      MaterialPageRoute(
+        builder: (context) => PendingPatientsPage(
+          onGoToPatients: _navigateToPatientsTab, // Pasar callback
+        ),
+      ),
+    );
+  }
+
+  void _navigateToDischargePatients(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DischargePatientsPage(
+          onGoToPatients: _navigateToPatientsTab, // 👈 Pasar callback
+        ),
+      ),
     );
   }
 
@@ -94,7 +116,11 @@ class _NurseHomePageState extends State<NurseHomePage> {
   void _navigateToControlHemoglobina(BuildContext context) async {
     final goToMedicalRecord = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(builder: (context) => const HemoglobinControlPage()),
+      MaterialPageRoute(
+        builder: (context) => HemoglobinControlPage(
+          onGoToPatients: _navigateToPatientsTab, // 👈 Pasar callback
+        ),
+      ),
     );
 
     if (goToMedicalRecord == true && mounted) {
@@ -202,21 +228,17 @@ class _NurseHomePageState extends State<NurseHomePage> {
               ],
             ),
           ),
-          _buildComingSoonTab('Pacientes'),
-          _buildComingSoonTab('Consultas'),
-          const MedicalRecordPage(),
+          const MotherSearchPage(),
+          ConsultationsInboxPage(
+            nurseId: widget.user.id,
+            onGoToPatients: _navigateToPatientsTab,
+          ),
+          MedicalRecordPage(
+            onGoToPatients: _navigateToPatientsTab, // Pasar callback
+          ),
         ],
       ),
       bottomNavigationBar: _buildBottomNavBar(),
-    );
-  }
-
-  Widget _buildComingSoonTab(String label) {
-    return Center(
-      child: Text(
-        '$label - Proximamente',
-        style: const TextStyle(fontSize: 14, color: Color(0xFF9EAFC0)),
-      ),
     );
   }
 
@@ -472,12 +494,7 @@ class _NurseHomePageState extends State<NurseHomePage> {
       _QuickAccessItem(
         icon: Icons.person_add_rounded,
         label: 'Dar de Alta',
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const DischargePatientsPage()),
-          );
-        },
+        onTap: () => _navigateToDischargePatients(context),
       ),
     ];
 
@@ -659,7 +676,16 @@ class _NurseHomePageState extends State<NurseHomePage> {
   Widget _buildBottomNavBar() {
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
-      onTap: (index) => setState(() => _selectedIndex = index),
+      onTap: (index) {
+        setState(() => _selectedIndex = index);
+
+        // ✅ Si cambiamos a la pestaña de Consultas (índice 2), recargar
+        if (index == 2) {
+          // Buscar el ConsultationsInboxViewModel y refrescar
+          final viewModel = context.read<ConsultationsInboxViewModel>();
+          viewModel.refresh();
+        }
+      },
       type: BottomNavigationBarType.fixed,
       selectedItemColor: const Color(0xFF0D6EA8),
       unselectedItemColor: const Color(0xFF9EAFC0),

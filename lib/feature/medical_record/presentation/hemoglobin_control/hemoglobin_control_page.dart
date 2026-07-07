@@ -7,32 +7,66 @@ import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medica
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../patient_management/presentation/mother_search/mother_search_page.dart';
+
 const _titleBlue = Color(0xFF1D4ED8);
 const _titleRed = Color(0xFF7C0303);
 
 class HemoglobinControlPage extends StatefulWidget {
-  const HemoglobinControlPage({super.key});
+  final VoidCallback? onGoToPatients;
+  const HemoglobinControlPage({super.key, this.onGoToPatients});
 
   @override
   State<HemoglobinControlPage> createState() => _HemoglobinControlPageState();
 }
 
-class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
+class _HemoglobinControlPageState extends State<HemoglobinControlPage> with WidgetsBindingObserver {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MedicalRecordViewModel>().getNursePatients();
+      _loadData();
     });
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _searchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadData();
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant HemoglobinControlPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_isFirstLoad) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadData();
+      });
+    }
+    _isFirstLoad = false;
+  }
+
+  void _loadData() {
+    if (!mounted) return;
+    final viewModel = context.read<MedicalRecordViewModel>();
+    debugPrint('🔄 Recargando pacientes en HemoglobinControlPage');
+    viewModel.refresh();
   }
 
   void _goToMedicalRecord() {
@@ -40,7 +74,17 @@ class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
   }
 
   void _navigateToAssignPatient() {
-    // TODO: Navegar a la pestaña de Pacientes
+    if (widget.onGoToPatients != null) {
+      widget.onGoToPatients!();
+      Navigator.pop(context);
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MotherSearchPage(),
+        ),
+      );
+    }
   }
 
   void _navigateToRegisterControl(Patient patient) {
@@ -50,6 +94,9 @@ class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
         builder: (_) => NewHemoglobinControlPage(
           patientId: patient.id,
           patientName: patient.fullName,
+          onControlCreated: () {
+            if (mounted) _loadData();
+          },
         ),
       ),
     );
@@ -67,9 +114,9 @@ class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
     final filteredPatients = patientsWithRecord
         .where(
           (patient) => patient.fullName.toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          ),
-        )
+        _searchQuery.toLowerCase(),
+      ),
+    )
         .toList();
 
     return Scaffold(
@@ -143,12 +190,12 @@ class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
   }
 
   Widget _buildBody(
-    BuildContext context,
-    MedicalRecordViewModel viewModel,
-    MedicalRecordState state,
-    List<Patient> patientsWithRecord,
-    List<Patient> filteredPatients,
-  ) {
+      BuildContext context,
+      MedicalRecordViewModel viewModel,
+      MedicalRecordState state,
+      List<Patient> patientsWithRecord,
+      List<Patient> filteredPatients,
+      ) {
     if (state.isLoading || state.isCheckingRecords) {
       return const Center(
         child: CircularProgressIndicator(color: Color(0xFF0D6EA8)),
@@ -175,7 +222,7 @@ class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () => viewModel.getNursePatients(),
+                onPressed: _loadData,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0D6EA8),
                   foregroundColor: Colors.white,

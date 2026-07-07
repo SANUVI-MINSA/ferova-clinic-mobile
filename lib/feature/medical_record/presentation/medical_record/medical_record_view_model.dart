@@ -10,6 +10,11 @@ class MedicalRecordViewModel extends ChangeNotifier {
 
   MedicalRecordViewModel({required this.repository}) {}
 
+  // ✅ NUEVO MÉTODO: Forzar recarga
+  Future<void> refresh() async {
+    await getNursePatients();
+  }
+
   Future<void> getNursePatients() async {
     state = state.copyWith(isLoading: true);
     notifyListeners();

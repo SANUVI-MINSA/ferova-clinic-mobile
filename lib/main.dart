@@ -13,10 +13,13 @@ import 'package:ferova_clinic_flutter/feature/auth/presentation/login/login_page
 import 'package:ferova_clinic_flutter/feature/auth/presentation/login/login_view_model.dart';
 
 import 'feature/auth/presentation/register/register_view_model.dart';
+import 'feature/communication/presentation/consultation_inbox/consultations_inbox_view_model.dart';
+import 'feature/patient_management/presentation/mother_patients/mother_patients_view_model.dart';
+import 'feature/patient_management/presentation/mother_search/mother_search_view_model.dart';
 import 'feature/treatment/presentation/treatments_list/treatments_list_view_model.dart';
 
 void main() {
-  setup(); // ← ESTO ES IMPORTANTE: registrar las dependencias
+  setup();
   runApp(const MainApp());
 }
 
@@ -38,6 +41,9 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => getIt<MedicalRecordPdfViewModel>(),),
         ChangeNotifierProvider(create: (context) => getIt<HemoglobinControlViewModel>(),),
         ChangeNotifierProvider(create: (context) => getIt<DischargeViewModel>(),),
+        ChangeNotifierProvider(create: (context) => getIt<MotherSearchViewModel>()),
+        ChangeNotifierProvider(create: (context) => getIt<MotherPatientsViewModel>()),
+        ChangeNotifierProvider(create: (context) => getIt<ConsultationsInboxViewModel>()),
       ],
       child: MaterialApp(
         title: 'Ferova Clinic',

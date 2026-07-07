@@ -9,12 +9,17 @@ import '../../domain/model/pending_patient.dart';
 import '../../domain/repositories/treatment_repository.dart';
 
 class PendingPatientsPage extends StatelessWidget {
-  const PendingPatientsPage({super.key});
+  final VoidCallback? onGoToPatients;
+  const PendingPatientsPage({super.key, this.onGoToPatients});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => getIt<PendingPatientsViewModel>(),
+      create: (_) {
+        final vm = getIt<PendingPatientsViewModel>();
+        vm.onGoToPatients = onGoToPatients; // Asignar callback
+        return vm;
+      },
       child: const _PendingPatientsContent(),
     );
   }
@@ -166,7 +171,7 @@ class _PendingPatientsContent extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: viewModel.assignPatients,
+                onPressed: () => viewModel.assignPatients(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0D6EA8),
                   foregroundColor: Colors.white,

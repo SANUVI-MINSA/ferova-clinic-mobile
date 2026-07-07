@@ -38,6 +38,15 @@ import '../../feature/auth/data/auth_service.dart';
 import '../../feature/auth/presentation/forgot_password/new_password/new_password_view_model.dart';
 import '../../feature/auth/presentation/forgot_password/recovery_password/recovery_password_view_model.dart';
 import '../../feature/auth/presentation/forgot_password/verification_indentity_page/verification_identity_view_model.dart';
+import '../../feature/communication/data/repository/communication_repository_impl.dart';
+import '../../feature/communication/data/services/communication_service.dart';
+import '../../feature/communication/domain/repositories/communication_repository.dart';
+import '../../feature/communication/presentation/consultation_inbox/consultations_inbox_view_model.dart';
+import '../../feature/patient_management/data/repositories/patient_management_repository_impl.dart';
+import '../../feature/patient_management/data/services/patient_management_service.dart';
+import '../../feature/patient_management/domain/repository/patient_management_repository.dart';
+import '../../feature/patient_management/presentation/mother_patients/mother_patients_view_model.dart';
+import '../../feature/patient_management/presentation/mother_search/mother_search_view_model.dart';
 import '../../feature/treatment/presentation/start_treatment/start_treatment_view_model.dart';
 import '../../feature/treatment/presentation/treatments_list/treatments_list_view_model.dart';
 
@@ -164,4 +173,38 @@ void setup() {
       repository: getIt<MedicalRecordRepository>(),
     ),
   );
+
+  // 7) Patient Management
+  getIt.registerLazySingleton<PatientManagementService>(
+        () => PatientManagementService(),
+  );
+  getIt.registerLazySingleton<PatientManagementRepository>(
+        () => PatientManagementRepositoryImpl(
+      service: getIt<PatientManagementService>(),
+    ),
+  );
+  getIt.registerFactory<MotherSearchViewModel>(
+        () => MotherSearchViewModel(
+      repository: getIt<PatientManagementRepository>(),
+    ),
+  );
+  getIt.registerFactory<MotherPatientsViewModel>(
+        () => MotherPatientsViewModel(
+      repository: getIt<PatientManagementRepository>(),
+    ),
+  );
+
+  // 8) Communication
+  getIt.registerLazySingleton<CommunicationService>(
+        () => CommunicationService(),
+  );
+  getIt.registerLazySingleton<CommunicationRepository>(
+        () => CommunicationRepositoryImpl(service: getIt<CommunicationService>()),
+  );
+  getIt.registerFactory<ConsultationsInboxViewModel>(
+        () => ConsultationsInboxViewModel(
+      repository: getIt<CommunicationRepository>(),
+    ),
+  );
+
 }
