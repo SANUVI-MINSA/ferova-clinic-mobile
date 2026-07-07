@@ -15,7 +15,8 @@ class PatientManagementService {
     'Authorization': 'Bearer $token',
   };
 
-  Future<MotherDto> searchMotherByDni(String token, String search) async {
+  // ✅ CAMBIADO: ahora devuelve List<MotherDto>
+  Future<List<MotherDto>> searchMotherByDni(String token, String search) async {
     try {
       final Uri uri = Uri.parse(
         '${AppConfig.baseUrl}/patients/mother/search/$search',
@@ -26,12 +27,12 @@ class PatientManagementService {
       );
       if (response.statusCode == HttpStatus.ok) {
         final dynamic json = jsonDecode(response.body);
-        // El backend responde con un array (aunque solo pueda haber una
-        // coincidencia de DNI exacto), no con un objeto plano.
-        final Map<String, dynamic> motherJson = json is List
-            ? json.first as Map<String, dynamic>
-            : json as Map<String, dynamic>;
-        return MotherDto.fromJson(motherJson);
+
+        // ✅ Ahora maneja siempre una lista
+        final List<dynamic> list = json is List ? json : [json];
+        return list
+            .map((e) => MotherDto.fromJson(e as Map<String, dynamic>))
+            .toList();
       }
       throw Exception('Failed to search mother. ${response.body}');
     } catch (e) {
@@ -40,9 +41,9 @@ class PatientManagementService {
   }
 
   Future<List<AssignablePatientDto>> getMotherPatients(
-    String token,
-    String motherId,
-  ) async {
+      String token,
+      String motherId,
+      ) async {
     try {
       final Uri uri = Uri.parse(
         '${AppConfig.baseUrl}/patients/mother/$motherId',
@@ -56,7 +57,7 @@ class PatientManagementService {
         return json
             .map(
               (e) => AssignablePatientDto.fromJson(e as Map<String, dynamic>),
-            )
+        )
             .toList();
       }
       throw Exception('Failed to get mother\'s patients. ${response.body}');
@@ -66,9 +67,9 @@ class PatientManagementService {
   }
 
   Future<void> assignNurseToPatient(
-    String token,
-    AssignNurseRequestDto dto,
-  ) async {
+      String token,
+      AssignNurseRequestDto dto,
+      ) async {
     try {
       final Uri uri = Uri.parse('${AppConfig.baseUrl}/patients/assign-nurse');
       final http.Response response = await http.post(

@@ -15,11 +15,20 @@ class PatientManagementRepositoryImpl implements PatientManagementRepository {
     return prefs.getString('auth_token') ?? '';
   }
 
+  // ✅ CAMBIADO: ahora devuelve List<Mother>
   @override
-  Future<Mother> searchMotherByDni(String search) async {
+  Future<List<Mother>> searchMotherByDni(String search) async {
     final token = await _token();
-    final dto = await service.searchMotherByDni(token, search);
-    return Mother(motherId: dto.motherId, fullName: dto.fullName, dni: dto.dni);
+    final dtos = await service.searchMotherByDni(token, search);
+    return dtos
+        .map(
+          (dto) => Mother(
+        motherId: dto.motherId,
+        fullName: dto.fullName,
+        dni: dto.dni,
+      ),
+    )
+        .toList();
   }
 
   @override
@@ -29,16 +38,16 @@ class PatientManagementRepositoryImpl implements PatientManagementRepository {
     return patients
         .map(
           (patient) => AssignablePatient(
-            patientId: patient.patientId,
-            patientName: patient.patientName,
-            patientLastName: patient.patientLastName,
-            gender: patient.gender,
-            status: patient.status,
-            statusAssignment: patient.statusAssignment == 'ASSIGNED'
-                ? AssignmentStatus.assigned
-                : AssignmentStatus.unassigned,
-          ),
-        )
+        patientId: patient.patientId,
+        patientName: patient.patientName,
+        patientLastName: patient.patientLastName,
+        gender: patient.gender,
+        status: patient.status,
+        statusAssignment: patient.statusAssignment == 'ASSIGNED'
+            ? AssignmentStatus.assigned
+            : AssignmentStatus.unassigned,
+      ),
+    )
         .toList();
   }
 

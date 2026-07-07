@@ -2,7 +2,8 @@ import 'package:ferova_clinic_flutter/feature/patient_management/domain/model/en
 import 'package:ferova_clinic_flutter/feature/patient_management/domain/model/entities/mother.dart';
 
 abstract class PatientManagementRepository {
-  Future<Mother> searchMotherByDni(String search);
+  // ✅ CAMBIADO: ahora devuelve List<Mother>
+  Future<List<Mother>> searchMotherByDni(String search);
 
   Future<List<AssignablePatient>> getMotherPatients(String motherId);
 

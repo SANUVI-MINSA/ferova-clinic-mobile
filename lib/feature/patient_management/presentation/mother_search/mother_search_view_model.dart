@@ -9,22 +9,38 @@ class MotherSearchViewModel extends ChangeNotifier {
   MotherSearchViewModel({required this.repository});
 
   Future<bool> searchMotherByDni(String search) async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true, errorMessage: null, mothers: []);
     notifyListeners();
 
     try {
-      final mother = await repository.searchMotherByDni(search);
+      // ✅ Ahora devuelve una lista completa
+      final mothers = await repository.searchMotherByDni(search);
+
       state = state.copyWith(
         isLoading: false,
-        mother: mother,
+        mothers: mothers, // ✅ Lista completa
         errorMessage: null,
       );
       notifyListeners();
       return true;
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'No se encontraron madres.',
+        mothers: [],
+      );
       notifyListeners();
       return false;
     }
+  }
+
+  // ✅ Método para limpiar la búsqueda
+  void clearSearch() {
+    state = state.copyWith(
+      mothers: [],
+      errorMessage: null,
+      selectedMother: null,
+    );
+    notifyListeners();
   }
 }
