@@ -18,22 +18,58 @@ class MedicalRecordPage extends StatefulWidget {
   State<MedicalRecordPage> createState() => _MedicalRecordPageState();
 }
 
-class _MedicalRecordPageState extends State<MedicalRecordPage> {
+class _MedicalRecordPageState extends State<MedicalRecordPage> with WidgetsBindingObserver {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    // ✅ Cargar datos después del primer frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MedicalRecordViewModel>().getNursePatients();
+      _loadData();
     });
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _searchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Cuando la app vuelve a primer plano, recargar
+    if (state == AppLifecycleState.resumed) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadData();
+      });
+    }
+  }
+
+  // ✅ Usar didUpdateWidget en lugar de didChangeDependencies
+  @override
+  void didUpdateWidget(covariant MedicalRecordPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Este método se llama cuando el widget se actualiza
+    // (por ejemplo, cuando el IndexedStack cambia de pestaña)
+    if (!_isFirstLoad) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadData();
+      });
+    }
+    _isFirstLoad = false;
+  }
+
+  void _loadData() {
+    if (!mounted) return;
+    final viewModel = context.read<MedicalRecordViewModel>();
+    debugPrint('🔄 Recargando pacientes en MedicalRecordPage');
+    viewModel.refresh();
   }
 
   void _navigateToRegister(String patientId, String patientName) {
@@ -42,7 +78,9 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
       MaterialPageRoute(
         builder: (_) => RegisterMedicalRecordPage(patientId: patientId),
       ),
-    );
+    ).then((_) {
+      if (mounted) _loadData();
+    });
   }
 
   void _navigateToViewHistory(String patientId) {
@@ -60,11 +98,12 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
       MaterialPageRoute(
         builder: (_) => UpdateMedicalRecordPage(patientId: patientId),
       ),
-    );
+    ).then((_) {
+      if (mounted) _loadData();
+    });
   }
 
   void _navigateToAssignPatient() {
-    // Usar el callback para ir a la pestaña de pacientes
     if (widget.onGoToPatients != null) {
       widget.onGoToPatients!();
     }
@@ -75,12 +114,14 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
     final viewModel = context.watch<MedicalRecordViewModel>();
     final MedicalRecordState state = viewModel.state;
 
+    debugPrint('🔍 MedicalRecord BUILD: isLoading=${state.isLoading}, pacientes=${state.patients.length}');
+
     final filteredPatients = state.patients
         .where(
           (patient) => patient.fullName.toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          ),
-        )
+        _searchQuery.toLowerCase(),
+      ),
+    )
         .toList();
 
     return Scaffold(
@@ -131,83 +172,83 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
               Expanded(
                 child: state.isLoading
                     ? const Center(
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF0D6EA8),
-                        ),
-                      )
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF0D6EA8),
+                  ),
+                )
                     : state.errorMessage != null
                     ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.error_outline_rounded,
-                                size: 64,
-                                color: Colors.grey[400],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Error: ${state.errorMessage}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[600],
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 24),
-                              ElevatedButton(
-                                onPressed: () => viewModel.getNursePatients(),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF0D6EA8),
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: const Text('Reintentar'),
-                              ),
-                            ],
-                          ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline_rounded,
+                          size: 64,
+                          color: Colors.grey[400],
                         ),
-                      )
-                    : state.patients.isEmpty
-                    ? MedicalRecordEmptyState(
-                        onAssignPatient: _navigateToAssignPatient,
-                      )
-                    : filteredPatients.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No se encontraron pacientes',
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error: ${state.errorMessage}',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                      )
-                    : ListView.separated(
-                        padding: EdgeInsets.zero,
-                        itemCount: filteredPatients.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          final patient = filteredPatients[index];
-                          final hasRecord = state.patientHasRecord[patient.id];
-
-                          return MedicalRecordPatientCard(
-                            patient: patient,
-                            hasRecord: hasRecord,
-                            onViewHistory: () =>
-                                _navigateToViewHistory(patient.id),
-                            onUpdate: () =>
-                                _navigateToUpdateHistory(patient.id),
-                            onRegister: () => _navigateToRegister(
-                              patient.id,
-                              patient.fullName,
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: _loadData,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0D6EA8),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          );
-                        },
+                          ),
+                          child: const Text('Reintentar'),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                    : state.patients.isEmpty
+                    ? MedicalRecordEmptyState(
+                  onAssignPatient: _navigateToAssignPatient,
+                )
+                    : filteredPatients.isEmpty
+                    ? Center(
+                  child: Text(
+                    'No se encontraron pacientes',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                )
+                    : ListView.separated(
+                  padding: EdgeInsets.zero,
+                  itemCount: filteredPatients.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final patient = filteredPatients[index];
+                    final hasRecord = state.patientHasRecord[patient.id];
+
+                    return MedicalRecordPatientCard(
+                      patient: patient,
+                      hasRecord: hasRecord,
+                      onViewHistory: () =>
+                          _navigateToViewHistory(patient.id),
+                      onUpdate: () =>
+                          _navigateToUpdateHistory(patient.id),
+                      onRegister: () => _navigateToRegister(
+                        patient.id,
+                        patient.fullName,
                       ),
+                    );
+                  },
+                ),
               ),
             ],
           ),

@@ -20,22 +20,53 @@ class HemoglobinControlPage extends StatefulWidget {
   State<HemoglobinControlPage> createState() => _HemoglobinControlPageState();
 }
 
-class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
+class _HemoglobinControlPageState extends State<HemoglobinControlPage> with WidgetsBindingObserver {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MedicalRecordViewModel>().getNursePatients();
+      _loadData();
     });
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _searchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadData();
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant HemoglobinControlPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_isFirstLoad) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadData();
+      });
+    }
+    _isFirstLoad = false;
+  }
+
+  void _loadData() {
+    if (!mounted) return;
+    final viewModel = context.read<MedicalRecordViewModel>();
+    debugPrint('🔄 Recargando pacientes en HemoglobinControlPage');
+    viewModel.refresh();
   }
 
   void _goToMedicalRecord() {
@@ -43,12 +74,10 @@ class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
   }
 
   void _navigateToAssignPatient() {
-    // Usar el callback para ir a la pestaña de pacientes
     if (widget.onGoToPatients != null) {
       widget.onGoToPatients!();
       Navigator.pop(context);
     } else {
-      // Fallback: navegar directamente si no hay callback
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -65,6 +94,9 @@ class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
         builder: (_) => NewHemoglobinControlPage(
           patientId: patient.id,
           patientName: patient.fullName,
+          onControlCreated: () {
+            if (mounted) _loadData();
+          },
         ),
       ),
     );
@@ -82,9 +114,9 @@ class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
     final filteredPatients = patientsWithRecord
         .where(
           (patient) => patient.fullName.toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          ),
-        )
+        _searchQuery.toLowerCase(),
+      ),
+    )
         .toList();
 
     return Scaffold(
@@ -158,12 +190,12 @@ class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
   }
 
   Widget _buildBody(
-    BuildContext context,
-    MedicalRecordViewModel viewModel,
-    MedicalRecordState state,
-    List<Patient> patientsWithRecord,
-    List<Patient> filteredPatients,
-  ) {
+      BuildContext context,
+      MedicalRecordViewModel viewModel,
+      MedicalRecordState state,
+      List<Patient> patientsWithRecord,
+      List<Patient> filteredPatients,
+      ) {
     if (state.isLoading || state.isCheckingRecords) {
       return const Center(
         child: CircularProgressIndicator(color: Color(0xFF0D6EA8)),
@@ -190,7 +222,7 @@ class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () => viewModel.getNursePatients(),
+                onPressed: _loadData,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0D6EA8),
                   foregroundColor: Colors.white,
