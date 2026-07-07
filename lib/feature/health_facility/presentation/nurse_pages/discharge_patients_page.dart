@@ -4,8 +4,11 @@ import 'package:ferova_clinic_flutter/feature/health_facility/presentation/nurse
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../patient_management/presentation/mother_search/mother_search_page.dart';
+
 class DischargePatientsPage extends StatefulWidget {
-  const DischargePatientsPage({super.key});
+  final VoidCallback? onGoToPatients;
+  const DischargePatientsPage({super.key, this.onGoToPatients});
 
   @override
   State<DischargePatientsPage> createState() => _DischargePatientsPageState();
@@ -33,6 +36,14 @@ class _DischargePatientsPageState extends State<DischargePatientsPage> {
   void _onSearchChanged(String value, DischargeViewModel viewModel) {
     setState(() => _searchTerm = value);
     viewModel.getPatients(searchTerm: value.isEmpty ? null : value, silent: true);
+  }
+
+  void _navigateToAssignPatient() {
+    // 👇 Usar el callback
+    if (widget.onGoToPatients != null) {
+      widget.onGoToPatients!();
+      Navigator.pop(context);
+    }
   }
 
   void _confirmDischarge(BuildContext context, DischargePatient patient) {
@@ -178,7 +189,7 @@ class _DischargePatientsPageState extends State<DischargePatientsPage> {
             width: double.infinity,
             child: ElevatedButton(
               // TODO: navegar a la sección de Pacientes (a cargo de Ariana)
-              onPressed: () {},
+              onPressed: _navigateToAssignPatient,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1A3A6B),
                 foregroundColor: Colors.white,

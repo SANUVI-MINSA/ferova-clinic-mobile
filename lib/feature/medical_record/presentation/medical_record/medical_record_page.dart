@@ -8,8 +8,11 @@ import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medica
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../patient_management/presentation/mother_search/mother_search_page.dart';
+
 class MedicalRecordPage extends StatefulWidget {
-  const MedicalRecordPage({super.key});
+  final VoidCallback? onGoToPatients;
+  const MedicalRecordPage({super.key, this.onGoToPatients});
 
   @override
   State<MedicalRecordPage> createState() => _MedicalRecordPageState();
@@ -61,7 +64,10 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> {
   }
 
   void _navigateToAssignPatient() {
-    // TODO: Navegar a la pestaña de Pacientes
+    // Usar el callback para ir a la pestaña de pacientes
+    if (widget.onGoToPatients != null) {
+      widget.onGoToPatients!();
+    }
   }
 
   @override

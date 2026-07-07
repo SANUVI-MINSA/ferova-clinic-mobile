@@ -7,11 +7,14 @@ import 'package:ferova_clinic_flutter/feature/medical_record/presentation/medica
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../patient_management/presentation/mother_search/mother_search_page.dart';
+
 const _titleBlue = Color(0xFF1D4ED8);
 const _titleRed = Color(0xFF7C0303);
 
 class HemoglobinControlPage extends StatefulWidget {
-  const HemoglobinControlPage({super.key});
+  final VoidCallback? onGoToPatients;
+  const HemoglobinControlPage({super.key, this.onGoToPatients});
 
   @override
   State<HemoglobinControlPage> createState() => _HemoglobinControlPageState();
@@ -40,7 +43,19 @@ class _HemoglobinControlPageState extends State<HemoglobinControlPage> {
   }
 
   void _navigateToAssignPatient() {
-    // TODO: Navegar a la pestaña de Pacientes
+    // Usar el callback para ir a la pestaña de pacientes
+    if (widget.onGoToPatients != null) {
+      widget.onGoToPatients!();
+      Navigator.pop(context);
+    } else {
+      // Fallback: navegar directamente si no hay callback
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MotherSearchPage(),
+        ),
+      );
+    }
   }
 
   void _navigateToRegisterControl(Patient patient) {

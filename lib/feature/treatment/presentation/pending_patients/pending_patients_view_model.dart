@@ -3,11 +3,13 @@ import 'package:ferova_clinic_flutter/feature/treatment/domain/repositories/trea
 import 'package:ferova_clinic_flutter/feature/treatment/presentation/pending_patients/pending_patients_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../../../patient_management/presentation/mother_search/mother_search_page.dart';
 import '../start_treatment/start_treatment_page.dart';
 
 class PendingPatientsViewModel extends ChangeNotifier {
   final TreatmentRepository repository;
   PendingPatientsState state = const PendingPatientsState();
+  VoidCallback? onGoToPatients;
 
   PendingPatientsViewModel({required this.repository}) {
     loadPendingPatients();
@@ -45,7 +47,12 @@ class PendingPatientsViewModel extends ChangeNotifier {
     );
   }
 
-  void assignPatients() {
-    // TODO: Navegar a la página de asignación de pacientes
+
+  void assignPatients(BuildContext context) {
+    // Usar el callback para ir a la pestaña de pacientes
+    if (onGoToPatients != null) {
+      onGoToPatients!();
+      Navigator.pop(context);
+    }
   }
 }
