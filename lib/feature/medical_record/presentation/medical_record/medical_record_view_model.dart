@@ -11,10 +11,6 @@ class MedicalRecordViewModel extends ChangeNotifier {
   MedicalRecordViewModel({required this.repository}) {}
 
   // ✅ NUEVO MÉTODO: Forzar recarga
-  Future<void> refresh() async {
-    await getNursePatients();
-  }
-
   Future<void> getNursePatients() async {
     state = state.copyWith(isLoading: true);
     notifyListeners();
@@ -37,24 +33,43 @@ class MedicalRecordViewModel extends ChangeNotifier {
   Future<void> checkPatientsMedicalRecord() async {
     state = state.copyWith(isCheckingRecords: true);
     notifyListeners();
+
     try {
-      final results = await Future.wait(
-        state.patients.map((patient) async {
+      final results = <String, bool>{};
+
+      for (final patient in state.patients) {
+        try {
           final hasRecord = await repository.checkMedicalRecord(patient.id);
-          return MapEntry(patient.id, hasRecord);
-        }),
-      );
+          results[patient.id] = hasRecord;
+          print('✅ checkPatientsMedicalRecord: ${patient.id} -> $hasRecord');
+        } catch (e) {
+          print('❌ Error checking record for ${patient.id}: $e');
+          results[patient.id] = state.patientHasRecord[patient.id] ?? false;
+        }
+      }
+
       state = state.copyWith(
         isCheckingRecords: false,
-        patientHasRecord: Map.fromEntries(results),
+        patientHasRecord: results,
         errorMessage: null,
       );
+      print('📊 patientHasRecord final: ${state.patientHasRecord}');
     } catch (e) {
       state = state.copyWith(
         isCheckingRecords: false,
         errorMessage: e.toString(),
       );
     }
+    notifyListeners();
+  }
+
+  void forcePatientHasRecord(String patientId) {
+    final updatedMap = Map<String, bool>.from(state.patientHasRecord);
+    updatedMap[patientId] = true;
+    state = state.copyWith(
+      patientHasRecord: updatedMap,
+    );
+    print('🔧 forcePatientHasRecord: $patientId -> true');
     notifyListeners();
   }
 
@@ -95,6 +110,10 @@ class MedicalRecordViewModel extends ChangeNotifier {
       );
     }
     notifyListeners();
+  }
+
+  Future<void> refresh() async {
+    await getNursePatients();
   }
 
   Future<void> updateMedicalRecord({

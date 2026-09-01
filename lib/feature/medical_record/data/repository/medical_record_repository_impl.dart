@@ -26,13 +26,23 @@ class MedicalRecordRepositoryImpl implements MedicalRecordRepository {
   @override
   Future<List<Patient>> getNursePatients() async {
     final token = await _token();
-    final response = await service.getNursePatients(token);
-    return response.patients
-        .map(
-          (patient) =>
-              Patient(id: patient.patientId, fullName: patient.fullName),
-        )
-        .toList();
+    try {
+      final response = await service.getNursePatients(token);
+      print('✅ getNursePatients - pacientes encontrados: ${response.patients.length}');
+
+      return response.patients
+          .map(
+            (patient) => Patient(
+          id: patient.patientId.isNotEmpty ? patient.patientId : 'unknown',
+          fullName: patient.fullName.isNotEmpty ? patient.fullName : 'Sin nombre',
+        ),
+      )
+          .toList();
+    } catch (e) {
+      print('❌ getNursePatients error: $e');
+      // ✅ En caso de error, retornar lista vacía en lugar de lanzar excepción
+      return [];
+    }
   }
 
   @override
@@ -124,8 +134,15 @@ class MedicalRecordRepositoryImpl implements MedicalRecordRepository {
   @override
   Future<bool> checkMedicalRecord(String patientId) async {
     final token = await _token();
-    final response = await service.checkMedicalRecord(token, patientId);
-    return response.hasMedicalRecord;
+    try {
+      final response = await service.checkMedicalRecord(token, patientId);
+      print('✅ checkMedicalRecord result for $patientId: ${response.hasMedicalRecord}');
+      return response.hasMedicalRecord;
+    } catch (e) {
+      print('❌ checkMedicalRecord repository error: $e');
+      // ✅ Si falla, retornar false (NO HISTORIAL)
+      return false;
+    }
   }
 
   @override

@@ -12,6 +12,8 @@ import 'package:ferova_clinic_flutter/feature/medical_record/data/dtos/get_patie
 import 'package:ferova_clinic_flutter/feature/medical_record/data/dtos/update_medical_record_request_dto.dart';
 import 'package:http/http.dart' as http;
 
+import '../dtos/patient_dto.dart';
+
 class MedicalRecordService {
   final String _baseUrl = '${AppConfig.baseUrl}/patients/medical-record';
 
@@ -27,14 +29,39 @@ class MedicalRecordService {
         uri,
         headers: _headers(token),
       );
+
+      print('📡 getNursePatients - Status: ${response.statusCode}');
+      print('📡 getNursePatients - Body: ${response.body}');
+
       if (response.statusCode == HttpStatus.ok) {
-        final json = jsonDecode(response.body) as Map<String, dynamic>;
-        final GetNursePatientsResponseDto dto =
-            GetNursePatientsResponseDto.fromJson(json);
-        return dto;
+        final dynamic json = jsonDecode(response.body);
+
+        // ✅ Verificar que la respuesta no sea null
+        if (json == null) {
+          throw Exception('La respuesta del servidor es null');
+        }
+
+        // ✅ Si la respuesta es directa (lista)
+        if (json is List) {
+          final patients = json.map((e) => PatientDto.fromJson(e as Map<String, dynamic>)).toList();
+          return GetNursePatientsResponseDto(
+            success: true,
+            status: 'SUCCESS',
+            patients: patients,
+            total: patients.length,
+          );
+        }
+
+        // ✅ Si la respuesta es un Map
+        if (json is Map<String, dynamic>) {
+          return GetNursePatientsResponseDto.fromJson(json);
+        }
+
+        throw Exception('Formato de respuesta inesperado');
       }
       throw Exception('Failed to fetch nurse patients. ${response.body}');
     } catch (e) {
+      print('❌ getNursePatients error: $e');
       throw Exception('Failed to get nurse patients. $e');
     }
   }
@@ -123,9 +150,9 @@ class MedicalRecordService {
   }
 
   Future<GetCheckMedicalRecordResponseDto> checkMedicalRecord(
-    String token,
-    String patientId,
-  ) async {
+      String token,
+      String patientId,
+      ) async {
     try {
       final Uri uri = Uri.parse(
         '${AppConfig.baseUrl}/patients/$patientId/medical-record/check',
@@ -134,12 +161,44 @@ class MedicalRecordService {
         uri,
         headers: _headers(token),
       );
+
+      print('📡 checkMedicalRecord - Status: ${response.statusCode}');
+      print('📡 checkMedicalRecord - Body: ${response.body}');
+      print('📡 checkMedicalRecord - patientId: $patientId');
+
       if (response.statusCode == HttpStatus.ok) {
-        final json = jsonDecode(response.body) as Map<String, dynamic>;
-        return GetCheckMedicalRecordResponseDto.fromJson(json);
+        final dynamic json = jsonDecode(response.body);
+
+        // ✅ Si la respuesta es un bool directo
+        if (json is bool) {
+          return GetCheckMedicalRecordResponseDto(
+            patientId: patientId,
+            hasMedicalRecord: json,
+          );
+        }
+
+        // ✅ Si la respuesta es un Map
+        if (json is Map<String, dynamic>) {
+          return GetCheckMedicalRecordResponseDto.fromJson(json);
+        }
+
+        // ✅ Si la respuesta es null
+        if (json == null) {
+          return GetCheckMedicalRecordResponseDto(
+            patientId: patientId,
+            hasMedicalRecord: false,
+          );
+        }
+
+        // ✅ Fallback
+        return GetCheckMedicalRecordResponseDto(
+          patientId: patientId,
+          hasMedicalRecord: false,
+        );
       }
       throw Exception('Failed to check medical record. ${response.body}');
     } catch (e) {
+      print('❌ checkMedicalRecord error: $e');
       throw Exception('Failed to check medical record. $e');
     }
   }

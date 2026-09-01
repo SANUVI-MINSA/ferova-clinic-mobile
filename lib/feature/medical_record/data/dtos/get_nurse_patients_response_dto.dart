@@ -14,14 +14,30 @@ class GetNursePatientsResponseDto {
   });
 
   factory GetNursePatientsResponseDto.fromJson(Map<String, dynamic> json) {
-    final data = json['data'] as Map<String, dynamic>;
+    // ✅ Verificar si la respuesta es directa
+    if (json.containsKey('patients') && json['patients'] is List) {
+      final patientsList = json['patients'] as List<dynamic>;
+      return GetNursePatientsResponseDto(
+        success: json['success'] as bool? ?? true,
+        status: json['status']?.toString() ?? 'SUCCESS',
+        patients: patientsList
+            .map((e) => PatientDto.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        total: patientsList.length,
+      );
+    }
+
+    // ✅ Respuesta anidada en 'data'
+    final data = json['data'] as Map<String, dynamic>? ?? {};
+    final patientsList = data['patients'] as List<dynamic>? ?? [];
+
     return GetNursePatientsResponseDto(
-      success: json['success'] as bool,
-      status: json['status'] as String,
-      patients: (data['patients'] as List<dynamic>)
+      success: json['success'] as bool? ?? true,
+      status: json['status']?.toString() ?? 'SUCCESS',
+      patients: patientsList
           .map((e) => PatientDto.fromJson(e as Map<String, dynamic>))
           .toList(),
-      total: data['total'] as int,
+      total: data['total'] as int? ?? patientsList.length,
     );
   }
 }

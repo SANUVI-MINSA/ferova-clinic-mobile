@@ -78,8 +78,13 @@ class _MedicalRecordPageState extends State<MedicalRecordPage> with WidgetsBindi
       MaterialPageRoute(
         builder: (_) => RegisterMedicalRecordPage(patientId: patientId),
       ),
-    ).then((_) {
-      if (mounted) _loadData();
+    ).then((result) {
+      if (result == true) {
+        // ✅ Forzar actualización inmediata
+        final viewModel = context.read<MedicalRecordViewModel>();
+        viewModel.forcePatientHasRecord(patientId);
+        _loadData();
+      }
     });
   }
 
