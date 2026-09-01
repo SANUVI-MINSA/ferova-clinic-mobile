@@ -94,24 +94,42 @@ class AdminFacilityService {
   }
 
   Future<AdminFacilityRegistrationResponseDto> postAdminFacility(
-    String token,
-    AdminFacilityRegistrationRequestDto request,
-  ) async {
+      String token,
+      AdminFacilityRegistrationRequestDto request,
+      ) async {
     try {
       final Uri uri = Uri.parse(_baseUrl);
+
+      // ✅ Log de la URL
+      print('📍 POST a: $uri');
+
+      final body = jsonEncode(request.toJson());
+      print('📦 Body: $body');
+
       final response = await http.post(
         uri,
         headers: _headers(token),
-        body: jsonEncode(request.toJson()),
+        body: body,
       );
+
+      print('📡 Status code: ${response.statusCode}');
+      print('📡 Response body: ${response.body}');
+
       if (response.statusCode == HttpStatus.created) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         return AdminFacilityRegistrationResponseDto.fromJson(json);
       }
-      throw Exception(
-        'Failed to fetch health facility registration. ${response.body}',
-      );
+
+      // ✅ Intentar decodificar el error del backend
+      try {
+        final errorJson = jsonDecode(response.body) as Map<String, dynamic>;
+        final errorMessage = errorJson['error'] ?? response.body;
+        throw Exception('Error del servidor: $errorMessage');
+      } catch (_) {
+        throw Exception('Error al registrar posta. Código: ${response.statusCode}');
+      }
     } catch (e) {
+      print('❌ Error en postAdminFacility: $e');
       throw Exception('Failed to post health facility. $e');
     }
   }

@@ -22,16 +22,31 @@ class AdminFacilityRegistrationRequestDto {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    // ✅ Validar que ningún campo sea null o vacío
+    final json = {
       'name': name,
       'address': address,
       'districtId': districtId,
       'latitude': latitude,
       'longitude': longitude,
       'phoneNumber': phoneNumber,
-      'services': services,
-      'availableDays': availableDays,
-      'availableSlots': availableSlots,
+      'services': services.isNotEmpty ? services : [],
+      'availableDays': availableDays.isNotEmpty ? availableDays : [],
+      'availableSlots': availableSlots.isNotEmpty ? availableSlots : [],
     };
+
+    // ✅ Log para depuración
+    print('📤 Registrando posta:');
+    print('  name: $name');
+    print('  address: $address');
+    print('  districtId: $districtId');
+    print('  latitude: $latitude');
+    print('  longitude: $longitude');
+    print('  phoneNumber: $phoneNumber');
+    print('  services: $services');
+    print('  availableDays: $availableDays');
+    print('  availableSlots: $availableSlots');
+
+    return json;
   }
 }

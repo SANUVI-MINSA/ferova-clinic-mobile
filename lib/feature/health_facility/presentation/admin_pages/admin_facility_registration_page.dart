@@ -210,8 +210,61 @@ class _AdminFacilityRegistrationPageState
   }
 
   Future<void> _submitRegistration() async {
+    // ✅ Validar todos los campos antes de enviar
+    if (_facilityNameController.text.trim().isEmpty) {
+      _showError('El nombre de la posta es requerido');
+      return;
+    }
+
+    if (_addressController.text.trim().isEmpty) {
+      _showError('La dirección es requerida');
+      return;
+    }
+
+    if (_selectedDistrictId == null || _selectedDistrictId!.isEmpty) {
+      _showError('El distrito es requerido');
+      return;
+    }
+
+    if (_latitude == null || _longitude == null) {
+      _showError('La ubicación en el mapa es requerida');
+      return;
+    }
+
+    if (_services.isEmpty) {
+      _showError('Debes seleccionar al menos un servicio');
+      return;
+    }
+
+    if (_availableDays.isEmpty) {
+      _showError('Debes seleccionar al menos un día de atención');
+      return;
+    }
+
+    if (_availableSlots.isEmpty) {
+      _showError('Debes seleccionar al menos un horario de atención');
+      return;
+    }
+
+    final String phoneNumber = _phoneNumberController.text.trim();
+    if (phoneNumber.length != 9) {
+      _showError('El teléfono debe tener 9 dígitos');
+      return;
+    }
+
     final String fullPhoneNumber = '+51${_phoneNumberController.text.trim()}';
     final viewModel = context.read<AdminFacilityViewModel>();
+
+    // ✅ Log de todos los datos
+    print('✅ Enviando registro de posta:');
+    print('  Nombre: ${_facilityNameController.text.trim()}');
+    print('  Dirección: ${_addressController.text.trim()}');
+    print('  Distrito ID: $_selectedDistrictId');
+    print('  Lat/Lng: $_latitude / $_longitude');
+    print('  Teléfono: $fullPhoneNumber');
+    print('  Servicios: $_services');
+    print('  Días: $_availableDays');
+    print('  Horarios: $_availableSlots');
 
     await viewModel.registerAdminFacility(
       _facilityNameController.text.trim(),
@@ -262,6 +315,15 @@ class _AdminFacilityRegistrationPageState
     }
   }
 
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     final bool isLoading = context

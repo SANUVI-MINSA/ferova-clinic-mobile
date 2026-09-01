@@ -35,6 +35,7 @@ class AdminFacilityViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+
   Future<void> canRegisterFacility() async {
     state = state.copyWith(
       isLoadingNurseAvailability: true,
@@ -47,7 +48,7 @@ class AdminFacilityViewModel extends ChangeNotifier {
           .canRegisterFacility();
       state = state.copyWith(
         isLoadingNurseAvailability: false,
-        canRegisterFacilty: response.available,
+        canRegisterFacilty: response.canRegister,
       );
     } catch (e) {
       state = state.copyWith(
