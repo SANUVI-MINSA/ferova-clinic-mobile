@@ -70,39 +70,65 @@ class MedicalRecordRepositoryImpl implements MedicalRecordRepository {
   @override
   Future<MedicalRecord> getMedicalRecord(String patientId) async {
     final token = await _token();
-    final response = await service.getPatientMedicalRecord(token, patientId);
-    return MedicalRecord(
-      id: response.id,
-      patientId: response.patientId,
-      patientName: response.patientName,
-      lastUpdated: response.updatedAt,
-      gender: response.gender,
-      weight: response.weight,
-      height: response.height,
-      controls: response.controls
-          .map(
-            (control) => HemoglobinControl(
-              id: control.id,
-              date: control.date,
-              hemoglobinLevel: control.hemoglobinLevel,
-              anemiaStatus: control.anemiaStatus,
-            ),
-          )
-          .toList(),
-      consultationReason: response.motivoConsulta,
-      observations: response.observaciones,
-      patientHistories: response.antecedentes
-          .map(
-            (history) => PatientHistory(
-              type: history.type,
-              description: history.description,
-            ),
-          )
-          .toList(),
-      symptoms: response.sintomas,
-    );
+
+    try {
+      // Obtener el historial médico
+      final response = await service.getPatientMedicalRecord(token, patientId);
+
+      // Obtener el nombre del paciente (opcional: desde otro endpoint)
+      // Si no tienes un endpoint para obtener el paciente, usa un valor por defecto
+      final patientName = await _getPatientName(token, patientId);
+
+      return MedicalRecord(
+        id: response.id,
+        patientId: response.patientId,
+        patientName: patientName,
+        lastUpdated: response.updatedAt,
+        gender: response.gender,
+        weight: response.weight,
+        height: response.height,
+        controls: response.controls
+            .map(
+              (control) => HemoglobinControl(
+            id: control.id,
+            date: control.date,
+            hemoglobinLevel: control.hemoglobinLevel,
+            anemiaStatus: control.anemiaStatus,
+          ),
+        )
+            .toList(),
+        consultationReason: response.motivoConsulta,
+        observations: response.observaciones,
+        patientHistories: response.antecedentes
+            .map(
+              (history) => PatientHistory(
+            type: history.type,
+            description: history.description,
+          ),
+        )
+            .toList(),
+        symptoms: response.sintomas,
+      );
+    } catch (e) {
+      print('❌ getMedicalRecord error: $e');
+      rethrow;
+    }
   }
 
+// ✅ Método auxiliar para obtener el nombre del paciente
+  Future<String> _getPatientName(String token, String patientId) async {
+    try {
+      // Si tienes un endpoint para obtener información básica del paciente
+      // final patient = await service.getPatientBasicInfo(token, patientId);
+      // return '${patient.name} ${patient.lastName}';
+
+      // Por ahora, retornamos un nombre por defecto
+      return 'Paciente';
+    } catch (e) {
+      print('❌ Error getting patient name: $e');
+      return 'Paciente';
+    }
+  }
   @override
   Future<void> updateMedicalRecord(MedicalRecord updatedMedicalRecord) async {
     final token = await _token();

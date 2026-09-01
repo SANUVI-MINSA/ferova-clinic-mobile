@@ -1,4 +1,3 @@
-//equivalente a antecedentes en la API
 class PatientHistoryDto {
   final String type;
   final String description;
@@ -7,8 +6,8 @@ class PatientHistoryDto {
 
   factory PatientHistoryDto.fromJson(Map<String, dynamic> json) {
     return PatientHistoryDto(
-      type: json['type'] as String,
-      description: json['description'] as String,
+      type: json['type']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
     );
   }
 

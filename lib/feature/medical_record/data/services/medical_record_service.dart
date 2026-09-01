@@ -87,9 +87,9 @@ class MedicalRecordService {
   }
 
   Future<GetPatientMedicalRecordResponseDto> getPatientMedicalRecord(
-    String token,
-    String patientId,
-  ) async {
+      String token,
+      String patientId,
+      ) async {
     try {
       final Uri uri = Uri.parse(
         '${AppConfig.baseUrl}/patients/$patientId/medical-record',
@@ -98,14 +98,31 @@ class MedicalRecordService {
         uri,
         headers: _headers(token),
       );
+
+      print('📡 getPatientMedicalRecord - Status: ${response.statusCode}');
+      print('📡 getPatientMedicalRecord - Body: ${response.body}');
+
       if (response.statusCode == HttpStatus.ok) {
-        final json = jsonDecode(response.body) as Map<String, dynamic>;
-        return GetPatientMedicalRecordResponseDto.fromJson(json);
+        final dynamic json = jsonDecode(response.body);
+
+        if (json == null) {
+          throw Exception('El paciente no tiene historial médico');
+        }
+
+        if (json is Map<String, dynamic>) {
+          return GetPatientMedicalRecordResponseDto.fromJson(json);
+        }
+
+        throw Exception('Formato de respuesta inesperado');
       }
-      throw Exception(
-        'Failed to get patient\'s medical record. ${response.body}',
-      );
+
+      if (response.statusCode == HttpStatus.notFound) {
+        throw Exception('El paciente no tiene historial médico');
+      }
+
+      throw Exception('Failed to get patient\'s medical record. ${response.body}');
     } catch (e) {
+      print('❌ getPatientMedicalRecord error: $e');
       throw Exception('Failed to get patient\'s medical record. $e');
     }
   }

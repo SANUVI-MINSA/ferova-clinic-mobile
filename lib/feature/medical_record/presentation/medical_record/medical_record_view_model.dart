@@ -167,8 +167,10 @@ class MedicalRecordViewModel extends ChangeNotifier {
         recordErrorMessage: null,
       );
     } catch (e) {
+      print('❌ getMedicalRecord error: $e');
       state = state.copyWith(
         isLoadingRecord: false,
+        medicalRecord: null,
         recordErrorMessage: e.toString(),
       );
     }
