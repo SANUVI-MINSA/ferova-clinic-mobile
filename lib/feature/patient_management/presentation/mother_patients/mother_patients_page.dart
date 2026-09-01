@@ -24,10 +24,25 @@ class _MotherPatientsPageState extends State<MotherPatientsPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MotherPatientsViewModel>().getMotherPatients(
+      _loadPatients();
+    });
+  }
+
+  Future<void> _loadPatients() async {
+    try {
+      await context.read<MotherPatientsViewModel>().getMotherPatients(
         widget.motherId,
       );
-    });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al cargar pacientes: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _assignPatient(String patientId) async {

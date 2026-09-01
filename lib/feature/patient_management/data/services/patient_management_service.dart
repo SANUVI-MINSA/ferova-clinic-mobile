@@ -52,16 +52,31 @@ class PatientManagementService {
         uri,
         headers: _headers(token),
       );
+
+      print('📡 getMotherPatients - Status: ${response.statusCode}');
+      print('📡 getMotherPatients - Body: ${response.body}');
+
       if (response.statusCode == HttpStatus.ok) {
-        final json = jsonDecode(response.body) as List<dynamic>;
-        return json
-            .map(
-              (e) => AssignablePatientDto.fromJson(e as Map<String, dynamic>),
-        )
+        final dynamic json = jsonDecode(response.body);
+
+        // ✅ Manejar tanto lista como objeto único
+        List<dynamic> list;
+        if (json is List) {
+          list = json;
+        } else if (json is Map<String, dynamic>) {
+          // Si es un objeto único, convertirlo a lista
+          list = [json];
+        } else {
+          list = [];
+        }
+
+        return list
+            .map((e) => AssignablePatientDto.fromJson(e as Map<String, dynamic>))
             .toList();
       }
       throw Exception('Failed to get mother\'s patients. ${response.body}');
     } catch (e) {
+      print('❌ getMotherPatients error: $e');
       throw Exception('Failed to get mother\'s patients. $e');
     }
   }

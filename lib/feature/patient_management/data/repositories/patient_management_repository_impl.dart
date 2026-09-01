@@ -34,21 +34,33 @@ class PatientManagementRepositoryImpl implements PatientManagementRepository {
   @override
   Future<List<AssignablePatient>> getMotherPatients(String motherId) async {
     final token = await _token();
-    final patients = await service.getMotherPatients(token, motherId);
-    return patients
-        .map(
-          (patient) => AssignablePatient(
-        patientId: patient.patientId,
-        patientName: patient.patientName,
-        patientLastName: patient.patientLastName,
-        gender: patient.gender,
-        status: patient.status,
-        statusAssignment: patient.statusAssignment == 'ASSIGNED'
-            ? AssignmentStatus.assigned
-            : AssignmentStatus.unassigned,
-      ),
-    )
-        .toList();
+    try {
+      final patients = await service.getMotherPatients(token, motherId);
+
+      // ✅ Si la lista está vacía, retornar lista vacía
+      if (patients.isEmpty) {
+        return [];
+      }
+
+      return patients
+          .map(
+            (patient) => AssignablePatient(
+          patientId: patient.patientId,
+          patientName: patient.patientName,
+          patientLastName: patient.patientLastName,
+          gender: patient.gender,
+          status: patient.status,
+          statusAssignment: patient.statusAssignment == 'ASSIGNED'
+              ? AssignmentStatus.assigned
+              : AssignmentStatus.unassigned,
+        ),
+      )
+          .toList();
+    } catch (e) {
+      print('❌ Error en getMotherPatients: $e');
+      // ✅ En lugar de lanzar excepción, retornar lista vacía
+      return [];
+    }
   }
 
   @override

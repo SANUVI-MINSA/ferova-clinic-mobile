@@ -17,7 +17,7 @@ class AssignablePatient {
     required this.statusAssignment,
   });
 
-  String get fullName => '$patientName $patientLastName';
+  String get fullName => '$patientName $patientLastName'.trim();
 
   AssignablePatient copyWith({AssignmentStatus? statusAssignment}) {
     return AssignablePatient(

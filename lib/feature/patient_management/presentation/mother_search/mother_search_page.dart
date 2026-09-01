@@ -33,6 +33,17 @@ class _MotherSearchPageState extends State<MotherSearchPage> {
   }
 
   void _navigateToMotherPatients(Mother mother) {
+    // ✅ Validar que el ID no esté vacío
+    if (mother.motherId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error: ID de madre inválido'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(

@@ -17,12 +17,12 @@ class AssignablePatientDto {
 
   factory AssignablePatientDto.fromJson(Map<String, dynamic> json) {
     return AssignablePatientDto(
-      patientId: json['patientId'] as String,
-      patientName: json['patientName'] as String,
-      patientLastName: json['patientLastName'] as String,
-      gender: json['gender'] as String,
-      status: json['status'] as String,
-      statusAssignment: json['statusAssignment'] as String,
+      patientId: json['patientId']?.toString() ?? json['id']?.toString() ?? '',
+      patientName: json['patientName']?.toString() ?? json['name']?.toString() ?? '',
+      patientLastName: json['patientLastName']?.toString() ?? json['lastName']?.toString() ?? '',
+      gender: json['gender']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      statusAssignment: json['statusAssignment']?.toString() ?? json['statusAssignment'] ?? 'UNASSIGNED',
     );
   }
 }
