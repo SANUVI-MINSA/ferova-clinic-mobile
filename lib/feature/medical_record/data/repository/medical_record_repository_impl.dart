@@ -67,26 +67,23 @@ class MedicalRecordRepositoryImpl implements MedicalRecordRepository {
     await service.createMedicalRecord(token, dto);
   }
 
+  // medical_record/domain/repository/medical_record_repository_impl.dart
+
   @override
   Future<MedicalRecord> getMedicalRecord(String patientId) async {
     final token = await _token();
 
     try {
-      // Obtener el historial médico
       final response = await service.getPatientMedicalRecord(token, patientId);
-
-      // Obtener el nombre del paciente (opcional: desde otro endpoint)
-      // Si no tienes un endpoint para obtener el paciente, usa un valor por defecto
-      final patientName = await _getPatientName(token, patientId);
 
       return MedicalRecord(
         id: response.id,
         patientId: response.patientId,
-        patientName: patientName,
+        patientName: response.patientName,  // ✅ AHORA VIENE DEL BACKEND
         lastUpdated: response.updatedAt,
         gender: response.gender,
         weight: response.weight,
-        height: response.height,
+        height: response.height.toInt(),  // Convertir double a int
         controls: response.controls
             .map(
               (control) => HemoglobinControl(
