@@ -66,6 +66,17 @@ class MotherPatientsViewModel extends ChangeNotifier {
   }
 
   Future<AssignNurseResult> assignNurseToPatient(String patientId) async {
+    // ✅ Verificar si ya está asignado ANTES de empezar
+    final existingPatient = state.patients.firstWhere(
+          (p) => p.patientId == patientId,
+      orElse: () => throw Exception('Paciente no encontrado'),
+    );
+
+    if (existingPatient.isAssigned) {
+      // ✅ Si ya está asignado, retornar éxito sin hacer nada
+      return AssignNurseResult.success;
+    }
+
     state = state.copyWith(
       isAssigning: true,
       assigningPatientId: patientId,
@@ -75,13 +86,15 @@ class MotherPatientsViewModel extends ChangeNotifier {
 
     try {
       await repository.assignNurseToPatient(patientId);
-      final updatedPatients = state.patients
-          .map(
-            (patient) => patient.patientId == patientId
-                ? patient.copyWith(statusAssignment: AssignmentStatus.assigned)
-                : patient,
-          )
-          .toList();
+
+      // ✅ Actualizar el estado del paciente a ASSIGNED
+      final updatedPatients = state.patients.map((patient) {
+        if (patient.patientId == patientId) {
+          return patient.copyWith(statusAssignment: AssignmentStatus.assigned);
+        }
+        return patient;
+      }).toList();
+
       state = state.copyWith(
         isAssigning: false,
         assigningPatientId: null,

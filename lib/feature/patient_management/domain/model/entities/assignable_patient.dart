@@ -1,3 +1,4 @@
+// assignable_patient.dart
 enum AssignmentStatus { assigned, unassigned }
 
 class AssignablePatient {
@@ -19,13 +20,23 @@ class AssignablePatient {
 
   String get fullName => '$patientName $patientLastName'.trim();
 
-  AssignablePatient copyWith({AssignmentStatus? statusAssignment}) {
+  // ✅ Getter para saber si está asignado
+  bool get isAssigned => statusAssignment == AssignmentStatus.assigned;
+
+  AssignablePatient copyWith({
+    String? patientId,
+    String? patientName,
+    String? patientLastName,
+    String? gender,
+    String? status,
+    AssignmentStatus? statusAssignment,
+  }) {
     return AssignablePatient(
-      patientId: patientId,
-      patientName: patientName,
-      patientLastName: patientLastName,
-      gender: gender,
-      status: status,
+      patientId: patientId ?? this.patientId,
+      patientName: patientName ?? this.patientName,
+      patientLastName: patientLastName ?? this.patientLastName,
+      gender: gender ?? this.gender,
+      status: status ?? this.status,
       statusAssignment: statusAssignment ?? this.statusAssignment,
     );
   }

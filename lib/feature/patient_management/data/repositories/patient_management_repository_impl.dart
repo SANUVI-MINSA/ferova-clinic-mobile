@@ -15,7 +15,6 @@ class PatientManagementRepositoryImpl implements PatientManagementRepository {
     return prefs.getString('auth_token') ?? '';
   }
 
-  // ✅ CAMBIADO: ahora devuelve List<Mother>
   @override
   Future<List<Mother>> searchMotherByDni(String search) async {
     final token = await _token();
@@ -37,7 +36,6 @@ class PatientManagementRepositoryImpl implements PatientManagementRepository {
     try {
       final patients = await service.getMotherPatients(token, motherId);
 
-      // ✅ Si la lista está vacía, retornar lista vacía
       if (patients.isEmpty) {
         return [];
       }
@@ -50,6 +48,7 @@ class PatientManagementRepositoryImpl implements PatientManagementRepository {
           patientLastName: patient.patientLastName,
           gender: patient.gender,
           status: patient.status,
+          // ✅ Usar el statusAssignment del DTO
           statusAssignment: patient.statusAssignment == 'ASSIGNED'
               ? AssignmentStatus.assigned
               : AssignmentStatus.unassigned,
@@ -58,7 +57,6 @@ class PatientManagementRepositoryImpl implements PatientManagementRepository {
           .toList();
     } catch (e) {
       print('❌ Error en getMotherPatients: $e');
-      // ✅ En lugar de lanzar excepción, retornar lista vacía
       return [];
     }
   }
