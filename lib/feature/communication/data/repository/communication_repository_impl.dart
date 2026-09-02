@@ -76,8 +76,6 @@ class CommunicationRepositoryImpl implements CommunicationRepository {
     final response = await service.getChat(token, consultationId);
     return Chat(
       consultationId: response.consultationId,
-      patientId: response.patientId,
-      nurseId: response.nurseId,
       messages: response.messages
           .map(
             (dto) => ChatMessage(
